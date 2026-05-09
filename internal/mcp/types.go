@@ -36,11 +36,45 @@ type Service interface {
 	Detect(ctx context.Context, opts application.DetectOptions) (application.Config, error)
 }
 
+// Mode controls which tools the MCP server advertises to its client.
+//
+// # Why mode-aware exposure
+//
+// AI coding agents reliably select among a small (≤5–7) tool surface but
+// degrade as the surface grows. coverctl exposes nine tools by default;
+// only three are useful inside the agent edit loop (check, suggest, debt).
+// The other six (init, report, record, badge, compare, pr-comment) belong
+// to setup or CI/automation contexts where agents do not benefit from
+// seeing them.
+//
+// ModeAgent advertises only the three agent-loop tools. ModeCI advertises
+// the full set. The default is ModeAgent so agent-side adoption is the
+// happy path; CI/automation jobs opt into the wider surface explicitly.
+type Mode string
+
+const (
+	ModeAgent Mode = "agent"
+	ModeCI    Mode = "ci"
+)
+
+// The canonical agent-mode tool set is check, suggest, debt — wired
+// directly in registerTools rather than indexed via a separate map. Why
+// each tool earns its place:
+//
+//   - check: the wedge metric — coverage feedback in the edit loop.
+//   - suggest: actionable threshold guidance derived from current coverage.
+//   - debt: ranked list of smallest tests to add, agent-actionable.
+//
+// init/report/record/badge/compare/pr-comment are setup, dashboarding, or
+// CI-side concerns; they are intentionally absent from agent mode and
+// available under ModeCI.
+
 // Config holds MCP server configuration.
 type Config struct {
 	ConfigPath  string // Path to .coverctl.yaml (default: ".coverctl.yaml")
 	HistoryPath string // Path to history file (default: ".cover/history.json")
 	ProfilePath string // Path to coverage profile (default: ".cover/coverage.out")
+	Mode        Mode   // Tool-surface mode (default: ModeAgent).
 }
 
 // DefaultConfig returns configuration with default values.
@@ -49,6 +83,7 @@ func DefaultConfig() Config {
 		ConfigPath:  ".coverctl.yaml",
 		HistoryPath: ".cover/history.json",
 		ProfilePath: ".cover/coverage.out",
+		Mode:        ModeAgent,
 	}
 }
 
@@ -71,6 +106,8 @@ type CheckInput struct {
 	// Incremental mode
 	Incremental    bool   `json:"incremental,omitempty" jsonschema:"description=Only test packages with changed files"`
 	IncrementalRef string `json:"incrementalRef,omitempty" jsonschema:"description=Git ref to compare against for incremental mode (default: HEAD~1)"`
+	// Output budget
+	Verbosity string `json:"verbosity,omitempty" jsonschema:"description=Output detail: 'brief' (failing rows only, capped) | 'normal' (default, soft cap) | 'verbose' (no truncation)"`
 }
 
 // ReportInput defines the input parameters for the report tool.
@@ -80,6 +117,7 @@ type ReportInput struct {
 	Domains       []string `json:"domains,omitempty" jsonschema:"description=Filter to specific domains"`
 	ShowUncovered bool     `json:"showUncovered,omitempty" jsonschema:"description=Show only files with 0%% coverage"`
 	DiffRef       string   `json:"diffRef,omitempty" jsonschema:"description=Git ref for diff-based filtering"`
+	Verbosity     string   `json:"verbosity,omitempty" jsonschema:"description=Output detail: 'brief' | 'normal' (default) | 'verbose'"`
 }
 
 // RecordInput defines the input parameters for the record tool.
@@ -137,6 +175,7 @@ type SuggestInput struct {
 type DebtInput struct {
 	ConfigPath string `json:"configPath,omitempty" jsonschema:"description=Path to .coverctl.yaml config file"`
 	Profile    string `json:"profile,omitempty" jsonschema:"description=Path to coverage profile"`
+	Verbosity  string `json:"verbosity,omitempty" jsonschema:"description=Output detail: 'brief' | 'normal' (default) | 'verbose'"`
 }
 
 // BadgeInput defines the input parameters for the badge tool.
@@ -153,6 +192,7 @@ type CompareInput struct {
 	ConfigPath  string `json:"configPath,omitempty" jsonschema:"description=Path to .coverctl.yaml config file"`
 	BaseProfile string `json:"baseProfile" jsonschema:"description=Path to the base coverage profile (required)"`
 	HeadProfile string `json:"headProfile,omitempty" jsonschema:"description=Path to the head coverage profile to compare against"`
+	Verbosity   string `json:"verbosity,omitempty" jsonschema:"description=Output detail: 'brief' | 'normal' (default) | 'verbose'"`
 }
 
 // PRCommentInput defines the input parameters for the pr-comment tool.

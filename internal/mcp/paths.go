@@ -33,7 +33,12 @@ func validateScopedInputs(paths ...namedPath) error {
 			continue
 		}
 		if _, err := pathutil.ValidateScopedPath(p.value, root); err != nil {
-			return fmt.Errorf("rejected MCP input %s=%q: %w", p.name, p.value, err)
+			return &SanitizationError{
+				Field:  p.name,
+				Value:  p.value,
+				Reason: err.Error(),
+				Code:   CodePathScope,
+			}
 		}
 	}
 	return nil

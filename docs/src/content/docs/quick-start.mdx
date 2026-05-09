@@ -1,11 +1,20 @@
 ---
-title: Quick Start
-description: Get started with coverctl in 5 minutes
+title: Quick Start (Terminal)
+description: Get started with coverctl in 5 minutes from your terminal — first coverage check on your existing project.
 ---
 
-import { Steps } from '@astrojs/starlight/components';
+import { Steps, CardGrid, LinkCard } from '@astrojs/starlight/components';
 
-This guide will help you set up coverctl in your project and run your first coverage check.
+:::tip[Using an AI coding agent?]
+If you mostly work in **Claude Code, Cursor, or Cline**, follow the
+[Quick Start (AI Agent)](/coverctl/quick-start-agent/) instead. coverctl is
+designed to give agents in-loop coverage feedback before commit — most of the
+value lands when the agent calls coverctl directly.
+:::
+
+This guide sets up coverctl from your terminal and runs your first coverage
+check from the command line. The same `.coverctl.yaml` works whether you call
+coverctl from a terminal or from an AI agent later.
 
 ## Prerequisites
 
@@ -16,6 +25,34 @@ This guide will help you set up coverctl in your project and run your first cove
 :::note[Language Auto-Detection]
 coverctl automatically detects your project language based on configuration files like `go.mod`, `pyproject.toml`, `package.json`, `Cargo.toml`, `pom.xml`, `composer.json`, `Gemfile`, `Package.swift`, `pubspec.yaml`, `build.sbt`, `mix.exs`, and more.
 :::
+
+## Where coverctl works best (and where it may need adjustments)
+
+Calibrate expectations before you start.
+
+**Works best**
+
+- Standard Go, Python, TypeScript/JavaScript, Java, Rust projects with a
+  conventional layout (one language per repo or clearly separated
+  per-package).
+- Repos with an existing test suite that produces coverage output (`go
+  test -cover`, `pytest --cov`, `nyc`/`c8`, `cargo tarpaulin`, JaCoCo).
+- Domain-level enforcement (`internal/payments`, `src/api`, ...) — this
+  is the differentiated capability.
+
+**May need adjustments**
+
+- **Mock-heavy codebases.** Line coverage measures execution, not
+  quality; in repos where most logic lives behind mocks, thresholds
+  alone can be misleading. Pair with `coverctl debt` and code-review
+  judgment.
+- **Exotic or mixed monorepos** (matrix builds, multiple workspaces in
+  one Cargo project, mixed Bazel + npm). The `monorepo` guide covers
+  the supported shapes; one-off layouts may need an explicit `domains`
+  block.
+- **Smaller-ecosystem languages** (Shell, Dart, Scala, Elixir). Parsing
+  and runner support are real but less battle-tested than Go/Python/JS.
+  File issues with a sample profile if something looks off.
 
 ## Setup
 
@@ -44,6 +81,12 @@ coverctl automatically detects your project language based on configuration file
    Use `coverctl init --no-interactive` in CI/CD pipelines to skip the wizard.
    :::
 
+   :::caution[If this fails]
+   - **"no language detected"**: pass `--language=<go|python|typescript|java|rust|...>` explicitly. coverctl looks for `go.mod`, `pyproject.toml`, `package.json`, `Cargo.toml`, `pom.xml` and similar markers — empty or mixed repos may need a hint.
+   - **Permission denied writing `.coverctl.yaml`**: run from your repo root with write access.
+   - **Wizard exits unexpectedly**: `Ctrl+C` is safe — no partial config is written. Re-running `coverctl init` is idempotent and prompts before overwriting an existing `.coverctl.yaml`.
+   :::
+
 3. **Run coverage check**
 
    ```bash
@@ -55,16 +98,40 @@ coverctl automatically detects your project language based on configuration file
    - Evaluate coverage per domain
    - Report pass/fail status for each domain
 
+   :::caution[If this fails]
+   - **"command not found" for your language toolchain**: install the missing tool. Examples: `pip install pytest pytest-cov` (Python), `npm install --save-dev nyc` or `c8` (JS/TS), `cargo install cargo-tarpaulin` (Rust), `gem install simplecov` (Ruby).
+   - **One or more domains FAIL on first run**: this is normal — `coverctl init` sets thresholds near current coverage to leave room to grow. Run `coverctl suggest <domain>` to see uncovered files, or `coverctl debt` to list smallest tests-to-add. Lower the threshold in `.coverctl.yaml` only if it is genuinely too high.
+   - **"profile not found"**: check that the `profile:` path in `.coverctl.yaml` matches what your test runner produces. Common mismatches: `coverage.xml` vs `coverage/lcov.info` vs `coverage.out`.
+   - **"no tests detected"**: confirm your repo has tests in the locations your language tool expects (e.g., `*_test.go`, `tests/`, `__tests__/`). coverctl runs your existing test suite; it does not generate tests.
+   :::
+
 4. **Review results**
 
+   On a real first run with thresholds set near current coverage, expect a
+   mix of PASS and FAIL. A failing domain is normal — coverctl tells you
+   exactly what to do next:
+
    ```
-   Domain     Coverage  Required  Status
-   ─────────────────────────────────────
-   core         87.3%      85%    PASS
-   api          81.2%      80%    PASS
-   cli          76.4%      75%    PASS
-   ─────────────────────────────────────
-   Overall      82.1%      75%    PASS
+   Domain  Coverage  Required  Status
+   core    87.3%     85.0%     PASS
+   api     72.1%     80.0%     FAIL (-7.9%)
+   cli     76.4%     75.0%     PASS
+
+   ✗ 1 of 3 domains below threshold.
+     → coverctl suggest api    show uncovered files in failing domain
+     → coverctl debt           list smallest tests to add
+   ```
+
+   When every domain passes, the footer points at the next step:
+
+   ```
+   Domain  Coverage  Required  Status
+   core    87.3%     85.0%     PASS
+   api     81.2%     80.0%     PASS
+   cli     76.4%     75.0%     PASS
+
+   ✓ All 3 domain(s) pass.
+     → coverctl record         save coverage baseline for next run
    ```
 
 </Steps>

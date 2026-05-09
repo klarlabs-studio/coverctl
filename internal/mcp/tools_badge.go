@@ -19,7 +19,7 @@ func (s *Server) handleBadge(ctx context.Context, input BadgeInput) (map[string]
 	}
 
 	opts := application.BadgeOptions{
-		ConfigPath: s.resolveConfigPath(input.ConfigPath),
+		ConfigPath:  s.resolveConfigPath(input.ConfigPath),
 		ProfilePath: coalesce(input.Profile, s.config.ProfilePath),
 		Output:      coalesce(input.Output, "svg"),
 		Label:       coalesce(input.Label, "coverage"),
@@ -28,9 +28,9 @@ func (s *Server) handleBadge(ctx context.Context, input BadgeInput) (map[string]
 
 	result, err := s.svc.Badge(ctx, opts)
 	output := map[string]any{
-		"passed":    err == nil,
-		"percent":   result.Percent,
-		"summary":  fmt.Sprintf("Coverage: %.1f%%", result.Percent),
+		"passed":  err == nil,
+		"percent": result.Percent,
+		"summary": fmt.Sprintf("Coverage: %.1f%%", result.Percent),
 	}
 	if err != nil {
 		output["passed"] = false

@@ -1,0 +1,206 @@
+---
+title: Quick Start (AI Agent)
+description: Set up coverctl inside Claude Code, Cursor, or Cline so your AI coding agent gets in-loop coverage feedback before commit.
+---
+
+import { Tabs, TabItem, Steps, Aside } from '@astrojs/starlight/components';
+
+This is the recommended path if you use **Claude Code, Cursor, Cline**, or any
+other MCP-capable AI coding client. It sets coverctl up so the agent can call
+coverage tools directly from inside the edit loop — catching regressions
+before commit, not after CI.
+
+If you mostly run from a terminal, follow the [Quick Start (Terminal)](/coverctl/quick-start/)
+instead. Both paths share the same `.coverctl.yaml` configuration; switching
+between them later does not require any reconfiguration.
+
+## Prerequisites
+
+- A project with tests in any [supported language](/coverctl/installation/#supported-languages)
+- coverctl installed ([Installation Guide](/coverctl/installation/))
+- One of: Claude Code, Claude Desktop, Cursor, Cline, Aider, or any
+  MCP-capable client
+
+## Setup
+
+<Steps>
+
+1. **Connect coverctl to your agent**
+
+   <Tabs>
+     <TabItem label="Claude Code">
+
+   Add to `~/.config/claude-code/mcp.json`:
+
+   ```json
+   {
+     "mcpServers": {
+       "coverctl": {
+         "command": "coverctl",
+         "args": ["mcp", "serve"]
+       }
+     }
+   }
+   ```
+
+   The default `coverctl mcp serve` runs in **agent mode** — it advertises
+   only three tools (`check`, `suggest`, `debt`) so the agent has a small,
+   reliable selection surface inside the edit loop.
+
+     </TabItem>
+     <TabItem label="Cursor">
+
+   In Cursor settings → MCP → add a new server:
+
+   ```json
+   {
+     "command": "coverctl",
+     "args": ["mcp", "serve"]
+   }
+   ```
+
+     </TabItem>
+     <TabItem label="Claude Desktop">
+
+   `~/.config/claude/claude_desktop_config.json` (macOS/Linux) or
+   `%APPDATA%\Claude\claude_desktop_config.json` (Windows):
+
+   ```json
+   {
+     "mcpServers": {
+       "coverctl": {
+         "command": "coverctl",
+         "args": ["mcp", "serve"],
+         "cwd": "/path/to/your/project"
+       }
+     }
+   }
+   ```
+
+     </TabItem>
+   </Tabs>
+
+   :::caution[If this fails]
+   - **Agent does not list coverctl tools**: restart the client; some agents
+     only load MCP servers at startup. If still missing, run
+     `coverctl mcp serve --help` from a terminal — it should print options
+     without error.
+   - **"command not found: coverctl"**: the client launches the server with
+     a minimal `PATH`. Use the absolute path (`/usr/local/bin/coverctl` or
+     `which coverctl` output) instead of bare `coverctl`.
+   :::
+
+2. **One-time project setup (run from terminal)**
+
+   `init` is intentionally **not** advertised in agent mode — it is a one-shot
+   setup step that runs from your terminal:
+
+   ```bash
+   cd your-project
+   coverctl init
+   ```
+
+   The wizard auto-detects domains and writes `.coverctl.yaml`. After this
+   step, the agent picks up the same config automatically.
+
+3. **First agent-initiated check**
+
+   Open your project in the agent. Ask it something like:
+
+   > Can you run coverctl check and tell me which domains regressed since
+   > the last commit?
+
+   You will see the agent invoke the `check` tool transparently. Most clients
+   surface this as an inline tool-call card showing tool name, arguments, and
+   raw response. Example shape:
+
+   ```json
+   {
+     "passed": false,
+     "summary": "FAIL | 78.6% overall | 2/3 domains passing | failing: api (72.1%)",
+     "domains": [
+       { "domain": "core", "percent": 87.3, "required": 85.0, "status": "PASS" },
+       { "domain": "api",  "percent": 72.1, "required": 80.0, "status": "FAIL" },
+       { "domain": "cli",  "percent": 76.4, "required": 75.0, "status": "PASS" }
+     ],
+     "warnings": []
+   }
+   ```
+
+   The agent should then offer to fix the failing domain — typically by
+   calling `suggest api` to see uncovered files or `debt` to rank the
+   smallest tests-to-add.
+
+4. **Approval gate for fixes**
+
+   When the agent proposes test edits, it should show the diff before
+   applying. Approve only the changes you reviewed — coverctl gives the
+   agent a deterministic *signal*; the agent's *fix* still needs a human
+   reading.
+
+   Re-run `check` after the agent applies edits to confirm the fix worked.
+   This whole loop happens before commit; the regression never reaches CI.
+
+</Steps>
+
+## What the agent should and should not do
+
+This calibrates trust. AI coding agents are uneven; coverctl gives them
+better signals but does not turn them into senior engineers.
+
+**The agent does well**
+
+- Read `check` output and summarize which domains failed.
+- Call `suggest <domain>` to find uncovered files in a failing domain.
+- Call `debt` to rank the lowest-effort tests-to-add.
+- Re-run `check` after writing tests to verify the regression is gone.
+- Pattern-match `error_code` from a rejected tool call and explain the
+  rejection (we ship a stable rejection schema for exactly this reason —
+  see [MCP Server](/coverctl/mcp/#rejection-response-schema)).
+
+**Watch for**
+
+- **Threshold lowering as a "fix"**: a failing domain is a real signal
+  that you need more tests, not a config change. Reject agent suggestions
+  that edit `.coverctl.yaml` thresholds downward.
+- **Mock-heavy "fixes"**: line coverage measures execution, not quality.
+  An agent can hit threshold by adding tests that exercise mocked layers
+  without testing real logic. Sanity-check generated tests.
+- **Ignoring rejections**: if coverctl rejects a tool call (e.g.,
+  `error_code: INPUT_REJECTED_DANGEROUS_FLAG`), the agent should *use*
+  the `remediation` hint, not retry with the same input.
+
+## Security boundary
+
+MCP input sanitization (input boundary) and output canonicalization
+(output boundary) are both on by default. coverctl rejects test-runner
+flags that load arbitrary code (`--rootdir`, `--require`, `-D`,
+`--node-options`, ...) and sanitizes filenames flowing back from
+coverage profiles to block prompt-injection through filenames in hostile
+PRs. Full details: [MCP threat model](https://github.com/felixgeelhaar/coverctl/blob/main/docs/security/mcp-threat-model.md).
+
+## Switching modes
+
+If you need the full nine-tool surface for an automation script or CI
+runner, override mode explicitly:
+
+```json
+{
+  "mcpServers": {
+    "coverctl": {
+      "command": "coverctl",
+      "args": ["mcp", "serve", "--mode=ci"]
+    }
+  }
+}
+```
+
+Agent mode is the right default; CI mode is for non-agent callers that
+benefit from the full surface (`init`, `report`, `record`, `compare`,
+`badge`, `pr-comment`).
+
+## Next steps
+
+- [MCP Server reference](/coverctl/mcp/) — full tool, resource, and rejection-schema reference
+- [Configuration](/coverctl/configuration/) — domain policy and threshold tuning
+- [CI Integration](/coverctl/guides/ci-integration/) — wire `coverctl check` into GitHub Actions

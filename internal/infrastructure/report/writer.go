@@ -71,17 +71,22 @@ func writeText(w io.Writer, result domain.Result) error {
 	deltaUpStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("#16A34A"))
 	deltaDownStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("#DC2626"))
 
+	var failedDomains []domain.DomainResult
 	for _, d := range result.Domains {
-		status := string(d.Status)
+		statusText := string(d.Status)
 		if colorize {
 			switch d.Status {
 			case domain.StatusPass:
-				status = passStyle.Render(status)
+				statusText = passStyle.Render(statusText)
 			case domain.StatusFail:
-				status = failStyle.Render(status)
+				statusText = failStyle.Render(statusText)
 			case domain.StatusWarn:
-				status = warnStyle.Render(status)
+				statusText = warnStyle.Render(statusText)
 			}
+		}
+		if d.Status == domain.StatusFail {
+			failedDomains = append(failedDomains, d)
+			statusText = fmt.Sprintf("%s (%+.1f%%)", statusText, d.Percent-d.Required)
 		}
 
 		if hasDeltas {
@@ -96,9 +101,9 @@ func writeText(w io.Writer, result domain.Result) error {
 					}
 				}
 			}
-			_, _ = fmt.Fprintf(tw, "%s\t%.1f%%\t%s\t%.1f%%\t%s\n", d.Domain, d.Percent, deltaStr, d.Required, status)
+			_, _ = fmt.Fprintf(tw, "%s\t%.1f%%\t%s\t%.1f%%\t%s\n", d.Domain, d.Percent, deltaStr, d.Required, statusText)
 		} else {
-			_, _ = fmt.Fprintf(tw, "%s\t%.1f%%\t%.1f%%\t%s\n", d.Domain, d.Percent, d.Required, status)
+			_, _ = fmt.Fprintf(tw, "%s\t%.1f%%\t%.1f%%\t%s\n", d.Domain, d.Percent, d.Required, statusText)
 		}
 	}
 	if err := tw.Flush(); err != nil {
@@ -133,7 +138,39 @@ func writeText(w io.Writer, result domain.Result) error {
 			fmt.Fprintf(w, "  - %s\n", warn)
 		}
 	}
+
+	writeNextActionFooter(w, result, failedDomains, colorize)
 	return nil
+}
+
+// writeNextActionFooter prints a Peak-End summary line and a short
+// next-action hint after the domain table. The hint depends on whether
+// any domain failed; the goal is to leave the user with one obvious next
+// command rather than a flat table.
+func writeNextActionFooter(w io.Writer, result domain.Result, failedDomains []domain.DomainResult, colorize bool) {
+	if len(result.Domains) == 0 {
+		return
+	}
+	total := len(result.Domains)
+	passStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("#16A34A")).Bold(true)
+	failStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("#DC2626")).Bold(true)
+	if !result.Passed && len(failedDomains) > 0 {
+		mark := "x"
+		if colorize {
+			mark = failStyle.Render("✗")
+		}
+		fmt.Fprintf(w, "\n%s %d of %d domains below threshold.\n", mark, len(failedDomains), total)
+		first := failedDomains[0].Domain
+		fmt.Fprintf(w, "  → coverctl suggest %s    show uncovered files in failing domain\n", first)
+		fmt.Fprintln(w, "  → coverctl debt           list smallest tests to add")
+		return
+	}
+	mark := "v"
+	if colorize {
+		mark = passStyle.Render("✓")
+	}
+	fmt.Fprintf(w, "\n%s All %d domain(s) pass.\n", mark, total)
+	fmt.Fprintln(w, "  → coverctl record         save coverage baseline for next run")
 }
 
 func colorEnabled(w io.Writer) bool {

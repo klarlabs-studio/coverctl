@@ -54,19 +54,51 @@ Any MCP-capable client works. Point it at `coverctl mcp serve` over stdio. The s
   </TabItem>
 </Tabs>
 
+## Modes
+
+`coverctl mcp serve` defaults to `--mode=auto`, which inspects well-known
+CI environment variables and picks the right surface automatically. Use an
+explicit `--mode` value to override.
+
+```bash
+coverctl mcp serve              # --mode=auto (default)
+coverctl mcp serve --mode=agent # force agent surface (3 tools)
+coverctl mcp serve --mode=ci    # force CI surface (9 tools)
+```
+
+**Auto-detection signals (any one matches → CI mode):**
+
+| Env var | Set by |
+| --- | --- |
+| `GITHUB_ACTIONS=true` | GitHub Actions |
+| `GITLAB_CI=true` | GitLab CI |
+| `BUILDKITE=true` | Buildkite |
+| `CIRCLECI=true` | CircleCI |
+| `JENKINS_URL` non-empty | Jenkins |
+| `TF_BUILD=True` | Azure Pipelines |
+| `CI=true` | generic |
+
+When none of these are set, coverctl assumes the caller is a human's MCP
+client (Claude Code, Cursor, Cline, ...) and uses the agent surface.
+
+Why mode matters: AI coding agents reliably select among a small (≤5–7) tool
+surface but degrade as it grows. Pruning the agent-mode surface to three
+avoids selection drift without removing capability — CI mode still has every
+tool.
+
 ## Tools
 
-| Tool | Purpose |
-| --- | --- |
-| `init` | Auto-detect project structure and create `.coverctl.yaml` with domain policies. |
-| `check` | Run tests with coverage and enforce policy. Returns per-domain pass/fail, files, warnings. |
-| `report` | Analyze an existing coverage profile without running tests. |
-| `record` | Record current coverage to history for trend tracking. |
-| `compare` | Diff two coverage profiles. Returns delta, improved/regressed files, domain changes. |
-| `debt` | Coverage gap per domain — where to spend effort, ranked. |
-| `suggest` | Recommend thresholds (`current` / `aggressive` / `conservative`). |
-| `badge` | Generate SVG coverage badge. |
-| `pr-comment` | Post coverage report to GitHub / GitLab / Bitbucket PR. |
+| Tool | Mode | Purpose |
+| --- | --- | --- |
+| `check` | agent + ci | Run tests with coverage and enforce policy. Returns per-domain pass/fail, files, warnings. |
+| `suggest` | agent + ci | Recommend thresholds (`current` / `aggressive` / `conservative`). |
+| `debt` | agent + ci | Coverage gap per domain — where to spend effort, ranked. |
+| `init` | ci | Auto-detect project structure and create `.coverctl.yaml` with domain policies. |
+| `report` | ci | Analyze an existing coverage profile without running tests. |
+| `record` | ci | Record current coverage to history for trend tracking. |
+| `compare` | ci | Diff two coverage profiles. Returns delta, improved/regressed files, domain changes. |
+| `badge` | ci | Generate SVG coverage badge. |
+| `pr-comment` | ci | Post coverage report to GitHub / GitLab / Bitbucket PR. |
 
 ## Resources
 
@@ -93,6 +125,60 @@ Concrete defenses applied to every MCP tool call:
 - **Forensic logging.** With `--debug`, every test-runner invocation emits a structured event with binary path, args fingerprint, exit code, and elapsed duration.
 
 CLI invocations from a human terminal are not sanitized — the human is the trust boundary there.
+
+## Output verbosity and pagination
+
+Every coverage-listing tool (`check`, `report`, `debt`, `compare`) accepts an optional `verbosity` field on its input:
+
+| Verbosity | Behavior | Use when |
+| --- | --- | --- |
+| `brief` | Failing rows only, hard cap at 5. | Inside an agent edit loop where only the actionable subset matters. |
+| `normal` (default) | All failing rows + top passing rows up to a cap of 20. Failing rows are never trimmed. | Typical agent or interactive use. |
+| `verbose` | No truncation. | CI runs that ingest the output for archive or trend analysis. |
+
+When truncation occurs, the response includes a sibling `<list>NextCursor` field (e.g., `domainsNextCursor`, `filesNextCursor`, `itemsNextCursor`). The cursor format is opaque; agents should treat it as a pass-through token.
+
+```json
+{
+  "passed": false,
+  "domains": [{ "domain": "api", "status": "FAIL", "...": "..." }],
+  "domainsNextCursor": "next/5/of/47"
+}
+```
+
+This keeps tool-call cost predictable in the agent's context window without removing capability — agents can request more detail explicitly when needed.
+
+## Rejection response schema
+
+Every rejected MCP tool call returns a stable JSON shape. Agents can pattern-match the `error_code` field and use the `remediation` hint as the next-action signal without falling back to natural-language parsing.
+
+```json
+{
+  "passed": false,
+  "error_code": "INPUT_REJECTED_DANGEROUS_FLAG",
+  "error": "rejected MCP input testArgs[0]=\"--rootdir=/tmp\": flag \"--rootdir\" can load arbitrary code via the underlying test runner; not allowed from MCP input",
+  "summary": "Rejected unsafe MCP input",
+  "remediation": "Remove the rejected flag from testArgs. The flag can load arbitrary code via the underlying test runner and is denied from MCP input. If you need it for trusted CLI use, run coverctl directly without MCP."
+}
+```
+
+| `error_code` | When emitted | Recovery hint |
+|---|---|---|
+| `INPUT_REJECTED_DANGEROUS_FLAG` | Test arg matches a denylist flag (e.g. `--rootdir`, `-D`, `--require`). | Remove the flag; run via terminal CLI for trusted use. |
+| `INPUT_REJECTED_SHELL_METACHAR` | Field contains shell metacharacters (`` ` $ ; | & < > ``, newline). | Remove the metacharacters. |
+| `INPUT_REJECTED_CONTROL_CHARS` | Field contains NUL or CR/LF bytes. | Strip control bytes. |
+| `INPUT_REJECTED_INVALID_TAGS` | `tags` does not match `[A-Za-z0-9_,]+`. | Pass alphanumeric, comma-separated identifiers. |
+| `INPUT_REJECTED_INVALID_TIMEOUT` | `timeout` is not Go duration syntax. | Use `30s`, `10m`, `1h30s`, ... |
+| `INPUT_REJECTED_INVALID_RUN_PATTERN` | `-run` filter contains shell-injection markers. | Use plain regex; remove backtick / `$(...)` / `;`. |
+| `INPUT_REJECTED_PATH_SCOPE` | A path input resolves outside the working directory. | Use a path inside the project root. |
+| `OP_CONFIG_EXISTS` | `init` called when `.coverctl.yaml` already exists. | Pass `force: true` to overwrite. |
+| `OP_DETECT_FAILED` | Auto-detection found no language markers. | Pass `language` explicitly or run from a project root. |
+| `OP_INVALID_PATH` | Path could not be cleaned/validated. | Use a path inside the working directory. |
+| `OP_FILE_WRITE_FAILED` | Filesystem error creating or writing config. | Check permissions and disk space. |
+| `OP_RATE_LIMITED` | `pr-comment` exceeded five calls per five minutes per PR. | Wait or coalesce updates. |
+| `INPUT_REJECTED_OTHER` | Unclassified input rejection. | Inspect `error` for details. |
+
+The schema is **append-only**: future codes may be added; existing codes will not be renamed without a major-version bump. Existing fields (`passed`, `error`, `summary`) remain for backward compatibility.
 
 ## Verifying installation
 

@@ -1,0 +1,14 @@
+{
+  "id": "adversarial_invalid_run_pattern",
+  "description": "check rejects -run pattern containing $(...) command-substitution marker.",
+  "category": "adversarial",
+  "tool": "check",
+  "input": {
+    "run": "TestFoo$(whoami)"
+  },
+  "expect": {
+    "passed": false,
+    "errorCode": "INPUT_REJECTED_INVALID_RUN_PATTERN",
+    "remediationContains": "shell-injection markers"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "id": "adversarial_invalid_timeout",
+  "description": "check rejects timeout that is not Go duration syntax.",
+  "category": "adversarial",
+  "tool": "check",
+  "input": {
+    "timeout": "5 minutes"
+  },
+  "expect": {
+    "passed": false,
+    "errorCode": "INPUT_REJECTED_INVALID_TIMEOUT",
+    "errorContains": "duration",
+    "remediationContains": "Go time.Duration syntax"
+  }
+}

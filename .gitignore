@@ -47,3 +47,6 @@ dist/
 findings.json
 results.sarif
 .nox/
+
+# Nested Homebrew tap repo (managed separately)
+tap/

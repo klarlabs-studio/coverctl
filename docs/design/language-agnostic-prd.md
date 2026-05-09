@@ -1,99 +1,140 @@
-# Product Requirements Document: Language-Agnostic Coverage Enforcement
+# Product Requirements Document: Agent-Loop Coverage Governance
 
-## Overview
+## Initiative Hypothesis
 
-This document describes the product requirements for extending coverctl from a Go-only tool to a language-agnostic coverage enforcement platform.
+> We believe that giving polyglot AI-coding teams MCP-native, domain-aware
+> coverage feedback **in the agent edit loop**
+> Will result in a measurable pre-commit regression catch rate ≥80%
+> For teams using Claude Code, Cursor, or Cline on repos with at least
+> one CI policy gate today
+> We will know this is true when ≥40% of weekly-active repos block at
+> least one regression per 7 days via MCP tool calls
+> We will know this is false when median agent session shows zero
+> coverctl tool calls despite eligible edits
+> Our riskiest assumption is that agents will *autonomously* invoke
+> `check` without prompting, often enough on the right edits, to catch
+> regressions.
 
-**Vision:** Make coverctl the universal domain-aware coverage enforcement tool for any language ecosystem, enabling teams to apply consistent coverage policies across polyglot codebases.
-
----
-
-## Problem Statement
-
-### Current State (Shipped ✅)
-
-coverctl has completed the transition from Go-only to language-agnostic:
-- ✅ **15 languages supported**: Go, Python, TypeScript/JavaScript, Java, Rust, C#/C++, PHP, Ruby, Swift, Dart, Scala, Elixir, Shell
-- ✅ **Multi-format parsing**: LCOV, Cobertura XML, JaCoCo XML, Go native profiles
-- ✅ **MCP-native**: Full MCP server with 8 tools and 4 resources for AI agent integration
-- ✅ **Domain-aware policy**: Per-domain coverage thresholds with 12+ domains in own config
-- ✅ **Backward compatible**: All existing Go workflows continue unchanged
-
-### Market Opportunity
-
-| Metric | Go-Only | Language-Agnostic (Shipped) |
-|--------|---------|-------------------|
-| Target Developers | ~2M Go developers | ~30M+ developers |
-| Claude Code Plugin Market | ~5% | ~80% |
-| Enterprise Appeal | Single-language teams | Polyglot organizations |
-| Languages Supported | 1 | 15 (Go, Python, TS/JS, Java, Rust, C#, C/C++, PHP, Ruby, Swift, Dart, Scala, Elixir, Shell) |
-
-### User Pain Points
-
-1. **Polyglot Teams:** Organizations using Go, Python, TypeScript need separate coverage tools per language
-2. **Inconsistent Policies:** Each language ecosystem has different coverage tool conventions
-3. **AI Integration Gap:** No universal coverage tool for AI-assisted development workflows
-4. **Domain-Level Enforcement:** Most tools only support project-level thresholds, not domain/module-level
+The category framing for this work is **agent-loop coverage governance**
+(see `docs/strategy/category-pov.md`). The wedge is in-loop coverage
+feedback before commit. Multi-language support is table stakes; the
+differentiated capability is being callable from the agent edit loop
+through MCP, with a uniform governance interface across languages.
 
 ---
 
-## Goals & Success Metrics
+## Problem
 
-### Primary Goals (Shipped)
+The status quo for AI-assisted polyglot teams is the **red-CI agent loop**:
+agent edits code → human runs tests locally or in CI → CI fails minutes
+later → human pastes the error back to the agent → agent guesses → repeat.
+Coverage policy lives in dashboards and post-merge reports, never inside
+the loop where the agent is actually deciding what to write.
 
-1. **G1:** ✅ Support coverage analysis for 15 language ecosystems (Go, Python, TypeScript/JavaScript, Java, Rust, C#/C++, PHP, Ruby, Swift, Dart, Scala, Elixir, Shell)
-2. **G2:** ✅ Maintain 100% backward compatibility with existing Go workflows
-3. **G3:** ✅ Enable one-command setup for any supported language via `coverctl init`
-4. **G4:** ✅ Published as a Claude Code plugin with MCP-native integration
+This produces three concrete pains:
 
-### Next Bets
-
-1. **N1:** Add scenario tests for weaker coverage surfaces (internal/mcp, internal/cli, runner edge cases)
-2. **N2:** Instrument MCP tool-call success metrics (success rate, rejection rate, time-to-success)
-3. **N3:** Polish golden-path UX for first-run (init → check → suggest → record)
-4. **N4:** Build ICP-focused GTM for polyglot AI-assisted teams with compliance needs
-
-### Success Metrics
-
-| Metric | Target | Measurement |
-|--------|--------|-------------|
-| Languages Supported | 5+ | Format parsers + runners |
-| Plugin Installs | 1,000+ in first 3 months | Marketplace analytics |
-| Go User Retention | 100% | No breaking changes |
-| Setup Time | < 2 minutes | Time from install to first check |
-| GitHub Stars | +500 | Community adoption signal |
+1. **Agents ship coverage regressions blind.** The agent has no signal
+   that an edit dropped a domain below threshold until CI surfaces it,
+   long after context is lost.
+2. **Polyglot tool sprawl.** Per-language coverage tools (`go test
+   -cover`, `pytest --cov`, `nyc`, `cargo tarpaulin`, JaCoCo) have no
+   uniform invocation, output format, or threshold convention. Every
+   language is a separate governance integration.
+3. **PR rework expands.** Red-CI surprises lead to repeated PR cycles,
+   and coverage drifts down over time because nobody is enforcing it
+   where decisions are being made.
 
 ---
 
-## User Personas
+## Shipped capability (foundation)
 
-### Persona 1: Go Developer (Existing User)
-- **Name:** Alex
-- **Role:** Backend Engineer
-- **Current Usage:** Uses coverctl for Go projects
-- **Expectation:** Everything keeps working exactly as before
-- **New Value:** Can now use same tool for Python scripts in repo
+The product reached language-agnostic coverage as a foundation for the
+wedge above:
 
-### Persona 2: Python/TypeScript Developer (New User)
-- **Name:** Sam
-- **Role:** Full-Stack Developer
-- **Pain Point:** No domain-aware coverage tool for Python/TS
-- **Expectation:** Simple setup, understands project structure
-- **Value Prop:** Enforces coverage at module/domain level, not just overall
+- **15 languages**: Go, Python, TypeScript/JavaScript, Java, Rust, C#,
+  C/C++, PHP, Ruby, Swift, Dart, Scala, Elixir, Shell
+- **Multi-format parsing**: LCOV, Cobertura XML, JaCoCo XML, Go native
+  profiles
+- **MCP-native**: stdio MCP server with 8 tools and 4 resources for AI
+  agent integration
+- **Domain-aware policy**: per-domain coverage thresholds via
+  `.coverctl.yaml`
+- **Backward compatible**: existing Go workflows unchanged
 
-### Persona 3: Platform Engineer (Enterprise)
-- **Name:** Jordan
-- **Role:** DevOps/Platform Team Lead
-- **Pain Point:** Different coverage tools per language, inconsistent policies
-- **Expectation:** One tool, one config format, works everywhere
-- **Value Prop:** Standardize coverage policies across all repos
+Multi-language is treated here as **a delivered prerequisite**, not the
+product story. The story is what comes next.
 
-### Persona 4: AI-Assisted Developer (Claude Code User)
-- **Name:** Taylor
-- **Role:** Developer using Claude Code
-- **Pain Point:** Wants AI to help enforce coverage during development
-- **Expectation:** Plugin works for any language project
-- **Value Prop:** Universal coverage assistant in Claude Code
+---
+
+## Success metrics
+
+### North Star
+
+**Weekly Protected Agent Loops** = unique repos where `coverctl check`
+ran in agent or MCP context within the last 7 days **and** blocked at
+least one regression. Captures real usage, agent context, and value
+delivered. Cannot be moved by shipping more features alone.
+
+### Input metrics (the four levers)
+
+| Metric | Definition | Why it matters |
+|---|---|---|
+| **Time-to-first-protected-commit** | Median minutes from `coverctl init` completion to first agent-initiated `check` that returns `passed=true`. | Activation. If this is high, the wedge cannot fire. |
+| **MCP tool-call success rate** | (successful calls / total calls) × 100 across `check`, `suggest`, `debt`. Target >85%. | Quality of the agent-callable surface. Defined in `docs/design/mcp-metrics-spec.md`. |
+| **Pre-commit hook adoption** | % of repos with `coverctl check` wired into a pre-commit hook (Husky, lefthook, native git hook). | Depth of integration; lock-in proxy. Without the hook, the wedge depends entirely on agent autonomy. |
+| **Regressions caught per agent session** | Eval-harness measured: scripted Claude Code session over N synthetic regression scenarios. Numerator denominator both controlled. | Direct measurement of the wedge value claim. |
+
+### Why the prior metrics were retired
+
+The prior success table tracked "Languages Supported (5+)", "Plugin
+Installs (1,000+)", "Go User Retention (100%)", "Setup Time (<2 min)",
+"GitHub Stars (+500)". Those are vanity or proxy metrics — installs and
+stars do not measure value delivered, language count is a shipped
+prerequisite, and Go retention is a binary protective constraint rather
+than a forward-looking signal. The four input metrics above replace
+them.
+
+---
+
+## Personas
+
+The product targets **one primary user** and **one secondary buyer**.
+Earlier persona drafts included four archetypes; that breadth diluted
+focus. Two pruned personas align every PRD decision against the wedge.
+
+### Primary user — Taylor (AI-coding polyglot developer)
+
+- Uses Claude Code, Cursor, or Cline daily across at least two
+  languages
+- Has felt CI-red-surprise pain in the last sprint
+- Wants the agent to catch coverage regressions before commit, not
+  after CI
+- Trusts tooling that returns deterministic, agent-readable signals
+- Decision authority for tool adoption inside their team
+- **Value coverctl delivers:** in-loop coverage feedback the agent
+  actually calls
+
+### Secondary buyer — Jordan (Platform / DevEx team lead)
+
+- Manages 20–200-developer organization with polyglot codebases
+- Standardizes coverage policy across many repos
+- Procurement champion in larger organizations; cares about audit
+  logging, security boundary, compliance evidence
+- Activates coverctl org-wide once Taylor proves the wedge
+- **Value coverctl delivers:** uniform governance interface across
+  languages, with security architecture artifacts already documented
+  (`docs/security/mcp-threat-model.md`)
+
+### Compat-and-breadth notes
+
+Earlier personas (Alex the legacy Go developer, Sam the Python/TS
+generalist) are **not** primary segments. Existing Go users represent a
+backward-compatibility constraint, not a growth segment — covered under
+NFR1 below. Generic polyglot developers without an AI-agent workflow are
+served by the terminal quick-start path and are a real audience for the
+free CLI, but they are not the wedge entry point. Compliance-sensitive
+organizations are an **expansion accelerator**, not a gate; they sell
+faster and pay more once Taylor and Jordan are established.
 
 ---
 

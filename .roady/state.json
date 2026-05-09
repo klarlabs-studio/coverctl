@@ -1,6 +1,6 @@
 {
   "project_id": "coverctl",
-  "version": 37,
+  "version": 76,
   "task_states": {
     "T-1": {
       "status": "done",
@@ -73,6 +73,240 @@
       "started_at": "2026-05-08T21:59:55.647583+02:00",
       "completed_at": "2026-05-08T21:59:55.736755+02:00",
       "elapsed_minutes": 0
+    },
+    "T1": {
+      "status": "done",
+      "path": "",
+      "owner": "ai-agent",
+      "evidence": [
+        "docs/strategy/category-pov.md"
+      ],
+      "started_at": "2026-05-09T08:13:24.215771+02:00",
+      "completed_at": "2026-05-09T08:16:11.177468+02:00",
+      "elapsed_minutes": 2
+    },
+    "T10": {
+      "status": "done",
+      "path": "",
+      "owner": "ai-agent",
+      "evidence": [
+        "internal/mcp/sanitize_output.go canonicalizePath/sanitizeOutputString + sanitizeDomainResults/FileResults/DebtItems/FileDeltas/DomainDeltas/Warnings; server.go applies in handleCheck/handleReport/handleDebt/handleCompare"
+      ],
+      "started_at": "2026-05-09T08:46:32.268504+02:00",
+      "completed_at": "2026-05-09T08:50:34.633399+02:00",
+      "elapsed_minutes": 4
+    },
+    "T11": {
+      "status": "done",
+      "path": "",
+      "owner": "ai-agent",
+      "evidence": [
+        "internal/mcp/sanitize_output_test.go: 12 attack-pattern cases + safe-input round-trips + truncation + handler-level integration test with hostile service"
+      ],
+      "started_at": "2026-05-09T08:50:37.159455+02:00",
+      "completed_at": "2026-05-09T08:50:59.570613+02:00",
+      "elapsed_minutes": 0
+    },
+    "T12": {
+      "status": "done",
+      "path": "",
+      "owner": "ai-agent",
+      "evidence": [
+        "docs/security/mcp-threat-model.md updated with Output boundary canonicalization section + new code references"
+      ],
+      "started_at": "2026-05-09T08:51:06.259432+02:00",
+      "completed_at": "2026-05-09T08:52:14.089852+02:00",
+      "elapsed_minutes": 1
+    },
+    "T13": {
+      "status": "done",
+      "path": "",
+      "owner": "ai-agent",
+      "evidence": [
+        "internal/mcp/sanitize.go RejectionCode/errorResponse, paths.go SanitizationError wrap, server.go init handler refactor, docs/src/content/docs/mcp.mdx schema section"
+      ],
+      "started_at": "2026-05-09T08:26:25.267238+02:00",
+      "completed_at": "2026-05-09T08:26:35.296552+02:00",
+      "elapsed_minutes": 0
+    },
+    "T14": {
+      "status": "done",
+      "path": "",
+      "owner": "ai-agent",
+      "evidence": [
+        "internal/mcp/output_budget.go (Verbosity + applyDomainBudget/applyFileBudget/applyDebtItemBudget/applyFileDeltaBudget); types.go verbosity fields; server.go applies in check/report/debt/compare with nextCursor; output_budget_test.go covers verbose/brief/normal + cursor; mcp.mdx Output verbosity section. Bonus: extracted Dispatch to dispatch.go to keep server.go under ceiling."
+      ],
+      "started_at": "2026-05-09T08:58:18.294706+02:00",
+      "completed_at": "2026-05-09T09:02:51.480497+02:00",
+      "elapsed_minutes": 4
+    },
+    "T15": {
+      "status": "done",
+      "path": "",
+      "owner": "ai-agent",
+      "evidence": [
+        "internal/infrastructure/report/writer.go writeText + writeNextActionFooter; tests pass"
+      ],
+      "started_at": "2026-05-09T08:18:28.588777+02:00",
+      "completed_at": "2026-05-09T08:18:39.868145+02:00",
+      "elapsed_minutes": 0
+    },
+    "T16": {
+      "status": "done",
+      "path": "",
+      "owner": "ai-agent",
+      "evidence": [
+        "docs/src/content/docs/quick-start.mdx step 4 reflects new CLI output"
+      ],
+      "started_at": "2026-05-09T08:18:41.60877+02:00",
+      "completed_at": "2026-05-09T08:18:57.661044+02:00",
+      "elapsed_minutes": 0
+    },
+    "T17": {
+      "status": "done",
+      "path": "",
+      "owner": "ai-agent",
+      "evidence": [
+        "docs/src/content/docs/quick-start.mdx caution blocks"
+      ],
+      "started_at": "2026-05-09T08:13:28.136753+02:00",
+      "completed_at": "2026-05-09T08:16:18.678452+02:00",
+      "elapsed_minutes": 2
+    },
+    "T18": {
+      "status": "done",
+      "path": "",
+      "owner": "ai-agent",
+      "evidence": [
+        "docs/src/content/docs/quick-start.mdx trust calibration section added"
+      ],
+      "started_at": "2026-05-09T08:21:35.714202+02:00",
+      "completed_at": "2026-05-09T08:21:52.804989+02:00",
+      "elapsed_minutes": 0
+    },
+    "T19": {
+      "status": "done",
+      "path": "",
+      "owner": "ai-agent",
+      "evidence": [
+        "docs/src/content/docs/quick-start-agent.mdx new page; docs/src/content/docs/quick-start.mdx selector tip linking to agent path; docs/astro.config.mjs sidebar adds Quick Start (AI Agent)"
+      ],
+      "started_at": "2026-05-09T08:52:41.264352+02:00",
+      "completed_at": "2026-05-09T08:54:16.446949+02:00",
+      "elapsed_minutes": 1
+    },
+    "T2": {
+      "status": "done",
+      "path": "",
+      "owner": "ai-agent",
+      "evidence": [
+        "docs/strategy/monetization-decision.md"
+      ],
+      "started_at": "2026-05-09T08:13:25.786595+02:00",
+      "completed_at": "2026-05-09T08:16:13.905822+02:00",
+      "elapsed_minutes": 2
+    },
+    "T20": {
+      "status": "done",
+      "path": "",
+      "owner": "ai-agent",
+      "evidence": [
+        "docs/src/content/docs/index.mdx hero reframed to agent-loop wedge + parallel path selector via CardGrid; quick-start.mdx already cross-links from T19. A/B test framework deferred — needs analytics infra (T21)."
+      ],
+      "started_at": "2026-05-09T08:56:54.80648+02:00",
+      "completed_at": "2026-05-09T08:57:46.524964+02:00",
+      "elapsed_minutes": 0
+    },
+    "T21": {
+      "status": "done",
+      "path": "",
+      "owner": "ai-agent",
+      "evidence": [
+        "docs/design/gtm-metrics-spec.md (full funnel spec); internal/mcp/telemetry.go RecordActivationStep + repoFingerprint; server.go wires init_completed + check_passed events; telemetry_test.go covers interface + activation event + fingerprint stability. Trace donation pipeline designed (deferred to post-NSM-traction)."
+      ],
+      "started_at": "2026-05-09T09:03:10.429343+02:00",
+      "completed_at": "2026-05-09T09:06:23.803704+02:00",
+      "elapsed_minutes": 3
+    },
+    "T22": {
+      "status": "pending",
+      "path": "",
+      "elapsed_minutes": 0
+    },
+    "T23": {
+      "status": "pending",
+      "path": "",
+      "elapsed_minutes": 0
+    },
+    "T24": {
+      "status": "pending",
+      "path": "",
+      "elapsed_minutes": 0
+    },
+    "T3": {
+      "status": "done",
+      "path": "",
+      "owner": "ai-agent",
+      "evidence": [
+        "docs/design/language-agnostic-prd.md front matter rewritten"
+      ],
+      "started_at": "2026-05-09T08:19:14.308659+02:00",
+      "completed_at": "2026-05-09T08:21:22.30622+02:00",
+      "elapsed_minutes": 2
+    },
+    "T4": {
+      "status": "done",
+      "path": "",
+      "owner": "ai-agent",
+      "evidence": [
+        "docs/gtm/icp-brief.md rewritten"
+      ],
+      "started_at": "2026-05-09T08:19:15.869941+02:00",
+      "completed_at": "2026-05-09T08:21:23.996235+02:00",
+      "elapsed_minutes": 2
+    },
+    "T5": {
+      "status": "done",
+      "path": "",
+      "owner": "ai-agent",
+      "evidence": [
+        "internal/eval/{types,harness,report}.go + internal/mcp/server.go Server.Dispatch + 9 seed scenarios under internal/eval/scenarios/ + harness_test.go gates via go test ./..."
+      ],
+      "started_at": "2026-05-09T08:33:44.972883+02:00",
+      "completed_at": "2026-05-09T08:39:16.797352+02:00",
+      "elapsed_minutes": 5
+    },
+    "T6": {
+      "status": "pending",
+      "path": "",
+      "elapsed_minutes": 0
+    },
+    "T7": {
+      "status": "pending",
+      "path": "",
+      "elapsed_minutes": 0
+    },
+    "T8": {
+      "status": "done",
+      "path": "",
+      "owner": "ai-agent",
+      "evidence": [
+        "internal/mcp/types.go Mode + Config.Mode; internal/mcp/server.go registerTools mode-gated; internal/cli/cmd_mcp.go --mode flag; tests cover default + dispatch; docs/src/content/docs/mcp.mdx Modes section"
+      ],
+      "started_at": "2026-05-09T08:42:22.15814+02:00",
+      "completed_at": "2026-05-09T08:46:15.562565+02:00",
+      "elapsed_minutes": 3
+    },
+    "T9": {
+      "status": "done",
+      "path": "",
+      "owner": "ai-agent",
+      "evidence": [
+        "internal/cli/cmd_mcp.go detectMCPMode + auto default; cmd_mcp_test.go env-matrix coverage; docs/src/content/docs/mcp.mdx Modes section updated"
+      ],
+      "started_at": "2026-05-09T08:54:40.491421+02:00",
+      "completed_at": "2026-05-09T08:56:52.629075+02:00",
+      "elapsed_minutes": 2
     },
     "task-ai/agent-success-metrics-baseline": {
       "status": "done",
@@ -163,5 +397,5 @@
       "elapsed_minutes": 0
     }
   },
-  "updated_at": "2026-05-08T22:08:58.106541+02:00"
+  "updated_at": "2026-05-09T09:06:23.803705+02:00"
 }

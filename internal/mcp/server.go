@@ -17,11 +17,11 @@ import (
 
 // Server wraps the application service with MCP protocol handling.
 type Server struct {
-	svc       Service
-	config    Config
-	server    *mcp.Server
+	svc            Service
+	config         Config
+	server         *mcp.Server
 	prCommentLimit *rateLimiter
-	telemetry Telemetry // nil = NoopTelemetry (opt-in via config)
+	telemetry      Telemetry // nil = NoopTelemetry (opt-in via config)
 }
 
 // New creates a new MCP server wrapping the given service.
@@ -35,6 +35,9 @@ func New(svc Service, cfg Config, version string) *Server {
 	}
 	if cfg.ProfilePath == "" {
 		cfg.ProfilePath = DefaultConfig().ProfilePath
+	}
+	if cfg.Mode == "" {
+		cfg.Mode = ModeAgent
 	}
 	if version == "" {
 		version = "dev"
@@ -52,10 +55,10 @@ func New(svc Service, cfg Config, version string) *Server {
 	}
 
 	s := &Server{
-		svc:       svc,
-		config:    cfg,
+		svc:            svc,
+		config:         cfg,
 		prCommentLimit: newRateLimiter(),
-		telemetry: NoopTelemetry{},
+		telemetry:      NoopTelemetry{},
 	}
 
 	// Create MCP server with capabilities
@@ -80,23 +83,23 @@ func (s *Server) Run(ctx context.Context) error {
 	return mcp.ServeStdio(ctx, s.server)
 }
 
-// registerTools adds all tool handlers to the server.
+// registerTools adds tool handlers to the server, gated by s.config.Mode.
+//
+// Agent mode (default) advertises only the three agent-loop tools (check,
+// suggest, debt) so coding agents have a small, reliable selection
+// surface. CI mode adds setup, dashboarding, and CI/automation tools
+// (init, report, record, badge, compare, pr-comment) for non-agent
+// callers.
+//
+// The handler for every tool is registered identically — the only thing
+// mode controls is whether the tool is *advertised* to the client. Tools
+// not advertised are not callable through this server instance.
 func (s *Server) registerTools() {
-	s.server.Tool("init").
-		Description("Initialize coverctl in the current project. Auto-detects the project's language (Go, Python, TypeScript/JavaScript, Java, Rust, C#, C/C++, PHP, Ruby, Swift, Dart, Scala, Elixir, or Shell), proposes domain boundaries from the directory layout, and writes .coverctl.yaml with default thresholds. Call once per project.").
-		Handler(s.handleInit)
+	agent := s.config.Mode == ModeAgent
 
 	s.server.Tool("check").
 		Description("Run the project's test suite with coverage and enforce per-domain policy thresholds defined in .coverctl.yaml. Auto-detects the language and invokes the appropriate test runner (go test, pytest, npm test, mvn, gradle, cargo, dotnet, etc.). Returns per-domain pass/fail, file-level coverage, and warnings. Exit-equivalent: passed=true on success, passed=false on policy violation or runner error.").
 		Handler(s.handleCheck)
-
-	s.server.Tool("report").
-		Description("Analyze an existing coverage profile without re-running tests. Supports Go cover profiles, LCOV (info), Cobertura (XML), and JaCoCo (XML); format auto-detected from file content. Use when a profile is already on disk from a prior CI run or a separate test invocation.").
-		Handler(s.handleReport)
-
-	s.server.Tool("record").
-		Description("Append the current coverage snapshot to the project's history file for trend tracking. Captures commit/branch metadata. Run after 'check' (or pass run=true to run coverage first) so subsequent 'compare' and trend resource calls have data points.").
-		Handler(s.handleRecord)
 
 	s.server.Tool("suggest").
 		Description("Analyze current coverage and suggest threshold values for each domain. Strategies: 'current' (set thresholds slightly below current observed coverage to lock in the status quo), 'aggressive' (set targets above current to push improvement), 'conservative' (small incremental gains). Use writeConfig=true to apply suggestions; coverctl backs up the existing file first.").
@@ -105,6 +108,22 @@ func (s *Server) registerTools() {
 	s.server.Tool("debt").
 		Description("Compute coverage debt: the gap between current coverage and required thresholds, ranked per domain and per file. Returns a health score (0-100) and the items contributing the most debt. Use this to direct test-writing effort to the highest-impact gaps.").
 		Handler(s.handleDebt)
+
+	if agent {
+		return
+	}
+
+	s.server.Tool("init").
+		Description("Initialize coverctl in the current project. Auto-detects the project's language (Go, Python, TypeScript/JavaScript, Java, Rust, C#, C/C++, PHP, Ruby, Swift, Dart, Scala, Elixir, or Shell), proposes domain boundaries from the directory layout, and writes .coverctl.yaml with default thresholds. Call once per project.").
+		Handler(s.handleInit)
+
+	s.server.Tool("report").
+		Description("Analyze an existing coverage profile without re-running tests. Supports Go cover profiles, LCOV (info), Cobertura (XML), and JaCoCo (XML); format auto-detected from file content. Use when a profile is already on disk from a prior CI run or a separate test invocation.").
+		Handler(s.handleReport)
+
+	s.server.Tool("record").
+		Description("Append the current coverage snapshot to the project's history file for trend tracking. Captures commit/branch metadata. Run after 'check' (or pass run=true to run coverage first) so subsequent 'compare' and trend resource calls have data points.").
+		Handler(s.handleRecord)
 
 	s.server.Tool("badge").
 		Description("Generate an SVG coverage badge suitable for embedding in a README or dashboard. Returns the badge SVG and the overall coverage percent; if 'output' is set, also writes the SVG to that path.").
@@ -200,17 +219,30 @@ func (s *Server) handleCheck(ctx context.Context, input CheckInput) (map[string]
 	result, err := s.svc.CheckResult(ctx, opts)
 	s.telemetry.RecordToolCall("check", time.Since(start), err, false)
 
+	v := resolveVerbosity(input.Verbosity)
+	domains, domainCursor := applyDomainBudget(result.Domains, v)
+	files, fileCursor := applyFileBudget(result.Files, v)
 	output := map[string]any{
 		"passed":   result.Passed,
-		"summary":  generateSummary(result),
-		"domains":  result.Domains,
-		"files":    result.Files,
-		"warnings": result.Warnings,
+		"summary":  sanitizeOutputString(generateSummary(result)),
+		"domains":  sanitizeDomainResults(domains),
+		"files":    sanitizeFileResults(files),
+		"warnings": sanitizeWarnings(result.Warnings),
+	}
+	if domainCursor != "" {
+		output["domainsNextCursor"] = domainCursor
+	}
+	if fileCursor != "" {
+		output["filesNextCursor"] = fileCursor
 	}
 
 	if err != nil {
 		output["passed"] = false
-		output["error"] = err.Error()
+		output["error"] = sanitizeOutputString(err.Error())
+	}
+
+	if err == nil && result.Passed {
+		s.telemetry.RecordActivationStep("check_passed", repoFingerprint())
 	}
 
 	return output, nil
@@ -236,17 +268,26 @@ func (s *Server) handleReport(ctx context.Context, input ReportInput) (map[strin
 
 	result, err := s.svc.ReportResult(ctx, opts)
 
+	v := resolveVerbosity(input.Verbosity)
+	domains, domainCursor := applyDomainBudget(result.Domains, v)
+	files, fileCursor := applyFileBudget(result.Files, v)
 	output := map[string]any{
 		"passed":   result.Passed,
-		"summary":  generateSummary(result),
-		"domains":  result.Domains,
-		"files":    result.Files,
-		"warnings": result.Warnings,
+		"summary":  sanitizeOutputString(generateSummary(result)),
+		"domains":  sanitizeDomainResults(domains),
+		"files":    sanitizeFileResults(files),
+		"warnings": sanitizeWarnings(result.Warnings),
+	}
+	if domainCursor != "" {
+		output["domainsNextCursor"] = domainCursor
+	}
+	if fileCursor != "" {
+		output["filesNextCursor"] = fileCursor
 	}
 
 	if err != nil {
 		output["passed"] = false
-		output["error"] = err.Error()
+		output["error"] = sanitizeOutputString(err.Error())
 	}
 
 	return output, nil
@@ -328,51 +369,56 @@ func (s *Server) handleInit(ctx context.Context, input InitInput) (map[string]an
 	// Check if config already exists
 	if !input.Force {
 		if _, err := os.Stat(configPath); err == nil {
-			return map[string]any{
-				"passed":  false,
-				"error":   fmt.Sprintf("config file %s already exists (use force: true to overwrite)", configPath),
-				"summary": "Config file already exists",
-			}, nil
+			return errorResponse(
+				OpCodeConfigExists,
+				"Config file already exists",
+				fmt.Errorf("config file %s already exists (use force: true to overwrite)", configPath),
+				"Pass force: true to overwrite the existing config, or call init from a path where .coverctl.yaml does not yet exist.",
+			), nil
 		}
 	}
 
 	// Auto-detect project structure
 	cfg, err := s.svc.Detect(ctx, application.DetectOptions{})
 	if err != nil {
-		return map[string]any{
-			"passed":  false,
-			"error":   err.Error(),
-			"summary": "Failed to detect project structure",
-		}, nil
+		return errorResponse(
+			OpCodeDetectFailed,
+			"Failed to detect project structure",
+			err,
+			"Ensure the working directory contains a recognized language marker (go.mod, pyproject.toml, package.json, Cargo.toml, pom.xml, ...). For mixed or empty repos, pass language explicitly.",
+		), nil
 	}
 
 	// Validate and clean the path
 	cleanPath, err := pathutil.ValidatePath(configPath)
 	if err != nil {
-		return map[string]any{
-			"passed":  false,
-			"error":   fmt.Sprintf("invalid config path: %v", err),
-			"summary": "Invalid config path",
-		}, nil
+		return errorResponse(
+			OpCodeInvalidPath,
+			"Invalid config path",
+			fmt.Errorf("invalid config path: %v", err),
+			"Use a path inside the current working directory. Out-of-tree paths are rejected.",
+		), nil
 	}
 
 	// Write the config file
 	file, err := os.Create(cleanPath) // #nosec G304 - path is validated above
 	if err != nil {
-		return map[string]any{
-			"passed":  false,
-			"error":   err.Error(),
-			"summary": "Failed to create config file",
-		}, nil
+		return errorResponse(
+			OpCodeFileWrite,
+			"Failed to create config file",
+			err,
+			"Check write permissions on the target path; run init from the repo root.",
+		), nil
 	}
 	defer file.Close()
 
 	if err := config.Write(file, cfg); err != nil {
-		return map[string]any{
-			"passed":  false,
-			"error":   err.Error(),
-			"summary": "Failed to write config file",
-		}, nil
+		return errorResponse(
+			OpCodeFileWrite,
+			"Failed to write config file",
+			err,
+			"Check disk space and write permissions on the target path.",
+		), nil
 	}
 
 	// Build summary of what was detected
@@ -381,6 +427,8 @@ func (s *Server) handleInit(ctx context.Context, input InitInput) (map[string]an
 	for _, d := range cfg.Policy.Domains {
 		domainNames = append(domainNames, d.Name)
 	}
+
+	s.telemetry.RecordActivationStep("init_completed", repoFingerprint())
 
 	return map[string]any{
 		"passed":      true,
@@ -571,17 +619,22 @@ func (s *Server) handleDebt(ctx context.Context, input DebtInput) (map[string]an
 
 	result, err := s.svc.Debt(ctx, opts)
 
+	v := resolveVerbosity(input.Verbosity)
+	items, itemsCursor := applyDebtItemBudget(result.Items, v)
 	output := map[string]any{
 		"passed":      err == nil,
-		"items":       result.Items,
+		"items":       sanitizeDebtItems(items),
 		"totalDebt":   result.TotalDebt,
 		"totalLines":  result.TotalLines,
 		"healthScore": result.HealthScore,
 	}
+	if itemsCursor != "" {
+		output["itemsNextCursor"] = itemsCursor
+	}
 
 	if err != nil {
 		output["passed"] = false
-		output["error"] = err.Error()
+		output["error"] = sanitizeOutputString(err.Error())
 		output["summary"] = "Failed to calculate coverage debt"
 	} else {
 		if result.TotalDebt > 0 {
@@ -621,15 +674,24 @@ func (s *Server) handleCompare(ctx context.Context, input CompareInput) (map[str
 
 	result, err := s.svc.Compare(ctx, opts)
 
+	v := resolveVerbosity(input.Verbosity)
+	improved, improvedCursor := applyFileDeltaBudget(result.Improved, v)
+	regressed, regressedCursor := applyFileDeltaBudget(result.Regressed, v)
 	output := map[string]any{
 		"passed":       err == nil,
 		"baseOverall":  result.BaseOverall,
 		"headOverall":  result.HeadOverall,
 		"delta":        result.Delta,
-		"improved":     result.Improved,
-		"regressed":    result.Regressed,
+		"improved":     sanitizeFileDeltas(improved),
+		"regressed":    sanitizeFileDeltas(regressed),
 		"unchanged":    result.Unchanged,
-		"domainDeltas": result.DomainDeltas,
+		"domainDeltas": sanitizeDomainDeltas(result.DomainDeltas),
+	}
+	if improvedCursor != "" {
+		output["improvedNextCursor"] = improvedCursor
+	}
+	if regressedCursor != "" {
+		output["regressedNextCursor"] = regressedCursor
 	}
 
 	if err != nil {

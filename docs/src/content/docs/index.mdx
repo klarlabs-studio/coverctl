@@ -1,15 +1,19 @@
 ---
 title: coverctl
-description: Domain-aware test coverage enforcement for any codebase
+description: Agent-loop coverage governance for polyglot codebases. Catch regressions before commit while your AI coding agent still has context.
 template: splash
 hero:
-  tagline: Stop chasing a single coverage number. Enforce coverage policies where it matters most - at the domain level. Works with 15 languages including Go, Python, TypeScript, Rust, Java, C#, C/C++, and more.
+  tagline: Coverage feedback in the agent edit loop, before commit. Agent-callable through MCP, domain-aware policy across 15 languages. Stop seeing regressions in CI minutes after the agent has moved on.
   image:
     file: ../../assets/logo.svg
   actions:
-    - text: Get Started
-      link: /coverctl/installation/
+    - text: Set up with AI agent
+      link: /coverctl/quick-start-agent/
       icon: right-arrow
+    - text: Set up in terminal
+      link: /coverctl/quick-start/
+      icon: right-arrow
+      variant: secondary
     - text: GitHub
       link: https://github.com/felixgeelhaar/coverctl
       icon: external
@@ -66,18 +70,34 @@ exclude:
 
 ## Quick Start
 
+Pick the path that matches how you write code.
+
+<CardGrid>
+  <LinkCard
+    title="With Claude Code, Cursor, or Cline"
+    description="Connect coverctl through MCP. The agent calls check, suggest, and debt directly inside the edit loop, before commit."
+    href="/coverctl/quick-start-agent/"
+  />
+  <LinkCard
+    title="From your terminal"
+    description="Run coverctl init then coverctl check. Same policy file works for both paths."
+    href="/coverctl/quick-start/"
+  />
+</CardGrid>
+
 ```bash
 # Install
-go install github.com/felixgeelhaar/coverctl@latest
+brew install coverctl   # or: go install github.com/felixgeelhaar/coverctl@latest
 
-# Initialize (interactive wizard)
+# One-time project setup
 coverctl init
 
-# Enforce policies
+# Then either run from terminal:
 coverctl check
-```
 
-That's it. Coverage enforcement that understands your architecture.
+# ...or wire into Claude Code / Cursor / Cline (agent default mode)
+# and let the agent invoke coverctl during editing.
+```
 
 ---
 

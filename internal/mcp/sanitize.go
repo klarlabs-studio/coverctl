@@ -6,7 +6,36 @@ import (
 	"strings"
 )
 
-// SanitizationError indicates an MCP-supplied build flag was rejected.
+// RejectionCode is a stable, machine-readable identifier for the cause of a
+// rejection. Agents pattern-match against these to decide how to recover.
+type RejectionCode string
+
+const (
+	CodeDangerousFlag      RejectionCode = "INPUT_REJECTED_DANGEROUS_FLAG"
+	CodeShellMetacharacter RejectionCode = "INPUT_REJECTED_SHELL_METACHAR"
+	CodeControlCharacters  RejectionCode = "INPUT_REJECTED_CONTROL_CHARS"
+	CodeInvalidTags        RejectionCode = "INPUT_REJECTED_INVALID_TAGS"
+	CodeInvalidTimeout     RejectionCode = "INPUT_REJECTED_INVALID_TIMEOUT"
+	CodeInvalidRunPattern  RejectionCode = "INPUT_REJECTED_INVALID_RUN_PATTERN"
+	CodePathScope          RejectionCode = "INPUT_REJECTED_PATH_SCOPE"
+	CodeInputRejectedOther RejectionCode = "INPUT_REJECTED_OTHER"
+)
+
+// remediationFor maps each stable rejection code to an agent-actionable next
+// step. Centralized so messages stay consistent and updates land in one place.
+var remediationFor = map[RejectionCode]string{
+	CodeDangerousFlag:      "Remove the rejected flag from testArgs. The flag can load arbitrary code via the underlying test runner and is denied from MCP input. If you need it for trusted CLI use, run coverctl directly without MCP.",
+	CodeShellMetacharacter: "Remove shell metacharacters (` $ ; | & < > newline) from the field. coverctl does not invoke a shell, but these characters are not valid argv content and are rejected as a defensive signal.",
+	CodeControlCharacters:  "Remove NUL, newline, or carriage-return bytes from the field. Pass values as plain UTF-8 strings without embedded control characters.",
+	CodeInvalidTags:        "Build tags must match [A-Za-z0-9_,]+. Pass tags as a comma-separated list of identifiers, e.g. integration,e2e.",
+	CodeInvalidTimeout:     "Use Go time.Duration syntax for timeout, e.g. 30s, 10m, 1h30s, 500ms.",
+	CodeInvalidRunPattern:  "Test-name filter must not contain shell-injection markers (backtick, $(...), ;, &). Plain regex, alternation (|), and lookarounds (<...>) are allowed.",
+	CodePathScope:          "Path must resolve inside the current working directory. Use relative paths or absolute paths under the project root; out-of-tree paths are denied from MCP input.",
+	CodeInputRejectedOther: "Inspect the error field for details and adjust the input shape.",
+}
+
+// SanitizationError indicates an MCP-supplied build flag or path was
+// rejected by the input boundary.
 //
 // MCP input is downstream of LLM output, which is downstream of arbitrary
 // untrusted text (PR descriptions, issue bodies, fetched web pages). A prompt
@@ -19,6 +48,7 @@ type SanitizationError struct {
 	Field  string
 	Value  string
 	Reason string
+	Code   RejectionCode
 }
 
 func (e *SanitizationError) Error() string {
@@ -114,12 +144,59 @@ var runShellMetaPattern = regexp.MustCompile("[`;&\n\r]|\\$\\(")
 // rejectionResponse builds the standard handler response for an input
 // validation failure (sanitization or scope check). Centralized here so the
 // shape is consistent across every MCP handler.
+//
+// Schema (stable; agents pattern-match these fields):
+//
+//	{
+//	  "passed":      false,
+//	  "error_code":  "INPUT_REJECTED_DANGEROUS_FLAG",
+//	  "error":       "rejected MCP input testArgs[0]=\"--rootdir=/tmp\": ...",
+//	  "summary":     "Rejected unsafe MCP input",
+//	  "remediation": "Remove the rejected flag from testArgs. ..."
+//	}
 func rejectionResponse(err error) map[string]any {
-	return map[string]any{
-		"passed":  false,
-		"error":   err.Error(),
-		"summary": "Rejected unsafe MCP input",
+	code := CodeInputRejectedOther
+	if se, ok := err.(*SanitizationError); ok && se.Code != "" {
+		code = se.Code
 	}
+	return map[string]any{
+		"passed":      false,
+		"error_code":  string(code),
+		"error":       err.Error(),
+		"summary":     "Rejected unsafe MCP input",
+		"remediation": remediationFor[code],
+	}
+}
+
+// Operational error codes used for non-sanitization failures (config exists,
+// detect failed, file ops, etc.). Same schema, different lifecycle: these
+// describe runtime conditions agents may recover from by adjusting flags.
+const (
+	OpCodeConfigExists  RejectionCode = "OP_CONFIG_EXISTS"
+	OpCodeDetectFailed  RejectionCode = "OP_DETECT_FAILED"
+	OpCodeInvalidPath   RejectionCode = "OP_INVALID_PATH"
+	OpCodeFileWrite     RejectionCode = "OP_FILE_WRITE_FAILED"
+	OpCodeRateLimited   RejectionCode = "OP_RATE_LIMITED"
+	OpCodeMissingArg    RejectionCode = "OP_MISSING_ARG"
+	OpCodeInternalError RejectionCode = "OP_INTERNAL_ERROR"
+)
+
+// errorResponse builds a stable schema response for an operational failure.
+// Use this for non-sanitization errors (config already exists, file write
+// failed, missing required arg, rate-limited). All MCP handlers should emit
+// failures through either rejectionResponse or errorResponse so the agent
+// sees a uniform shape.
+func errorResponse(code RejectionCode, summary string, err error, remediation string) map[string]any {
+	out := map[string]any{
+		"passed":      false,
+		"error_code":  string(code),
+		"summary":     summary,
+		"remediation": remediation,
+	}
+	if err != nil {
+		out["error"] = err.Error()
+	}
+	return out
 }
 
 // SanitizeTestArgs validates a list of additional test runner arguments
@@ -135,10 +212,10 @@ func SanitizeTestArgs(args []string) error {
 			continue
 		}
 		if strings.ContainsAny(raw, "\x00\n\r") {
-			return &SanitizationError{Field: field, Value: raw, Reason: "contains control characters"}
+			return &SanitizationError{Field: field, Value: raw, Reason: "contains control characters", Code: CodeControlCharacters}
 		}
 		if shellMetaPattern.MatchString(raw) {
-			return &SanitizationError{Field: field, Value: raw, Reason: "contains shell metacharacter"}
+			return &SanitizationError{Field: field, Value: raw, Reason: "contains shell metacharacter", Code: CodeShellMetacharacter}
 		}
 
 		// Only inspect tokens that look like flags; positional args (e.g. test
@@ -162,6 +239,7 @@ func SanitizeTestArgs(args []string) error {
 						Field:  field,
 						Value:  raw,
 						Reason: fmt.Sprintf("flag %q can load arbitrary code via the underlying test runner; not allowed from MCP input", bad),
+						Code:   CodeDangerousFlag,
 					}
 				}
 			}
@@ -176,6 +254,7 @@ func SanitizeTestArgs(args []string) error {
 					Field:  field,
 					Value:  raw,
 					Reason: fmt.Sprintf("flag prefix %q can load arbitrary code via the underlying test runner; not allowed from MCP input", bad),
+					Code:   CodeDangerousFlag,
 				}
 			}
 		}
@@ -189,7 +268,7 @@ func SanitizeTags(tags string) error {
 		return nil
 	}
 	if !tagsPattern.MatchString(tags) {
-		return &SanitizationError{Field: "tags", Value: tags, Reason: "build tags must be alphanumeric, underscore, comma"}
+		return &SanitizationError{Field: "tags", Value: tags, Reason: "build tags must be alphanumeric, underscore, comma", Code: CodeInvalidTags}
 	}
 	return nil
 }
@@ -202,10 +281,10 @@ func SanitizeRunPattern(pattern string) error {
 		return nil
 	}
 	if strings.ContainsAny(pattern, "\x00\n\r") {
-		return &SanitizationError{Field: "run", Value: pattern, Reason: "contains control characters"}
+		return &SanitizationError{Field: "run", Value: pattern, Reason: "contains control characters", Code: CodeControlCharacters}
 	}
 	if runShellMetaPattern.MatchString(pattern) {
-		return &SanitizationError{Field: "run", Value: pattern, Reason: "contains shell metacharacter"}
+		return &SanitizationError{Field: "run", Value: pattern, Reason: "contains shell metacharacter", Code: CodeInvalidRunPattern}
 	}
 	return nil
 }
@@ -216,7 +295,7 @@ func SanitizeTimeout(timeout string) error {
 		return nil
 	}
 	if !timeoutPattern.MatchString(timeout) {
-		return &SanitizationError{Field: "timeout", Value: timeout, Reason: "must be Go duration syntax (e.g. 10m, 1h, 500ms)"}
+		return &SanitizationError{Field: "timeout", Value: timeout, Reason: "must be Go duration syntax (e.g. 10m, 1h, 500ms)", Code: CodeInvalidTimeout}
 	}
 	return nil
 }

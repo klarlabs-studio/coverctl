@@ -1,0 +1,14 @@
+{
+  "id": "adversarial_invalid_tags",
+  "description": "check rejects build tags containing characters outside [A-Za-z0-9_,].",
+  "category": "adversarial",
+  "tool": "check",
+  "input": {
+    "tags": "integration; rm -rf /"
+  },
+  "expect": {
+    "passed": false,
+    "errorCode": "INPUT_REJECTED_INVALID_TAGS",
+    "remediationContains": "comma-separated list of identifiers"
+  }
+}

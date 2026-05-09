@@ -141,6 +141,43 @@ func TestNew_DefaultConfig(t *testing.T) {
 	if server.config.ProfilePath != defaults.ProfilePath {
 		t.Errorf("expected default ProfilePath %q, got %q", defaults.ProfilePath, server.config.ProfilePath)
 	}
+	if server.config.Mode != ModeAgent {
+		t.Errorf("expected default Mode=agent, got %q", server.config.Mode)
+	}
+}
+
+func TestNew_ModeDefaultsToAgent(t *testing.T) {
+	svc := &mockService{}
+	server := New(svc, Config{}, "test")
+	if server.config.Mode != ModeAgent {
+		t.Errorf("empty Config should default to ModeAgent, got %q", server.config.Mode)
+	}
+}
+
+func TestDispatch_AgentModeDispatchesAgentTools(t *testing.T) {
+	svc := &mockService{}
+	server := New(svc, Config{Mode: ModeAgent}, "test")
+
+	for _, tool := range []string{"check", "suggest", "debt"} {
+		t.Run(tool, func(t *testing.T) {
+			out, err := server.Dispatch(t.Context(), tool, map[string]any{})
+			if err != nil {
+				t.Fatalf("dispatch %s: %v", tool, err)
+			}
+			if out == nil {
+				t.Fatalf("dispatch %s returned nil response", tool)
+			}
+		})
+	}
+}
+
+func TestDispatch_RejectsUnknownTool(t *testing.T) {
+	svc := &mockService{}
+	server := New(svc, DefaultConfig(), "test")
+	_, err := server.Dispatch(t.Context(), "nope", map[string]any{})
+	if err == nil {
+		t.Fatal("expected error for unknown tool name")
+	}
 }
 
 func TestDefaultConfig(t *testing.T) {

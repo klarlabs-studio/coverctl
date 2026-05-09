@@ -1,0 +1,14 @@
+{
+  "id": "adversarial_record_injected_args",
+  "description": "record rejects --node-options test arg as dangerous flag (covers non-check tools share the input boundary).",
+  "category": "adversarial",
+  "tool": "record",
+  "input": {
+    "testArgs": ["--node-options=--require=/tmp/evil.js"]
+  },
+  "expect": {
+    "passed": false,
+    "errorCode": "INPUT_REJECTED_DANGEROUS_FLAG",
+    "remediationContains": "Remove the rejected flag"
+  }
+}

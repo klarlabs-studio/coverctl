@@ -1,0 +1,15 @@
+{
+  "id": "adversarial_dangerous_short_flag",
+  "description": "check rejects -Dexec.executable mvn-style code-exec property as dangerous short flag.",
+  "category": "adversarial",
+  "tool": "check",
+  "input": {
+    "testArgs": ["-Dexec.executable=/bin/sh"]
+  },
+  "expect": {
+    "passed": false,
+    "errorCode": "INPUT_REJECTED_DANGEROUS_FLAG",
+    "errorContains": "-D",
+    "remediationContains": "denied from MCP input"
+  }
+}

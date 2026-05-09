@@ -1,0 +1,13 @@
+{
+  "id": "schema_rejection_has_required_fields",
+  "description": "Every rejection emits the stable schema fields agents pattern-match: passed, error_code, error, summary, remediation.",
+  "category": "schema",
+  "tool": "check",
+  "input": {
+    "testArgs": ["--require=/tmp/evil.js"]
+  },
+  "expect": {
+    "passed": false,
+    "hasField": ["passed", "error_code", "error", "summary", "remediation"]
+  }
+}

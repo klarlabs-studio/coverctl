@@ -79,7 +79,8 @@ export default defineConfig({
           items: [
             { label: 'Introduction', slug: '' },
             { label: 'Installation', slug: 'installation' },
-            { label: 'Quick Start', slug: 'quick-start' },
+            { label: 'Quick Start (Terminal)', slug: 'quick-start' },
+            { label: 'Quick Start (AI Agent)', slug: 'quick-start-agent' },
             { label: 'MCP Server (AI Agents)', slug: 'mcp' },
           ],
         },

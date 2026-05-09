@@ -1,0 +1,14 @@
+{
+  "id": "adversarial_path_scope_profile",
+  "description": "check rejects profile path that escapes the working directory (path-scope guard).",
+  "category": "adversarial",
+  "tool": "check",
+  "input": {
+    "profile": "/etc/passwd"
+  },
+  "expect": {
+    "passed": false,
+    "errorCode": "INPUT_REJECTED_PATH_SCOPE",
+    "remediationContains": "inside the current working directory"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "id": "adversarial_shell_metachar",
+  "description": "check rejects backtick metacharacter in test arg.",
+  "category": "adversarial",
+  "tool": "check",
+  "input": {
+    "testArgs": ["foo`whoami`"]
+  },
+  "expect": {
+    "passed": false,
+    "errorCode": "INPUT_REJECTED_SHELL_METACHAR",
+    "errorContains": "shell metacharacter",
+    "remediationContains": "Remove shell metacharacters"
+  }
+}

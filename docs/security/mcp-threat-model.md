@@ -44,10 +44,40 @@ Prompt injection in upstream text (PR description, issue body, fetched page) inf
 - Shell metacharacters and control characters in free-form arg inputs.
 - Invalid tag and timeout formats.
 
-### 3) Fail-closed behavior
+### 3) Output boundary canonicalization
+
+MCP responses flow back into the agent's context window. If a coverage
+profile contains attacker-controlled strings (a malicious filename in a
+hostile PR, a weaponized test name, an injected warning) those strings
+become a *new* prompt-injection vector — the Lethal Trifecta failure
+mode where private context, untrusted content, and exfiltration capability
+combine.
+
+To close this surface:
+
+- File paths in tool outputs (`files[].file`, `improved[].file`,
+  `regressed[].file`, `items[].name`, `domainDeltas` keys, `domains[].domain`)
+  are canonicalized to `[A-Za-z0-9._/-]`. Any other character is replaced
+  with `?`. Paths over 256 characters are truncated.
+- Free-form strings (`summary`, `error`, `warnings[]`) have control
+  characters (NUL, CR, LF, tabs) replaced with a single space, backticks
+  rewritten to single quotes, and length capped at 1024 bytes.
+- Sanitization is idempotent and applied at every handler that emits
+  user-controlled strings: `check`, `report`, `compare`, `debt`. The
+  helpers live in `internal/mcp/sanitize_output.go`.
+
+This is the Output-side complement to the input-side controls in §1
+and §2. Together they guarantee that no attacker-controlled byte from a
+coverage profile can render as markdown or be smuggled as a fenced code
+block in the agent's prompt window.
+
+### 4) Fail-closed behavior
 
 - Any failed sanitization returns a rejection; tool execution does not proceed.
 - Rejection responses are deterministic and machine-readable for CI/agent handling.
+- Stable rejection schema with `error_code` and `remediation` fields lets
+  agents pattern-match recovery without natural-language parsing
+  (see `docs/src/content/docs/mcp.mdx` for the full code table).
 
 ## Explicit boundaries / non-goals
 
@@ -69,5 +99,8 @@ Prompt injection in upstream text (PR description, issue body, fetched page) inf
 ## Code references
 
 - `internal/mcp/server.go`
-- `internal/mcp/sanitize.go`
+- `internal/mcp/sanitize.go` (input boundary)
 - `internal/mcp/sanitize_test.go`
+- `internal/mcp/sanitize_output.go` (output boundary)
+- `internal/mcp/sanitize_output_test.go`
+- `internal/eval/scenarios/` (adversarial regression corpus)
