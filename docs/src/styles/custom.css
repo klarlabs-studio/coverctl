@@ -1107,31 +1107,45 @@ button[data-open-modal]:hover {
   text-transform: uppercase;
 }
 
-/* Strip default expressive-code chrome inside the transcript
-   so the outer agent-session frame is the only chrome. */
-.agent-transcript :is(.expressive-code, pre, figure) {
-  border: none !important;
-  background: transparent !important;
+/* Strip default expressive-code chrome AND any theme background inside
+   the transcript so the outer agent-session frame is the only chrome.
+   Targets every nested element expressive-code may render with a
+   --background token that bleeds in light mode. The outer
+   .agent-transcript wrapper keeps its dark bg (set above) — only
+   *children* get cleared. */
+.agent-transcript :is(figure, .expressive-code, .expressive-code .frame, .expressive-code pre, .expressive-code code, .expressive-code .code, .expressive-code .ec-line, pre, code) {
+  background-color: transparent !important;
+  background-image: none !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+.agent-transcript figure,
+.agent-transcript .expressive-code,
+.agent-transcript pre {
   margin: 0 !important;
   border-radius: 0 !important;
-  box-shadow: none !important;
 }
 
-.agent-transcript .expressive-code .frame {
-  background: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
-}
-
-.agent-transcript .expressive-code .frame > .header {
-  display: none;
+.agent-transcript .expressive-code .frame > .header,
+.agent-transcript .expressive-code .copy {
+  display: none !important;
 }
 
 /* Force terminal text to render light-on-dark in BOTH themes.
-   The transcript fence is `text` lang (no syntax tokens), so a single
-   colour override is sufficient. */
-.agent-transcript :is(pre, code, .expressive-code, span) {
+   The transcript fence is `text` lang (no syntax tokens), but
+   expressive-code still wraps every line in spans that inherit a
+   theme-coloured token; override comprehensively. */
+.agent-transcript,
+.agent-transcript *,
+.agent-transcript pre,
+.agent-transcript code,
+.agent-transcript span {
   color: hsl(180, 20%, 88%) !important;
+}
+
+.agent-transcript .agent-transcript-title {
+  color: var(--sl-color-gray-3) !important;
 }
 
 .agent-transcript pre {
