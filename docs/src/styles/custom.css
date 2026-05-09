@@ -53,7 +53,11 @@
   --sl-color-accent-high: hsl(172, 70%, 70%);
 }
 
-/* Light theme adjustments */
+/* Light theme adjustments
+   Starlight tokens 'white' and 'black' invert per theme — 'white' is
+   the body-text colour in dark mode, the background in light mode (and
+   vice versa). The previous block forgot to flip 'white', leaving body
+   text white-on-paper in light theme. */
 :root[data-theme='light'] {
   --sl-color-accent-low: hsl(172, 50%, 92%);
   --sl-color-accent: hsl(172, 66%, 38%);
@@ -65,7 +69,14 @@
   --sl-color-gray-4: hsl(224, 8%, 70%);
   --sl-color-gray-5: hsl(224, 10%, 88%);
   --sl-color-gray-6: hsl(224, 12%, 94%);
-  --sl-color-black: hsl(224, 18%, 98%);
+
+  /* Body text — was missing; rendered white on light bg before. */
+  --sl-color-white: hsl(224, 18%, 12%);
+  --sl-color-black: hsl(40, 30%, 99%);
+
+  --sl-color-text: hsl(224, 18%, 14%);
+  --sl-color-text-accent: hsl(172, 70%, 25%);
+  --sl-color-bg: hsl(40, 30%, 99%);
 }
 
 /* ============================================
