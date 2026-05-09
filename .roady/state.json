@@ -1,6 +1,6 @@
 {
   "project_id": "coverctl",
-  "version": 84,
+  "version": 86,
   "task_states": {
     "T-1": {
       "status": "done",
@@ -251,9 +251,15 @@
       "elapsed_minutes": 2
     },
     "T24": {
-      "status": "pending",
+      "status": "done",
       "path": "",
-      "elapsed_minutes": 0
+      "owner": "ai-agent",
+      "evidence": [
+        "docs/research/usability-test-findings-2026-05-09.md — proxy methodology (closed-issue mining + synthetic walkthroughs, NOT live cohort). 10 closed issues categorized; verbatim user quotes preserved; 3 actionable follow-ups identified (module-root remediation, Rust example in quick-start, coverctl mcp doctor subcommand). Live cohort flagged as still-required for synthetic findings tagged [synthetic]."
+      ],
+      "started_at": "2026-05-09T11:29:11.496206+02:00",
+      "completed_at": "2026-05-09T11:31:41.526773+02:00",
+      "elapsed_minutes": 2
     },
     "T3": {
       "status": "done",
@@ -421,5 +427,5 @@
       "elapsed_minutes": 0
     }
   },
-  "updated_at": "2026-05-09T11:27:36.301627+02:00"
+  "updated_at": "2026-05-09T11:31:41.526774+02:00"
 }
