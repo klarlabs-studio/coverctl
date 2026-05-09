@@ -103,6 +103,35 @@ between them later does not require any reconfiguration.
    The wizard auto-detects domains and writes `.coverctl.yaml`. After this
    step, the agent picks up the same config automatically.
 
+   <Tabs>
+     <TabItem label="Go">
+   `init` writes a Go-flavored `.coverctl.yaml`. The agent runs `go
+   test -coverprofile=...` under the hood — no extra setup.
+     </TabItem>
+     <TabItem label="Python">
+   `init` defaults `profile: coverage.xml`. Install pytest-cov once:
+   `pip install pytest-cov`. The agent runs `pytest --cov` for you
+   from the `check` tool.
+     </TabItem>
+     <TabItem label="TypeScript / JavaScript">
+   `init` defaults `profile: coverage/lcov.info`. The agent runs
+   `nyc`, `c8`, or Jest `--coverage` based on what your `package.json`
+   declares.
+     </TabItem>
+     <TabItem label="Rust">
+   `init` writes a Rust-flavored `.coverctl.yaml` with `profile:
+   coverage.lcov`. Install cargo-llvm-cov once: `cargo install
+   cargo-llvm-cov`. Generate the profile before the first agent check:
+
+   ```bash
+   cargo llvm-cov --lcov --output-path coverage.lcov
+   ```
+
+   Subsequent agent `check` calls read the LCOV file directly — no
+   need to re-run cargo-llvm-cov unless source changed materially.
+     </TabItem>
+   </Tabs>
+
 3. **First agent-initiated check**
 
    Open your project in the agent. Ask it something like:

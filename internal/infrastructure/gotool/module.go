@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"errors"
+	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -37,6 +38,23 @@ func (m ModuleResolver) ModuleRoot(ctx context.Context) (string, error) {
 	return findModuleRoot()
 }
 
+// ModuleRootError is returned by findModuleRoot when no go.mod or go.work
+// is reachable from the working directory. It carries the cwd and the
+// list of directories searched so callers (CLI, MCP) can render a
+// structured remediation response — see issue #20 where the original
+// "module root not found" string was the only signal a real user got.
+//
+// Callers that need to surface a recovery hint should errors.As against
+// this type rather than string-match the message.
+type ModuleRootError struct {
+	CWD      string   // Working directory the search started from.
+	Searched []string // Every directory inspected, in walk order.
+}
+
+func (e *ModuleRootError) Error() string {
+	return fmt.Sprintf("module root not found: no go.mod or go.work in %s or any parent directory", e.CWD)
+}
+
 // findModuleRoot searches current and parent directories for go.mod or go.work.
 // This helps in monorepo scenarios where the current directory may be a subdirectory
 // that isn't directly within a Go module, or when using Go workspaces.
@@ -46,8 +64,10 @@ func findModuleRoot() (string, error) {
 		return "", err
 	}
 
+	searched := make([]string, 0, 8)
 	dir := cwd
 	for {
+		searched = append(searched, dir)
 		// Check for go.mod first (standard Go module)
 		gomodPath := filepath.Join(dir, "go.mod")
 		if _, err := os.Stat(gomodPath); err == nil {
@@ -64,7 +84,7 @@ func findModuleRoot() (string, error) {
 		parent := filepath.Dir(dir)
 		if parent == dir {
 			// Reached filesystem root without finding go.mod or go.work
-			return "", errors.New("module root not found: no go.mod or go.work in current or parent directories")
+			return "", &ModuleRootError{CWD: cwd, Searched: searched}
 		}
 		dir = parent
 	}

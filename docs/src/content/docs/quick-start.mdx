@@ -203,6 +203,40 @@ exclude:
   - "**/__mocks__/**"
 ```
 
+### Rust Project
+
+```yaml
+version: 1
+language: rust
+profile: coverage.lcov
+policy:
+  default:
+    min: 75
+  domains:
+    - name: core
+      match: ["src/core/**"]
+      min: 85
+    - name: api
+      match: ["src/api/**"]
+      min: 80
+exclude:
+  - "tests/**"
+  - "benches/**"
+```
+
+Generate the LCOV profile coverctl reads:
+
+```bash
+cargo install cargo-llvm-cov          # one-time
+cargo llvm-cov --lcov --output-path coverage.lcov
+coverctl check
+```
+
+`cargo-llvm-cov` is the standard Rust coverage tool; coverctl reads
+its LCOV output by default. For Cargo workspaces, run `cargo
+llvm-cov` from the workspace root and point `profile:` at the
+generated file.
+
 ## Common Workflows
 
 ### Development Mode

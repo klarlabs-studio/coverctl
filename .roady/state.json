@@ -1,6 +1,6 @@
 {
   "project_id": "coverctl",
-  "version": 87,
+  "version": 103,
   "task_states": {
     "T-1": {
       "status": "done",
@@ -262,29 +262,59 @@
       "elapsed_minutes": 2
     },
     "T25": {
-      "status": "pending",
+      "status": "done",
       "path": "",
-      "elapsed_minutes": 0
+      "owner": "ai-agent",
+      "evidence": [
+        "internal/infrastructure/gotool/module.go ModuleRootError typed error with CWD + Searched paths; internal/mcp/sanitize.go OpCodeModuleRootMissing constant + ModuleRootRemediation copy. App-boundary typed error consumable by both CLI and MCP via errors.As."
+      ],
+      "started_at": "2026-05-09T11:38:19.278834+02:00",
+      "completed_at": "2026-05-09T11:39:58.132993+02:00",
+      "elapsed_minutes": 1
     },
     "T26": {
-      "status": "pending",
+      "status": "done",
       "path": "",
-      "elapsed_minutes": 0
+      "owner": "ai-agent",
+      "evidence": [
+        "internal/mcp/runtime_errors.go classifyRuntimeError(err) -\u003e (response, ok); wired into handleCheck/handleReport/handleDebt/handleCompare/handleSuggest. internal/cli/cli.go remediationHintForError + exitCodeWithCI surfaces hint after err. runtime_errors_test.go: nil/unknown/typed/wrapped cases mirroring issue #20."
+      ],
+      "started_at": "2026-05-09T11:40:00.445504+02:00",
+      "completed_at": "2026-05-09T11:43:25.978874+02:00",
+      "elapsed_minutes": 3
     },
     "T27": {
-      "status": "pending",
+      "status": "done",
       "path": "",
-      "elapsed_minutes": 0
+      "owner": "ai-agent",
+      "evidence": [
+        "docs/src/content/docs/quick-start.mdx Rust Project section + cargo-llvm-cov invocation; docs/src/content/docs/quick-start-agent.mdx language tabs (Go/Python/TS/Rust) inside step 2 covering profile defaults + Rust pre-step."
+      ],
+      "started_at": "2026-05-09T11:43:28.814748+02:00",
+      "completed_at": "2026-05-09T11:44:44.899644+02:00",
+      "elapsed_minutes": 1
     },
     "T28": {
-      "status": "pending",
+      "status": "done",
       "path": "",
-      "elapsed_minutes": 0
+      "owner": "ai-agent",
+      "evidence": [
+        "internal/cli/cmd_mcp_doctor.go (6-step diagnostic: binary on PATH, dir markers, config resolvable, server constructs, dispatch smoke, mode auto-detect); cmd_mcp.go dispatches \"doctor\" subcommand. Returns 0 only when all pass."
+      ],
+      "started_at": "2026-05-09T11:44:47.352332+02:00",
+      "completed_at": "2026-05-09T11:46:31.335621+02:00",
+      "elapsed_minutes": 1
     },
     "T29": {
-      "status": "pending",
+      "status": "done",
       "path": "",
-      "elapsed_minutes": 0
+      "owner": "ai-agent",
+      "evidence": [
+        "cli.go commandHelpText[\"mcp\"] extended with doctor subcommand + bash completion adds \"doctor\"; mcp.mdx Verifying installation section shows full sample doctor output + step-by-step remediation table; cmd_mcp_doctor_test.go covers all-steps-run, missing-config remediation, dispatch-smoke schema reference."
+      ],
+      "started_at": "2026-05-09T11:46:34.062355+02:00",
+      "completed_at": "2026-05-09T11:48:16.258747+02:00",
+      "elapsed_minutes": 1
     },
     "T3": {
       "status": "done",
@@ -419,8 +449,14 @@
       "elapsed_minutes": 0
     },
     "task-coverctl-mcp-doctor-first-run-validation": {
-      "status": "pending",
+      "status": "done",
       "path": "",
+      "owner": "ai-agent",
+      "evidence": [
+        "Children T28, T29 complete."
+      ],
+      "started_at": "2026-05-09T11:48:33.791003+02:00",
+      "completed_at": "2026-05-09T11:48:46.974659+02:00",
       "elapsed_minutes": 0
     },
     "task-golden-path-ux-for-first-run": {
@@ -446,8 +482,14 @@
       "elapsed_minutes": 0
     },
     "task-module-root-failure-remediation": {
-      "status": "pending",
+      "status": "done",
       "path": "",
+      "owner": "ai-agent",
+      "evidence": [
+        "Children T25, T26 complete."
+      ],
+      "started_at": "2026-05-09T11:48:26.678884+02:00",
+      "completed_at": "2026-05-09T11:48:42.644249+02:00",
       "elapsed_minutes": 0
     },
     "task-product-messaging-\u0026-docs-alignment": {
@@ -462,10 +504,16 @@
       "elapsed_minutes": 0
     },
     "task-rust-quick-start-tab": {
-      "status": "pending",
+      "status": "done",
       "path": "",
+      "owner": "ai-agent",
+      "evidence": [
+        "Child T27 complete."
+      ],
+      "started_at": "2026-05-09T11:48:29.564142+02:00",
+      "completed_at": "2026-05-09T11:48:44.962165+02:00",
       "elapsed_minutes": 0
     }
   },
-  "updated_at": "2026-05-09T11:31:41.526774+02:00"
+  "updated_at": "2026-05-09T11:48:46.97466+02:00"
 }

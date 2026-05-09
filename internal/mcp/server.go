@@ -219,6 +219,10 @@ func (s *Server) handleCheck(ctx context.Context, input CheckInput) (map[string]
 	result, err := s.svc.CheckResult(ctx, opts)
 	s.telemetry.RecordToolCall("check", time.Since(start), err, false)
 
+	if classified, ok := classifyRuntimeError(err); ok {
+		return classified, nil
+	}
+
 	v := resolveVerbosity(input.Verbosity)
 	domains, domainCursor := applyDomainBudget(result.Domains, v)
 	files, fileCursor := applyFileBudget(result.Files, v)
@@ -267,6 +271,10 @@ func (s *Server) handleReport(ctx context.Context, input ReportInput) (map[strin
 	}
 
 	result, err := s.svc.ReportResult(ctx, opts)
+
+	if classified, ok := classifyRuntimeError(err); ok {
+		return classified, nil
+	}
 
 	v := resolveVerbosity(input.Verbosity)
 	domains, domainCursor := applyDomainBudget(result.Domains, v)
@@ -558,6 +566,10 @@ func (s *Server) handleSuggest(ctx context.Context, input SuggestInput) (map[str
 
 	result, err := s.svc.Suggest(ctx, opts)
 
+	if classified, ok := classifyRuntimeError(err); ok {
+		return classified, nil
+	}
+
 	output := map[string]any{
 		"passed":      err == nil,
 		"suggestions": result.Suggestions,
@@ -619,6 +631,10 @@ func (s *Server) handleDebt(ctx context.Context, input DebtInput) (map[string]an
 
 	result, err := s.svc.Debt(ctx, opts)
 
+	if classified, ok := classifyRuntimeError(err); ok {
+		return classified, nil
+	}
+
 	v := resolveVerbosity(input.Verbosity)
 	items, itemsCursor := applyDebtItemBudget(result.Items, v)
 	output := map[string]any{
@@ -673,6 +689,10 @@ func (s *Server) handleCompare(ctx context.Context, input CompareInput) (map[str
 	}
 
 	result, err := s.svc.Compare(ctx, opts)
+
+	if classified, ok := classifyRuntimeError(err); ok {
+		return classified, nil
+	}
 
 	v := resolveVerbosity(input.Verbosity)
 	improved, improvedCursor := applyFileDeltaBudget(result.Improved, v)

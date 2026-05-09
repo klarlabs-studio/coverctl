@@ -172,14 +172,32 @@ func rejectionResponse(err error) map[string]any {
 // detect failed, file ops, etc.). Same schema, different lifecycle: these
 // describe runtime conditions agents may recover from by adjusting flags.
 const (
-	OpCodeConfigExists  RejectionCode = "OP_CONFIG_EXISTS"
-	OpCodeDetectFailed  RejectionCode = "OP_DETECT_FAILED"
-	OpCodeInvalidPath   RejectionCode = "OP_INVALID_PATH"
-	OpCodeFileWrite     RejectionCode = "OP_FILE_WRITE_FAILED"
-	OpCodeRateLimited   RejectionCode = "OP_RATE_LIMITED"
-	OpCodeMissingArg    RejectionCode = "OP_MISSING_ARG"
-	OpCodeInternalError RejectionCode = "OP_INTERNAL_ERROR"
+	OpCodeConfigExists      RejectionCode = "OP_CONFIG_EXISTS"
+	OpCodeDetectFailed      RejectionCode = "OP_DETECT_FAILED"
+	OpCodeInvalidPath       RejectionCode = "OP_INVALID_PATH"
+	OpCodeFileWrite         RejectionCode = "OP_FILE_WRITE_FAILED"
+	OpCodeRateLimited       RejectionCode = "OP_RATE_LIMITED"
+	OpCodeMissingArg        RejectionCode = "OP_MISSING_ARG"
+	OpCodeInternalError     RejectionCode = "OP_INTERNAL_ERROR"
+	OpCodeModuleRootMissing RejectionCode = "OP_MODULE_ROOT_MISSING"
 )
+
+// ModuleRootRemediation is the agent-actionable hint returned when
+// coverctl cannot resolve a Go module root. Centralized so the same
+// guidance lands whether the failure surfaces through MCP, the CLI, or
+// the eval harness.
+//
+// Why these four hints: issue #20 captured a real user explicitly
+// asking for "a clearer error message explaining what's missing".
+// The four bullets cover the realistic reasons module-root resolution
+// fails — no Go in the project, running from above the repo, nested
+// submodule, or non-Go polyglot repo where the user wanted --language
+// override.
+const ModuleRootRemediation = "Could not find go.mod or go.work in the current directory or any parent. " +
+	"Run from inside a Go module, " +
+	"pass --language explicitly if this is a non-Go repo (python, typescript, rust, java, etc.), " +
+	"check that the repo root is reachable from cwd (you may be running from above it), " +
+	"or check for nested submodules — coverctl uses the nearest module root."
 
 // errorResponse builds a stable schema response for an operational failure.
 // Use this for non-sanitization errors (config already exists, file write

@@ -53,10 +53,12 @@ func runMCP(ctx context.Context, args []string, stdout, stderr io.Writer, svc Se
 	_ = global
 	if len(args) < 1 {
 		fmt.Fprintln(stderr, "Usage: coverctl mcp <subcommand>")
-		fmt.Fprintln(stderr, "Subcommands: serve")
+		fmt.Fprintln(stderr, "Subcommands: serve, doctor")
 		return 2
 	}
 	switch args[0] {
+	case "doctor":
+		return runMCPDoctor(ctx, args[1:], stdout, stderr)
 	case "serve":
 		fs := flag.NewFlagSet("mcp serve", flag.ContinueOnError)
 		fs.Usage = func() { commandHelp("mcp", stderr) }
@@ -112,7 +114,7 @@ func runMCP(ctx context.Context, args []string, stdout, stderr io.Writer, svc Se
 		return 0
 	default:
 		fmt.Fprintf(stderr, "Unknown mcp subcommand: %s\n", args[0])
-		fmt.Fprintln(stderr, "Available subcommands: serve")
+		fmt.Fprintln(stderr, "Available subcommands: serve, doctor")
 		return 2
 	}
 }

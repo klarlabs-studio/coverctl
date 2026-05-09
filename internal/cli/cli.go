@@ -3,6 +3,7 @@ package cli
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"flag"
 	"fmt"
 	"io"
@@ -29,6 +30,7 @@ import (
 	"github.com/felixgeelhaar/coverctl/internal/infrastructure/runners"
 	"github.com/felixgeelhaar/coverctl/internal/infrastructure/watcher"
 	"github.com/felixgeelhaar/coverctl/internal/infrastructure/wizard"
+	"github.com/felixgeelhaar/coverctl/internal/mcp"
 	"github.com/felixgeelhaar/coverctl/internal/pathutil"
 )
 
@@ -497,7 +499,30 @@ func exitCodeWithCI(err error, code int, stderr io.Writer, global GlobalOptions)
 	} else {
 		fmt.Fprintln(stderr, err)
 	}
+	// Surface a structured remediation hint after the raw error for
+	// recognized typed runtime failures. Mirrors the MCP-side rejection
+	// schema so terminal users get the same recovery guidance an agent
+	// receives. Add cases here as more typed runtime errors land.
+	if hint := remediationHintForError(err); hint != "" {
+		if global.CI {
+			fmt.Fprintf(stderr, "::notice::%s\n", hint)
+		} else {
+			fmt.Fprintln(stderr, hint)
+		}
+	}
 	return code
+}
+
+// remediationHintForError returns an agent/user-readable next-step hint
+// when the error is a recognized typed runtime failure. Returns empty
+// string when the error is unrecognized — caller should fall through to
+// the generic message.
+func remediationHintForError(err error) string {
+	var modRoot *gotool.ModuleRootError
+	if errors.As(err, &modRoot) {
+		return mcp.ModuleRootRemediation
+	}
+	return ""
 }
 
 func printIgnoreInfo(cfg application.Config, domains []domain.Domain, w io.Writer) {
@@ -1112,7 +1137,17 @@ Claude Desktop Configuration:
 Examples:
   coverctl mcp serve
   coverctl mcp serve -c custom.yaml
-  coverctl mcp serve --history .cover/history.json`,
+  coverctl mcp serve --history .cover/history.json
+  coverctl mcp doctor                  # validate first-run setup
+  coverctl mcp doctor -c custom.yaml   # validate against a non-default config
+
+Subcommands:
+  serve   Start the MCP server (stdio).
+  doctor  Run first-run validation checks. Reports PASS/FAIL with
+          remediation per step: binary on PATH, working-directory
+          markers, config resolvable, MCP server construction, tool
+          dispatch smoke, mode auto-detect. Returns 0 only when every
+          check passes.`,
 
 	"survey": `coverctl survey - Sean Ellis 40% PMF feedback prompt
 
@@ -1205,7 +1240,7 @@ _coverctl() {
             return 0
             ;;
         mcp)
-            COMPREPLY=( $(compgen -W "serve" -- ${cur}) )
+            COMPREPLY=( $(compgen -W "serve doctor" -- ${cur}) )
             return 0
             ;;
     esac

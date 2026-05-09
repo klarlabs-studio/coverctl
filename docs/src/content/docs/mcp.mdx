@@ -182,14 +182,44 @@ The schema is **append-only**: future codes may be added; existing codes will no
 
 ## Verifying installation
 
-Check that the agent can see the server:
+Use the built-in doctor for an end-to-end first-run check:
+
+```bash
+coverctl mcp doctor
+```
+
+Sample output (all checks passing):
+
+```
+[PASS] binary on PATH — found at /opt/homebrew/bin/coverctl
+[PASS] working-directory markers — go.mod present at /Users/me/repo
+[PASS] config resolvable — .coverctl.yaml resolves directly
+[PASS] MCP server constructs — server constructed in agent mode
+[PASS] tool dispatch smoke — rejection schema OK (error_code=INPUT_REJECTED_DANGEROUS_FLAG)
+[PASS] mode auto-detect — 'auto' resolves to agent in this environment
+
+All checks passed. coverctl is ready to use as an MCP server.
+```
+
+Each check writes one line; failures include a remediation hint and a non-zero exit. The output is paste-able into bug reports.
+
+| Step | What it validates | Common failure → fix |
+| --- | --- | --- |
+| binary on PATH | The launcher path the client will resolve | "not on $PATH" → add the install dir to PATH or use the absolute binary path in client config |
+| working-directory markers | Something coverctl recognizes (`go.mod`, `pyproject.toml`, `package.json`, `Cargo.toml`, …) | "no recognized language marker" → run from a project root, or pass `--language` to `check` |
+| config resolvable | Direct stat or auto-detect of `.coverctl.yaml` | "not found" → run `coverctl init` |
+| MCP server constructs | In-process `mcp.New` does not panic | construction error → file an issue with paste |
+| tool dispatch smoke | Adversarial input is rejected with the stable schema | shape mismatch → `mcp-go` upgrade lagged; reinstall coverctl |
+| mode auto-detect | What `--mode=auto` will resolve to today | informational; never fails |
+
+Manual smoke as a fallback:
 
 ```bash
 coverctl mcp serve --help
 # Should print MCP serve options without error.
 ```
 
-Then in the agent: *"What MCP tools do you have available from coverctl?"* The agent should list `init`, `check`, `report`, etc.
+Then in the agent: *"What MCP tools do you have available from coverctl?"* The agent should list `check`, `suggest`, `debt` (agent mode) or the full nine-tool surface (CI mode).
 
 ## Troubleshooting
 
