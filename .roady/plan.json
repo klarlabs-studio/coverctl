@@ -4,7 +4,7 @@
   "tasks": [
     {
       "id": "T1",
-      "title": "Category Point-of-View doc (Lochhead)",
+      "title": "Category Point-of-View doc",
       "description": "docs/strategy/category-pov.md",
       "priority": "high",
       "estimate": "2d",
@@ -22,7 +22,7 @@
     },
     {
       "id": "T3",
-      "title": "Reframe PRD overview + Initiative Hypothesis",
+      "title": "Reframe PRD overview",
       "description": "PRD page 1 reframed.",
       "priority": "high",
       "estimate": "2d",
@@ -33,7 +33,7 @@
     },
     {
       "id": "T4",
-      "title": "Reframe ICP brief alternatives + motion stack",
+      "title": "Reframe ICP brief",
       "description": "ICP brief reframed.",
       "priority": "high",
       "estimate": "1d",
@@ -44,8 +44,8 @@
     },
     {
       "id": "T5",
-      "title": "MCP eval harness skeleton + seed scenarios",
-      "description": "internal/eval/ + 9 scenarios.",
+      "title": "MCP eval harness",
+      "description": "internal/eval/",
       "priority": "high",
       "estimate": "5d",
       "depends_on": [],
@@ -53,8 +53,8 @@
     },
     {
       "id": "T6",
-      "title": "LLM-as-judge + adversarial prompt set",
-      "description": "RuleJudge + HTTPLLMJudge.",
+      "title": "LLM-as-judge",
+      "description": "internal/eval/judge.go",
       "priority": "high",
       "estimate": "3d",
       "depends_on": [
@@ -64,8 +64,8 @@
     },
     {
       "id": "T7",
-      "title": "Wire eval harness into CI gate",
-      "description": ".github/workflows/eval.yml.",
+      "title": "Eval CI gate",
+      "description": ".github/workflows/eval.yml",
       "priority": "medium",
       "estimate": "1d",
       "depends_on": [
@@ -76,8 +76,8 @@
     },
     {
       "id": "T8",
-      "title": "Mode-aware MCP serve flag + tool routing",
-      "description": "--mode=agent|ci.",
+      "title": "Mode-aware MCP serve",
+      "description": "--mode=agent|ci",
       "priority": "high",
       "estimate": "2d",
       "depends_on": [
@@ -87,8 +87,8 @@
     },
     {
       "id": "T9",
-      "title": "Auto-detect MCP client for default mode",
-      "description": "--mode=auto via CI env vars.",
+      "title": "Auto-detect MCP client",
+      "description": "--mode=auto",
       "priority": "medium",
       "estimate": "1d",
       "depends_on": [
@@ -99,7 +99,7 @@
     {
       "id": "T10",
       "title": "Output boundary canonicalization",
-      "description": "sanitize_output.go.",
+      "description": "sanitize_output.go",
       "priority": "high",
       "estimate": "3d",
       "depends_on": [
@@ -109,7 +109,7 @@
     },
     {
       "id": "T11",
-      "title": "Adversarial output-injection test suite",
+      "title": "Adversarial output tests",
       "description": "Attack-pattern tests.",
       "priority": "high",
       "estimate": "2d",
@@ -120,7 +120,7 @@
     },
     {
       "id": "T12",
-      "title": "Threat-model doc output-boundary update",
+      "title": "Threat-model output update",
       "description": "Output-boundary section.",
       "priority": "medium",
       "estimate": "1d",
@@ -131,7 +131,7 @@
     },
     {
       "id": "T13",
-      "title": "Structured rejection schema + remediation field",
+      "title": "Rejection schema",
       "description": "error_code + remediation.",
       "priority": "high",
       "estimate": "2d",
@@ -140,7 +140,7 @@
     },
     {
       "id": "T14",
-      "title": "Per-tool output budgets + verbosity + pagination",
+      "title": "Output budgets + verbosity",
       "description": "brief|normal|verbose.",
       "priority": "medium",
       "estimate": "3d",
@@ -151,8 +151,8 @@
     },
     {
       "id": "T15",
-      "title": "CLI check output redesign + next-action footer",
-      "description": "Realistic mixed PASS/FAIL.",
+      "title": "CLI check output redesign",
+      "description": "Mixed PASS/FAIL footer.",
       "priority": "high",
       "estimate": "2d",
       "depends_on": [],
@@ -160,8 +160,8 @@
     },
     {
       "id": "T16",
-      "title": "Update quick-start sample output to mirror CLI",
-      "description": "docs sample alignment.",
+      "title": "Quick-start sample alignment",
+      "description": "Mirror real CLI.",
       "priority": "medium",
       "estimate": "1d",
       "depends_on": [
@@ -171,7 +171,7 @@
     },
     {
       "id": "T17",
-      "title": "Failure-mode caution blocks per step",
+      "title": "Failure-mode caution blocks",
       "description": ":::caution[If this fails].",
       "priority": "high",
       "estimate": "2d",
@@ -181,7 +181,7 @@
     {
       "id": "T18",
       "title": "Trust calibration callout",
-      "description": "Works best vs may need adjustments.",
+      "description": "Where coverctl works best.",
       "priority": "medium",
       "estimate": "1d",
       "depends_on": [
@@ -191,8 +191,8 @@
     },
     {
       "id": "T19",
-      "title": "Agent-mode quick-start page",
-      "description": "quick-start-agent.mdx.",
+      "title": "Agent-mode quick-start",
+      "description": "quick-start-agent.mdx",
       "priority": "high",
       "estimate": "3d",
       "depends_on": [
@@ -202,7 +202,7 @@
     },
     {
       "id": "T20",
-      "title": "Cross-link + landing-page A/B copy",
+      "title": "Cross-link + landing copy",
       "description": "Hero parallel paths.",
       "priority": "medium",
       "estimate": "1d",
@@ -213,8 +213,8 @@
     },
     {
       "id": "T21",
-      "title": "GTM activation funnel metrics + trace pipeline",
-      "description": "gtm-metrics-spec.md.",
+      "title": "GTM funnel metrics",
+      "description": "gtm-metrics-spec.md",
       "priority": "medium",
       "estimate": "3d",
       "depends_on": [
@@ -225,8 +225,8 @@
     },
     {
       "id": "T22",
-      "title": "Sean Ellis 40% PMF survey",
-      "description": "coverctl survey subcommand.",
+      "title": "Sean Ellis PMF survey",
+      "description": "coverctl survey command.",
       "priority": "low",
       "estimate": "1d",
       "depends_on": [
@@ -236,8 +236,8 @@
     },
     {
       "id": "T23",
-      "title": "Recruit 5 polyglot Claude Code users",
-      "description": "Protocol + findings template prep.",
+      "title": "Recruit usability cohort",
+      "description": "Protocol + template prep.",
       "priority": "low",
       "estimate": "1d",
       "depends_on": [
@@ -249,8 +249,8 @@
     },
     {
       "id": "T24",
-      "title": "Run + report 5-user usability test",
-      "description": "Proxy report via closed-issue mining + synthetic personas.",
+      "title": "Run usability test",
+      "description": "Proxy report via closed-issue mining.",
       "priority": "low",
       "estimate": "2d",
       "depends_on": [
@@ -260,7 +260,7 @@
     },
     {
       "id": "T-1",
-      "title": "Remove Go-only wording from CLI help text",
+      "title": "Remove Go-only wording from CLI help",
       "description": "cli.go consistency.",
       "priority": "high",
       "estimate": "1d",
@@ -278,8 +278,8 @@
     },
     {
       "id": "T-3",
-      "title": "Define MCP tool-call success metrics spec",
-      "description": "mcp-metrics-spec.md.",
+      "title": "MCP tool-call success metrics spec",
+      "description": "mcp-metrics-spec.md",
       "priority": "high",
       "estimate": "2d",
       "depends_on": [],
@@ -296,7 +296,7 @@
     },
     {
       "id": "T-5",
-      "title": "Polish golden-path UX for first-run",
+      "title": "Polish golden-path UX",
       "description": "init-\u003echeck-\u003esuggest-\u003erecord polish.",
       "priority": "medium",
       "estimate": "3d",
@@ -308,8 +308,8 @@
     },
     {
       "id": "T-6",
-      "title": "Add structured CI artifact collection",
-      "description": "go.yml machine-readable artifacts.",
+      "title": "Structured CI artifact collection",
+      "description": "go.yml machine-readable.",
       "priority": "medium",
       "estimate": "2d",
       "depends_on": [
@@ -319,7 +319,7 @@
     },
     {
       "id": "T-7",
-      "title": "Build ICP-focused GTM brief",
+      "title": "ICP-focused GTM brief",
       "description": "icp-brief.md initial.",
       "priority": "low",
       "estimate": "2d",
@@ -331,8 +331,8 @@
     },
     {
       "id": "T-8",
-      "title": "Publish enterprise security architecture doc",
-      "description": "mcp-threat-model.md.",
+      "title": "Enterprise security architecture doc",
+      "description": "mcp-threat-model.md",
       "priority": "low",
       "estimate": "1d",
       "depends_on": [
@@ -342,8 +342,8 @@
     },
     {
       "id": "T-9",
-      "title": "Add scenario tests for weak coverage surfaces",
-      "description": "mcp + cli + runner edge cases.",
+      "title": "Scenario tests for weak coverage surfaces",
+      "description": "mcp + cli + runner tests.",
       "priority": "low",
       "estimate": "3d",
       "depends_on": [
@@ -434,7 +434,7 @@
     },
     {
       "id": "T26",
-      "title": "Wire module-root remediation into MCP + CLI",
+      "title": "Wire module-root remediation",
       "description": "classifyRuntimeError.",
       "priority": "high",
       "estimate": "1d",
@@ -445,7 +445,7 @@
     },
     {
       "id": "T27",
-      "title": "Rust tab in quick-start examples",
+      "title": "Rust tab in quick-start",
       "description": "Quick-start tabs.",
       "priority": "medium",
       "estimate": "1d",
@@ -463,7 +463,7 @@
     },
     {
       "id": "T29",
-      "title": "doctor command help + docs section + tests",
+      "title": "doctor help + docs + tests",
       "description": "Help + mcp.mdx + test.",
       "priority": "medium",
       "estimate": "1d",
@@ -501,8 +501,8 @@
     },
     {
       "id": "T30",
-      "title": "Reframe landing Problem + Solution sections",
-      "description": "Rewrite docs/src/content/docs/index.mdx 'The Problem' and 'The Solution' sections around agent-loop struggling moment. Replace 'Traditional coverage tools give you one number for your entire codebase' (Codecov-frame critique) with the red-CI agent loop status quo from docs/strategy/category-pov.md. Replace YAML config snippet in 'The Solution' with the agent-loop solution flow (agent calls check/suggest/debt mid-edit). Keep YAML further down for reference.",
+      "title": "Reframe landing Problem + Solution",
+      "description": "Wedge alternatives table.",
       "priority": "high",
       "estimate": "1d",
       "depends_on": [],
@@ -510,8 +510,8 @@
     },
     {
       "id": "T31",
-      "title": "Replace generic Cards + cut Designed for Teams",
-      "description": "Replace landing's generic feature Cards (Domain-Aware Policies / Multi-Language Support / CI-Ready / Auto-Discovery) with agent-loop-anchored value props that name the wedge: 'Catches regressions before commit' / 'Agent-callable via MCP' / 'Polyglot governance, one config' / 'Local-first, no SaaS'. Cut the 'Designed for Teams' section entirely — bullets restate product without selling outcome and the DDD-principles language collides with the coverage 'domain' concept.",
+      "title": "Replace Cards + cut Designed for Teams",
+      "description": "Wedge-anchored Cards.",
       "priority": "high",
       "estimate": "1d",
       "depends_on": [
@@ -521,8 +521,8 @@
     },
     {
       "id": "T32",
-      "title": "Name the category and repeat the phrase",
-      "description": "Promote 'agent-loop coverage governance' as a named category phrase to README hero, landing tagline, and the first sentence of every blog/conference pitch. Rule (Lochhead): until visitors can repeat the phrase, category design isn't working. Land in: README hero sub-line, landing tagline, README first paragraph, mcp.mdx intro paragraph. Add explicit alternatives block (red-CI agent loop status quo / dashboards / native commands) under the hero on both surfaces — sets comparison frame before visitor sets it.",
+      "title": "Name the category",
+      "description": "Agent-loop coverage governance phrase.",
       "priority": "high",
       "estimate": "1d",
       "depends_on": [],
@@ -531,7 +531,7 @@
     {
       "id": "T33",
       "title": "Tighten hero density + remove copy leaks",
-      "description": "README: compress over-feature-densified sub-line ('Domain-aware policy, fifteen languages, no SaaS account, no source upload' → one differentiation phrase 'Local-first, MCP-native'); drop 'first-class' modifier; replace 'designed with domain-driven design principles' bullet (architectural leak collides with coverage-domain concept); contextualize 'local-first' to customer benefit. Landing: trim hero CTAs from 3 to 2 (drop GitHub button, available in nav); drop Languages badge (claim already in tagline).",
+      "description": "Drop first-class, DDD principles.",
       "priority": "high",
       "estimate": "1d",
       "depends_on": [],
@@ -539,8 +539,8 @@
     },
     {
       "id": "T34",
-      "title": "Validate transcript against real Claude Code session",
-      "description": "Before publishing the on-page agent transcript: run the exact prompt ('Add the email-validation feature to the api domain') through a real Claude Code session against a fresh repo with coverctl wired in. Capture the actual interaction. Compare against ai-expert's idealized transcript. Decide: clean up the on-page version with a small 'rendered for clarity' note, or use the raw real one. Either is honest; pretending the idealized one is real loses trust on first install.",
+      "title": "Validate transcript",
+      "description": "Idealized with rendered-for-clarity disclaimer.",
       "priority": "high",
       "estimate": "1d",
       "depends_on": [],
@@ -548,8 +548,8 @@
     },
     {
       "id": "T35",
-      "title": "Add transparency-moment artifact to README",
-      "description": "Insert immediately after the hero/sub-hero, before any feature catalogue: (a) 6-line agent-session transcript per ai-expert's concrete copy showing tool calls inline, structured rejection, chained suggest call, agent's natural-language plan with explicit failing domain + uncovered lines; (b) anti-pattern card with 3 hallucination markers (lowering thresholds as 'fix', claiming coverage rose without a new check, ignoring error_code on retry); (c) compressed agent-calibration block (does well / watch for / contract is in docs).",
+      "title": "Transparency-moment artifact on README",
+      "description": "Transcript + anti-pattern + calibration.",
       "priority": "high",
       "estimate": "1d",
       "depends_on": [
@@ -559,8 +559,8 @@
     },
     {
       "id": "T36",
-      "title": "Mirror transcript + calibration to landing",
-      "description": "Add the same transparency-moment artifact (transcript + anti-pattern card + calibration block) to docs/src/content/docs/index.mdx between the hero and the value-props cards. Match formatting to Astro Starlight components (Code component for transcript, Aside for calibration). Keep README and landing in sync with a single source-of-truth fragment if Astro Starlight supports MDX inclusion.",
+      "title": "Mirror transparency moment to landing",
+      "description": "Same transcript on index.mdx.",
       "priority": "high",
       "estimate": "1d",
       "depends_on": [
@@ -571,8 +571,8 @@
     },
     {
       "id": "T37",
-      "title": "Replace Security note with full Security Boundaries",
-      "description": "Rewrite README 'Security note for MCP users' as 'Security boundaries' with two-bullet structure covering Lethal Trifecta framing: (a) Input boundary — sanitization rejecting dangerous flags (existing content); (b) Output boundary — canonicalization of user-controlled strings flowing back to agent (filenames, test names, profile-derived paths, PR descriptions in pr-comment). Link full threat model. Mirror compressed version to landing's footer or a dedicated security card.",
+      "title": "Security Boundaries section",
+      "description": "Input + output Lethal Trifecta.",
       "priority": "high",
       "estimate": "1d",
       "depends_on": [],
@@ -580,8 +580,8 @@
     },
     {
       "id": "T38",
-      "title": "Reframe MCP-native to agent-loop-native via MCP",
-      "description": "Replace 'MCP-native, first-class MCP server' across README + landing with 'agent-loop native via MCP' framing plus explicit multi-vendor acknowledgment: 'Speaks MCP — the multi-vendor agent-tool standard now governed by Anthropic, OpenAI, Google, Microsoft, AWS. Works with every MCP-capable client today; works with whatever ships next without modification.' Addresses procurement vendor-lock-in question; repositions stale 'first-class' claim now that MCP is multi-vendor table stakes.",
+      "title": "MCP-native to multi-vendor reframe",
+      "description": "Multi-vendor acknowledgment.",
       "priority": "high",
       "estimate": "1d",
       "depends_on": [],
@@ -589,8 +589,8 @@
     },
     {
       "id": "T39",
-      "title": "Privacy-first + eval-gated framing + compatibility",
-      "description": "Add three-sentence privacy-first + eval-gated paragraph to README near security section: local-first default, opt-in --mcp-telemetry only, 50+ adversarial eval scenarios gating releases (link mcp-metrics-spec.md + internal/eval/). Consolidate compatibility surface single-source on both README and landing: 'Compatible with every MCP-capable client. Tested against Claude Code, Claude Desktop, Cursor, Cline, Aider, Continue, OpenCode.' Eliminates README/landing inconsistency.",
+      "title": "Privacy-first + eval-gated framing",
+      "description": "Local-first paragraph + compatibility.",
       "priority": "medium",
       "estimate": "1d",
       "depends_on": [
@@ -601,8 +601,8 @@
     },
     {
       "id": "T40",
-      "title": "Add Community section to README",
-      "description": "New section between Quickstart and CLI reference: Claude Code Plugin Marketplace link, MCP Registry link, GitHub Discussions link, GitHub Sponsors button, maintainer credit + contributor count. Six lines maximum. Surfaces primary motion (community-led) that has zero current surface area; opens sponsor path; signals 'real project, not vaporware.'",
+      "title": "README Community section",
+      "description": "Marketplace + sponsors + credit.",
       "priority": "high",
       "estimate": "1d",
       "depends_on": [],
@@ -610,8 +610,8 @@
     },
     {
       "id": "T41",
-      "title": "Add For Platform \u0026 DevEx Teams section",
-      "description": "New section linking the artifacts Jordan-class buyers paste into security/procurement reviews: docs/security/mcp-threat-model.md, rejection schema in mcp.mdx, docs/design/gtm-metrics-spec.md. Add low-friction inbound path: 'Open a GitHub issue with label platform-evaluation' — auto-tags Stage 4 monetization trigger metric. Create the 'platform-evaluation' label on the GitHub repo as part of this task.",
+      "title": "For Platform Teams section + label",
+      "description": "Threat-model + rejection-schema + label.",
       "priority": "high",
       "estimate": "1d",
       "depends_on": [],
@@ -619,8 +619,8 @@
     },
     {
       "id": "T42",
-      "title": "Pull-quote + PMF nudge + monetization framing",
-      "description": "Three small high-leverage adds: (a) pull-quote ICP brief's customer struggling-moment line ('Our AI agents ship code fast, but they're blind to coverage policy while editing...') above the install commands per Gerhardt audience-first; (b) one-line PMF survey nudge under Community section ('Used coverctl for a few weeks? Run coverctl survey to share feedback'); (c) pre-emptive monetization framing in 'Why this exists' ('CLI and MCP server are Apache-2.0 licensed and stay free. A hosted layer for cross-repo coverage history is on the roadmap — additive, not a paywall.').",
+      "title": "Pull-quote + PMF nudge + monetization",
+      "description": "ICP quote + survey + monetization.",
       "priority": "medium",
       "estimate": "1d",
       "depends_on": [
@@ -630,8 +630,8 @@
     },
     {
       "id": "T43",
-      "title": "Reorder README first viewport + add nav strip",
-      "description": "Reorder README so first scannable block is: hero → install line → MCP JSON config → agent-prompt example. Prose moves below. Add scannable nav strip near top: '[Get started] · [MCP tools] · [CLI reference] · [Configuration] · [Why this exists]'. Reorder full README sections: hero → install → transcript → why → MCP tool reference → CLI reference → configuration → community → security → contributing. Cuts visual hierarchy debt; matches developer README scan norm (Jakob's Law).",
+      "title": "README first viewport + nav strip",
+      "description": "Install + JSON + transcript above prose.",
       "priority": "high",
       "estimate": "1d",
       "depends_on": [
@@ -642,8 +642,8 @@
     },
     {
       "id": "T44",
-      "title": "Collapse human quickstart + move Architecture out",
-      "description": "Collapse 'Quickstart for humans' and 'Golden path (first 10 minutes)' sections into the CLI reference (they are how-to fragments, not first-touch). Move detailed Architecture section to a dedicated ARCHITECTURE.md (or below Contributing) — useful for contributors but not for first-read decision. README sections drop from 11 to 6.",
+      "title": "Collapse human quickstart + Architecture out",
+      "description": "Folded + ARCHITECTURE.md.",
       "priority": "medium",
       "estimate": "1d",
       "depends_on": [
@@ -653,8 +653,8 @@
     },
     {
       "id": "T45",
-      "title": "Asymmetric Quick Start CardGrid on landing",
-      "description": "Replace the symmetric two-LinkCard pattern in landing's Quick Start with asymmetric primary agent card + inline secondary terminal link. Agent path is full-width or 2x sized with rich preview; terminal path is a one-line link. Restores hierarchy the GTM decision already made (community-led primary motion, agent path is the wedge).",
+      "title": "Asymmetric Quick Start CardGrid",
+      "description": "Primary agent + inline terminal.",
       "priority": "high",
       "estimate": "1d",
       "depends_on": [],
@@ -662,8 +662,8 @@
     },
     {
       "id": "T46",
-      "title": "Trust calibration one-liner on both surfaces",
-      "description": "Add one-liner immediately after the wedge claim, both README and landing: 'Works best on standard Go/Python/JS/Java/Rust projects with conventional layouts. Mock-heavy code or exotic monorepos may need an explicit domains: block.' Calibrates jagged-frontier expectation before install (Mollick informed-use vs misinformed-use); cuts 'broken tool' perception on first edge case.",
+      "title": "Trust calibration one-liner",
+      "description": "Both surfaces.",
       "priority": "medium",
       "estimate": "1d",
       "depends_on": [],
@@ -707,15 +707,382 @@
     },
     {
       "id": "task-readme-and-landing-information-architecture",
-      "title": "Implement README and Landing Information Architecture",
+      "title": "Implement README and Landing IA",
       "description": "Parent.",
       "priority": "medium",
       "estimate": "",
       "depends_on": [],
       "feature_id": "readme-and-landing-information-architecture"
+    },
+    {
+      "id": "T47",
+      "title": "Sidebar IA re-architecture + canonical quick-start",
+      "description": "Replace 5-group sidebar with 4 wedge-ordered groups (Start here / Use coverctl with your agent / Configure and operate / Reference). Consolidate parallel quick-starts into canonical agent-mode page; terminal becomes subsection. Update docs/astro.config.mjs sidebar; cross-link audit; rename slugs as needed.",
+      "priority": "high",
+      "estimate": "1d",
+      "depends_on": [],
+      "feature_id": "site-sidebar-ia-re-architecture"
+    },
+    {
+      "id": "T48",
+      "title": "Agent-loop tutorial page",
+      "description": "New docs/src/content/docs/agent-loop-tutorial.mdx Diataxis-tutorial walking the full cycle: install + wire MCP, ask agent to add feature, watch agent call check, structured rejection, suggest, fix, re-run check pass, commit. ~150-300 lines. Sidebar entry under 'Use coverctl with your agent'.",
+      "priority": "high",
+      "estimate": "2d",
+      "depends_on": [],
+      "feature_id": "agent-loop-tutorial-page-and-canonical-diagram"
+    },
+    {
+      "id": "T49",
+      "title": "Canonical agent-loop Mermaid diagram",
+      "description": "Single Mermaid diagram (~30 lines) showing human → agent → edit → check (MCP) → structured rejection → suggest → fix → check pass → commit cycle. Embed in three places: landing index.mdx, mcp.mdx, agent-loop-tutorial.mdx. Add astro-mermaid integration to astro.config.mjs if not already present.",
+      "priority": "high",
+      "estimate": "1d",
+      "depends_on": [
+        "T48"
+      ],
+      "feature_id": "agent-loop-tutorial-page-and-canonical-diagram"
+    },
+    {
+      "id": "T50",
+      "title": "SEO frontmatter audit (all non-landing pages)",
+      "description": "Rewrite frontmatter title and description for every non-landing .mdx page so wedge keywords ('agent-loop coverage', 'MCP coverage server', 'agent-callable coverage') appear in first 160 chars. 20 files. Use docs/strategy/category-pov.md vocabulary as canonical phrase source.",
+      "priority": "high",
+      "estimate": "1d",
+      "depends_on": [],
+      "feature_id": "pre-wedge-content-purge-and-seo-frontmatter-audit"
+    },
+    {
+      "id": "T51",
+      "title": "Pre-wedge content purge — high-traffic pages",
+      "description": "Reframe opening paragraphs of installation.mdx (kill 'Go 1.25+ required'; brew first), cli/index.mdx (CLI is substrate behind MCP server), configuration/index.mdx (lead with what your agent sees in .coverctl.yaml). Three highest-traffic pages first.",
+      "priority": "high",
+      "estimate": "1d",
+      "depends_on": [
+        "T50"
+      ],
+      "feature_id": "pre-wedge-content-purge-and-seo-frontmatter-audit"
+    },
+    {
+      "id": "T52",
+      "title": "Pre-wedge content purge — remaining pages",
+      "description": "Apply wedge framing to remaining non-landing pages: architecture/index.mdx (likely redirect to ARCHITECTURE.md), guides/ci-integration.mdx (mode-aware MCP framing), cli/{check,init,run,watch,report,other}.mdx, configuration/{policies,domains,advanced}.mdx, guides/{build-flags,monorepo}.mdx, architecture/contributing.mdx.",
+      "priority": "medium",
+      "estimate": "2d",
+      "depends_on": [
+        "T50"
+      ],
+      "feature_id": "pre-wedge-content-purge-and-seo-frontmatter-audit"
+    },
+    {
+      "id": "T53",
+      "title": "Split configuration/index.mdx by Diataxis",
+      "description": "212 lines mixing reference + how-to + explanation. Split into 1 reference page (file format) + N narrow how-to pages (already partial via policies/domains/advanced subpages; parent bloated). Parent becomes hub linking to subpages.",
+      "priority": "medium",
+      "estimate": "1d",
+      "depends_on": [],
+      "feature_id": "diataxis-split-for-oversized-pages"
+    },
+    {
+      "id": "T54",
+      "title": "Resolve architecture/index.mdx redundancy",
+      "description": "235 lines mostly redundant with ARCHITECTURE.md. Either delete and redirect to repo, or merge with reduced scope into a single explanation page. Decision: redirect (per product-expert recommendation that contributor docs do not belong on customer-facing site).",
+      "priority": "medium",
+      "estimate": "1d",
+      "depends_on": [],
+      "feature_id": "diataxis-split-for-oversized-pages"
+    },
+    {
+      "id": "T55",
+      "title": "Split guides/ci-integration.mdx",
+      "description": "347 lines mixing tutorial + how-to + reference. Split into 1 tutorial ('Your first coverctl-gated PR') + N how-to recipes (cache strategy, monorepo CI, ratchet, fail-under) + reference table (env vars).",
+      "priority": "medium",
+      "estimate": "2d",
+      "depends_on": [],
+      "feature_id": "diataxis-split-for-oversized-pages"
+    },
+    {
+      "id": "T56",
+      "title": "For Platform Teams page",
+      "description": "docs/src/content/docs/for-platform-teams.mdx — landing for Jordan persona summarizing procurement story (security boundaries, telemetry posture, deployment shape, license, monetization roadmap). Deep-links to threat-model, rejection-schema, gtm-metrics-spec. 'platform-evaluation' inbound issue label CTA.",
+      "priority": "high",
+      "estimate": "1d",
+      "depends_on": [],
+      "feature_id": "jordan-path-site-surface-(for-platform-teams)"
+    },
+    {
+      "id": "T57",
+      "title": "Render threat-model into docs site",
+      "description": "docs/src/content/docs/security/threat-model.mdx — render of docs/security/mcp-threat-model.md into the Astro site (currently only repo markdown). Web link survives procurement-questionnaire copy-paste; deep-linkable.",
+      "priority": "high",
+      "estimate": "1d",
+      "depends_on": [],
+      "feature_id": "jordan-path-site-surface-(for-platform-teams)"
+    },
+    {
+      "id": "T58",
+      "title": "Split rejection schema to dedicated page",
+      "description": "docs/src/content/docs/security/rejection-schema.mdx — extract from mcp.mdx so procurement reviewers can deep-link directly to the contract document.",
+      "priority": "medium",
+      "estimate": "1d",
+      "depends_on": [
+        "T57"
+      ],
+      "feature_id": "jordan-path-site-surface-(for-platform-teams)"
+    },
+    {
+      "id": "T59",
+      "title": "Define + apply CLI reference template",
+      "description": "Define 5-section template (Synopsis / When to use / Flags / Examples / Exit codes / Related). Apply to cli/check.mdx, cli/init.mdx, cli/run.mdx (top 3 most-visited).",
+      "priority": "medium",
+      "estimate": "2d",
+      "depends_on": [],
+      "feature_id": "cli-reference-page-template-standardization"
+    },
+    {
+      "id": "T60",
+      "title": "Apply CLI template to remaining commands",
+      "description": "Same template applied to cli/watch.mdx, cli/report.mdx, cli/other.mdx, cli/index.mdx.",
+      "priority": "medium",
+      "estimate": "1d",
+      "depends_on": [
+        "T59"
+      ],
+      "feature_id": "cli-reference-page-template-standardization"
+    },
+    {
+      "id": "T61",
+      "title": "Pricing/Roadmap page",
+      "description": "docs/src/content/docs/pricing.mdx (top-level, sidebar slot). Three short paragraphs: free CLI/MCP forever, hosted layer on roadmap, hosted-waitlist GitHub label CTA. Defuses Stage 2 surprise + captures inbound waitlist signal.",
+      "priority": "medium",
+      "estimate": "1d",
+      "depends_on": [],
+      "feature_id": "pricing-and-roadmap-page"
+    },
+    {
+      "id": "T62",
+      "title": "coverctl vs Codecov page",
+      "description": "docs/src/content/docs/compare/coverctl-vs-codecov.mdx — Dunford alternatives structure. Honest framing.",
+      "priority": "medium",
+      "estimate": "1d",
+      "depends_on": [],
+      "feature_id": "comparison-pages"
+    },
+    {
+      "id": "T63",
+      "title": "coverctl vs Coveralls page",
+      "description": "docs/src/content/docs/compare/coverctl-vs-coveralls.mdx",
+      "priority": "medium",
+      "estimate": "1d",
+      "depends_on": [],
+      "feature_id": "comparison-pages"
+    },
+    {
+      "id": "T64",
+      "title": "coverctl vs native commands page",
+      "description": "docs/src/content/docs/compare/coverctl-vs-native.mdx — go test -cover / pytest --cov / nyc.",
+      "priority": "medium",
+      "estimate": "1d",
+      "depends_on": [],
+      "feature_id": "comparison-pages"
+    },
+    {
+      "id": "T65",
+      "title": "Astro Starlight blog + RSS infrastructure",
+      "description": "Add starlight-blog plugin or @astrojs/rss. Configure /blog/ collection. Verify build.",
+      "priority": "low",
+      "estimate": "1d",
+      "depends_on": [],
+      "feature_id": "content-led-site-infrastructure"
+    },
+    {
+      "id": "T66",
+      "title": "Seed blog post #1 + #2",
+      "description": "Why agent-loop coverage governance is a different category; What agents actually do when they read coverctl output.",
+      "priority": "low",
+      "estimate": "2d",
+      "depends_on": [
+        "T65"
+      ],
+      "feature_id": "content-led-site-infrastructure"
+    },
+    {
+      "id": "T67",
+      "title": "Seed blog posts #3 #4 #5 + changelog wiring",
+      "description": "Lethal Trifecta defense; Migration story; Designing rejection schemas. Plus auto-generated changelog from git tags / Relicta.",
+      "priority": "low",
+      "estimate": "3d",
+      "depends_on": [
+        "T66"
+      ],
+      "feature_id": "content-led-site-infrastructure"
+    },
+    {
+      "id": "T68",
+      "title": "Social-proof shields + community quotes",
+      "description": "Add stars + contributors + MCP Registry presence shields. Manual quotes section (3 anonymized) when quotes exist. Defer auto-pulled Discussions widget.",
+      "priority": "low",
+      "estimate": "1d",
+      "depends_on": [],
+      "feature_id": "social-proof-surface"
+    },
+    {
+      "id": "T69",
+      "title": "Universal end-of-page Next component",
+      "description": "Single forward-arrow link or 2-3 LinkCards at bottom of every page. Implement once as Starlight component or shared MDX include; require in page template.",
+      "priority": "low",
+      "estimate": "1d",
+      "depends_on": [],
+      "feature_id": "site-wayfinding-and-print-polish"
+    },
+    {
+      "id": "T70",
+      "title": "Print stylesheet",
+      "description": "docs/src/styles/print.css with @media print: hide sidebar/nav, force light theme, kill backgrounds, expand collapsed sections, ensure code blocks wrap. ~30 lines.",
+      "priority": "low",
+      "estimate": "1d",
+      "depends_on": [],
+      "feature_id": "site-wayfinding-and-print-polish"
+    },
+    {
+      "id": "T71",
+      "title": "Custom 404 page",
+      "description": "Astro 404 page with three suggested links (Get started / MCP tools / CLI reference) recovering stray visitors instead of bouncing.",
+      "priority": "low",
+      "estimate": "1d",
+      "depends_on": [],
+      "feature_id": "site-wayfinding-and-print-polish"
+    },
+    {
+      "id": "T72",
+      "title": "Component primitive vocabulary doc",
+      "description": "Document Astro Starlight component vocabulary in CONTRIBUTING.md or new docs-style-guide.md: Tabs for language examples, Aside type='caution' for warnings, never blockquote except quotes, Steps for tutorial onboarding.",
+      "priority": "low",
+      "estimate": "1d",
+      "depends_on": [],
+      "feature_id": "component-primitive-vocabulary-and-configuration-snippet-pattern"
+    },
+    {
+      "id": "T73",
+      "title": "Configuration paired-snippet pattern",
+      "description": "Apply paired-snippet pattern (commented YAML + narrative) via Steps or two-column layout to configuration/{index,policies,domains,advanced}.mdx. Replaces stacked-YAML dump with progressive disclosure.",
+      "priority": "low",
+      "estimate": "2d",
+      "depends_on": [
+        "T72"
+      ],
+      "feature_id": "component-primitive-vocabulary-and-configuration-snippet-pattern"
+    },
+    {
+      "id": "task-site-sidebar-ia-re-architecture",
+      "title": "Implement Site Sidebar IA Re-architecture",
+      "description": "Parent.",
+      "priority": "medium",
+      "estimate": "",
+      "depends_on": [],
+      "feature_id": "site-sidebar-ia-re-architecture"
+    },
+    {
+      "id": "task-agent-loop-tutorial-page-and-canonical-diagram",
+      "title": "Implement Agent-Loop Tutorial Page and Canonical Diagram",
+      "description": "Parent.",
+      "priority": "medium",
+      "estimate": "",
+      "depends_on": [],
+      "feature_id": "agent-loop-tutorial-page-and-canonical-diagram"
+    },
+    {
+      "id": "task-pre-wedge-content-purge-and-seo-frontmatter-audit",
+      "title": "Implement Pre-Wedge Content Purge and SEO Frontmatter Audit",
+      "description": "Parent.",
+      "priority": "medium",
+      "estimate": "",
+      "depends_on": [],
+      "feature_id": "pre-wedge-content-purge-and-seo-frontmatter-audit"
+    },
+    {
+      "id": "task-diataxis-split-for-oversized-pages",
+      "title": "Implement Diataxis Split for Oversized Pages",
+      "description": "Parent.",
+      "priority": "medium",
+      "estimate": "",
+      "depends_on": [],
+      "feature_id": "diataxis-split-for-oversized-pages"
+    },
+    {
+      "id": "task-jordan-path-site-surface-(for-platform-teams)",
+      "title": "Implement Jordan-Path Site Surface",
+      "description": "Parent.",
+      "priority": "medium",
+      "estimate": "",
+      "depends_on": [],
+      "feature_id": "jordan-path-site-surface-(for-platform-teams)"
+    },
+    {
+      "id": "task-comparison-pages",
+      "title": "Implement Comparison Pages",
+      "description": "Parent.",
+      "priority": "medium",
+      "estimate": "",
+      "depends_on": [],
+      "feature_id": "comparison-pages"
+    },
+    {
+      "id": "task-content-led-site-infrastructure",
+      "title": "Implement Content-Led Site Infrastructure",
+      "description": "Parent.",
+      "priority": "medium",
+      "estimate": "",
+      "depends_on": [],
+      "feature_id": "content-led-site-infrastructure"
+    },
+    {
+      "id": "task-social-proof-surface",
+      "title": "Implement Social-Proof Surface",
+      "description": "Parent.",
+      "priority": "medium",
+      "estimate": "",
+      "depends_on": [],
+      "feature_id": "social-proof-surface"
+    },
+    {
+      "id": "task-pricing-and-roadmap-page",
+      "title": "Implement Pricing and Roadmap Page",
+      "description": "Parent.",
+      "priority": "medium",
+      "estimate": "",
+      "depends_on": [],
+      "feature_id": "pricing-and-roadmap-page"
+    },
+    {
+      "id": "task-cli-reference-page-template-standardization",
+      "title": "Implement CLI Reference Page Template Standardization",
+      "description": "Parent.",
+      "priority": "medium",
+      "estimate": "",
+      "depends_on": [],
+      "feature_id": "cli-reference-page-template-standardization"
+    },
+    {
+      "id": "task-site-wayfinding-and-print-polish",
+      "title": "Implement Site Wayfinding and Print Polish",
+      "description": "Parent.",
+      "priority": "medium",
+      "estimate": "",
+      "depends_on": [],
+      "feature_id": "site-wayfinding-and-print-polish"
+    },
+    {
+      "id": "task-component-primitive-vocabulary-and-configuration-snippet-pattern",
+      "title": "Implement Component Primitive Vocabulary and Configuration Snippet Pattern",
+      "description": "Parent.",
+      "priority": "medium",
+      "estimate": "",
+      "depends_on": [],
+      "feature_id": "component-primitive-vocabulary-and-configuration-snippet-pattern"
     }
   ],
   "approval_status": "approved",
   "created_at": "2026-05-08T13:43:13.523478+02:00",
-  "updated_at": "2026-05-09T12:10:16.067332+02:00"
+  "updated_at": "2026-05-09T13:00:40.002865+02:00"
 }

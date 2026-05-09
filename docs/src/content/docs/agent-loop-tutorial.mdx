@@ -1,0 +1,260 @@
+---
+title: The agent loop, end to end
+description: Walk through one full agent-loop cycle with coverctl. Install + wire MCP, ask agent to add a feature, watch the agent call check / suggest / debt, see structured failure and recovery, commit before CI sees the regression.
+---
+
+import { Steps, Aside, Tabs, TabItem } from '@astrojs/starlight/components';
+
+This is the tutorial that builds the mental model. By the end of it
+you'll have done one full agent-loop cycle on a real repo and seen
+exactly how coverctl shows up inside Claude Code, Cursor, or Cline.
+
+If you only have 30 seconds: the loop is *agent edits → agent calls
+`coverctl check` → coverctl returns structured pass/fail → agent reads
+the failure and either fixes it or calls `suggest`/`debt` for help → re-
+runs `check` → commit*. The diagram below makes it spatial.
+
+## The loop
+
+```text
+                  ┌──────────────────────────────────┐
+                  │           You                     │
+                  │  "Add the email-validation         │
+                  │   feature to the api domain."      │
+                  └────────────────┬─────────────────┘
+                                   │
+                                   ▼
+                  ┌──────────────────────────────────┐
+                  │       Agent (Claude Code,         │
+                  │        Cursor, Cline, …)          │
+                  │  edits internal/api/email.go      │
+                  │  edits internal/api/email_test.go │
+                  └─────┬───────────┬────────────────┘
+                        │           │
+              tool call │           │ tool call
+                        ▼           │
+              ┌────────────────┐    │
+              │  coverctl      │    │
+              │  check (MCP)   │    │
+              └────────┬───────┘    │
+                       │            │
+                       ▼            │
+              passed: false         │
+              failing: api          │
+              (78.2 % < 80 %)       │
+                       │            │
+                       ▼            │
+              ┌────────────────┐    │
+              │  coverctl      │    │
+              │  suggest api   │    │
+              │  (MCP)         │    │
+              └────────┬───────┘    │
+                       │            │
+                       ▼            │
+              uncovered:            │
+              email.go:42-58        │
+              (error paths)         │
+                       │            │
+                       ▼            │
+                  ┌──────────────────────────────────┐
+                  │      Agent fixes uncovered        │
+                  │      paths, re-runs check,        │
+                  │      gets passed: true,           │
+                  │      proposes the commit.         │
+                  └────────────────┬─────────────────┘
+                                   │
+                                   ▼
+                       Commit lands clean.
+                       CI never sees the regression.
+```
+
+The whole loop happens inside a single agent turn. The regression that
+used to surface in CI 8 minutes later — after you'd context-switched
+away — is fixed before it ever leaves your machine.
+
+## Walk through it once
+
+This is hands-on. About 10 minutes if you have a polyglot project and
+Claude Code (or Cursor or Cline) already installed.
+
+<Steps>
+
+1. **Install coverctl and `coverctl init`**
+
+   ```bash
+   brew install felixgeelhaar/tap/coverctl   # or: go install github.com/felixgeelhaar/coverctl@latest
+   cd your-project
+   coverctl init
+   ```
+
+   `coverctl init` auto-detects your project's language(s), proposes
+   domains based on the directory layout, and writes `.coverctl.yaml`
+   with reasonable thresholds.
+
+   <Aside type="tip">
+   Run `coverctl mcp doctor` after install to validate your setup
+   before wiring it into an agent. Six PASS/FAIL checks; takes a
+   second.
+   </Aside>
+
+2. **Wire coverctl into your AI agent**
+
+   <Tabs>
+     <TabItem label="Claude Code">
+
+   `~/.config/claude-code/mcp.json`:
+
+   ```json
+   {
+     "mcpServers": {
+       "coverctl": {
+         "command": "coverctl",
+         "args": ["mcp", "serve"]
+       }
+     }
+   }
+   ```
+
+     </TabItem>
+     <TabItem label="Cursor">
+
+   In Cursor settings → MCP → Add server:
+
+   ```json
+   { "command": "coverctl", "args": ["mcp", "serve"] }
+   ```
+
+     </TabItem>
+     <TabItem label="Cline / others">
+
+   Any MCP-capable client. Point it at `coverctl mcp serve` over
+   stdio. The default `--mode=auto` picks agent-mode (3 tools:
+   `check`, `suggest`, `debt`) for human-driven clients and ci-mode
+   (full 9-tool surface) when it detects CI environment variables.
+
+     </TabItem>
+   </Tabs>
+
+   Restart the agent client.
+
+3. **Ask the agent to make a meaningful change**
+
+   The mental model only sticks if you actually do this. Pick a
+   feature that's plausibly going to drop coverage. Examples:
+
+   - "Add a `RetryWithBackoff` helper to the network domain. Don't
+     test the error paths yet."
+   - "Add an email validator to the API domain that handles
+     malformed input."
+   - "Refactor the auth handler to extract the token parser into a
+     new function."
+
+   You want the agent to write new code without exhaustive tests so
+   coverctl catches the gap. (You can always tighten the tests in
+   the next loop.)
+
+4. **Watch the agent call coverctl mid-edit**
+
+   Most agent clients render tool calls as inline cards. You should
+   see something like:
+
+   ```text
+   You:    Add an email validator to the API domain.
+
+   Claude: I'll add EmailValidator + tests in internal/api/email.
+
+     [edits: internal/api/email.go, internal/api/email_test.go]
+
+     Tool call → coverctl check
+     Result   → passed: false; failing: api (78.2%, required 80%)
+                uncovered: internal/api/email.go:42-58 (error paths)
+
+     Tool call → coverctl suggest api
+     Result   → uncovered files: email.go (16 lines), retry.go (4 lines)
+
+     Two error branches in EmailValidator.Validate are uncovered.
+     I'll add cases for empty-input and malformed-domain so api meets
+     the 80% threshold before we commit.
+   ```
+
+   This is the agent-loop in motion. Three things to notice:
+
+   - The agent reads coverctl's output **literally** — it reports
+     `78.2 %`, not a fabricated number.
+   - The agent **chains** to `suggest` rather than guessing.
+   - The agent's plan **names the failing domain and the specific
+     missing branches**, not generic "I'll add more tests."
+
+5. **Approve the agent's fix**
+
+   Watch the proposed test edits. Approve only the changes you've
+   actually read. coverctl gives the agent a deterministic *signal*;
+   the agent's *fix* still needs human review. Re-run `check` after
+   the agent applies edits — `passed: true` is the green light.
+
+6. **Commit**
+
+   Coverage policy passed before commit. The regression never reaches
+   CI. The agent didn't context-switch the work to a future debugging
+   session. That's the wedge.
+
+</Steps>
+
+## What good agent behavior looks like
+
+After running through the loop a few times, you'll start spotting
+healthy and unhealthy agent patterns. Worth knowing in advance:
+
+**Agents do well when they:**
+
+- Read `check` output verbatim. The reported percentage is the actual
+  percentage; the named domain is the actual domain.
+- Chain to `suggest <domain>` or `debt` rather than guessing which
+  files to touch.
+- Re-run `check` after applying edits to verify the fix.
+- Pattern-match `error_code` from a rejection (see [rejection
+  schema](/coverctl/security/rejection-schema/)) and use the
+  `remediation` field to recover.
+
+**Watch for these failure modes:**
+
+- **Threshold lowering as a "fix"** — the agent edits `.coverctl.yaml`
+  to drop a domain's `min:`. Reject. The signal exists for a reason.
+- **Hallucinated coverage numbers** — the agent claims coverage rose
+  without re-running `check`. Ask it to re-run.
+- **Mock-heavy "fixes"** — line coverage measures execution, not
+  quality. The agent can hit threshold by adding tests that exercise
+  mocked layers without testing real logic. Sanity-check generated
+  tests.
+- **Ignoring rejection codes** — the agent retries the same input
+  after a structured rejection. The `remediation` field tells it what
+  to change; if it's not using the field, prompt it to.
+
+## What just happened, in product terms
+
+You executed one cycle of *agent-loop coverage governance*. The
+distinguishing properties:
+
+- **Pre-commit, not post-merge.** The signal arrived while the agent
+  still had context.
+- **Per-domain, not aggregate.** The `api` domain failed at 78.2 %;
+  other domains passed. A single overall number would have hidden it.
+- **Agent-callable, not human-only.** The agent chained two tool
+  calls without you typing anything between them.
+- **Local-first.** No source upload, no SaaS account, no third-party
+  tool in the agent's reach.
+
+That's the category. Once you've seen it work, going back to a
+post-merge dashboard for AI-edited code feels like waiting for the
+mail when there's a phone in your pocket.
+
+## Where next
+
+- [MCP server reference](/coverctl/mcp/) — every tool, every
+  resource, every input/output schema.
+- [Configure your policy](/coverctl/configuration/) — what threshold
+  to set on which domain, and why.
+- [coverctl vs Codecov](/coverctl/compare/coverctl-vs-codecov/) —
+  honest comparison; both tools serve real needs.
+- [For platform & devex teams](/coverctl/for-platform-teams/) —
+  procurement-ready summary if you're evaluating coverctl org-wide.

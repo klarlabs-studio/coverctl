@@ -30,7 +30,7 @@ export default defineConfig({
   integrations: [
     starlight({
       title: 'coverctl',
-      description: 'Coverage feedback for AI coding agents — every language, every change. Domain-aware policy enforcement via MCP server (Claude Code, Cursor, Cline, Aider) and CLI.',
+      description: 'Agent-loop coverage governance — coverage your AI coding agent calls before commit, not a dashboard you read after CI. MCP-native, polyglot, local-first.',
       social: [
         {
           icon: 'github',
@@ -75,49 +75,60 @@ export default defineConfig({
       },
       sidebar: [
         {
-          label: 'Getting Started',
+          label: 'Start here',
           items: [
             { label: 'Introduction', slug: '' },
-            { label: 'Installation', slug: 'installation' },
-            { label: 'Quick Start (Terminal)', slug: 'quick-start' },
-            { label: 'Quick Start (AI Agent)', slug: 'quick-start-agent' },
-            { label: 'MCP Server (AI Agents)', slug: 'mcp' },
+            { label: 'Quick start (AI agent)', slug: 'quick-start-agent' },
+            { label: 'Quick start (terminal)', slug: 'quick-start' },
+            { label: 'Install', slug: 'installation' },
           ],
         },
         {
-          label: 'CLI Reference',
+          label: 'Use coverctl with your agent',
           items: [
-            { label: 'Overview', slug: 'cli' },
+            { label: 'The agent loop, end to end', slug: 'agent-loop-tutorial' },
+            { label: 'MCP server reference', slug: 'mcp' },
+          ],
+        },
+        {
+          label: 'For platform & devex teams',
+          items: [
+            { label: 'Overview', slug: 'for-platform-teams' },
+            { label: 'Threat model', slug: 'security/threat-model' },
+            { label: 'Rejection schema', slug: 'security/rejection-schema' },
+          ],
+        },
+        {
+          label: 'Configure and operate',
+          items: [
+            { label: 'Policy basics', slug: 'configuration' },
+            { label: 'Domains', slug: 'configuration/domains' },
+            { label: 'Policies', slug: 'configuration/policies' },
+            { label: 'Advanced', slug: 'configuration/advanced' },
+            { label: 'CI integration', slug: 'guides/ci-integration' },
+            { label: 'Monorepos', slug: 'guides/monorepo' },
+          ],
+        },
+        {
+          label: 'Compare',
+          items: [
+            { label: 'coverctl vs Codecov', slug: 'compare/coverctl-vs-codecov' },
+            { label: 'coverctl vs Coveralls', slug: 'compare/coverctl-vs-coveralls' },
+            { label: 'coverctl vs native commands', slug: 'compare/coverctl-vs-native' },
+          ],
+        },
+        {
+          label: 'Reference',
+          items: [
+            { label: 'CLI overview', slug: 'cli' },
             { label: 'check', slug: 'cli/check' },
             { label: 'run', slug: 'cli/run' },
             { label: 'watch', slug: 'cli/watch' },
             { label: 'init', slug: 'cli/init' },
             { label: 'report', slug: 'cli/report' },
-            { label: 'Other Commands', slug: 'cli/other' },
-          ],
-        },
-        {
-          label: 'Configuration',
-          items: [
-            { label: 'Config File', slug: 'configuration' },
-            { label: 'Domains', slug: 'configuration/domains' },
-            { label: 'Policies', slug: 'configuration/policies' },
-            { label: 'Advanced', slug: 'configuration/advanced' },
-          ],
-        },
-        {
-          label: 'Guides',
-          items: [
-            { label: 'CI Integration', slug: 'guides/ci-integration' },
-            { label: 'Monorepo Support', slug: 'guides/monorepo' },
-            { label: 'Build Flags', slug: 'guides/build-flags' },
-          ],
-        },
-        {
-          label: 'Architecture',
-          items: [
-            { label: 'Overview', slug: 'architecture' },
-            { label: 'Contributing', slug: 'architecture/contributing' },
+            { label: 'Other commands', slug: 'cli/other' },
+            { label: 'Build flags', slug: 'guides/build-flags' },
+            { label: 'Pricing & roadmap', slug: 'pricing' },
           ],
         },
       ],

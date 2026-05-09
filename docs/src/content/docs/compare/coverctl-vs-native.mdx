@@ -1,0 +1,62 @@
+---
+title: coverctl vs native commands (go test -cover, pytest --cov, nyc)
+description: When to use agent-loop coverage governance vs language-native coverage commands. coverctl is built on top of these tools, not against them.
+---
+
+## TL;DR
+
+coverctl runs the native commands. The question is what happens to
+the result afterward.
+
+| | Native commands | coverctl |
+|---|---|---|
+| **What runs the tests** | `go test -cover`, `pytest --cov`, `nyc`, … | The same native commands, invoked by coverctl |
+| **What reads the result** | You, in a terminal | The agent (via MCP) **or** you (via CLI) |
+| **Per-language** | Yes, only one at a time | One uniform interface across 15 languages |
+| **Domain policy** | None | First-class, in `.coverctl.yaml` |
+| **Agent integration** | None | Native MCP |
+| **Pre-commit signal** | You wire it up manually per-language | Built-in, MCP-native |
+
+## Native commands are the substrate
+
+coverctl does not replace `go test -cover` or `pytest --cov`. It runs
+them. Then it does three things native commands cannot:
+
+1. **Adds per-domain policy** — you can require 90 % on
+   `internal/auth` and 60 % on `internal/utils` in the same repo,
+   declared once.
+2. **Speaks one language across many** — same `.coverctl.yaml` works
+   in a Go + Python + TypeScript monorepo. Native commands force you
+   to wire each language's coverage tool independently.
+3. **Exposes coverage as a tool an agent can call** — through MCP. The
+   native commands have no agent interface.
+
+## Use native commands directly when
+
+- You're hacking on a one-language project and just want to see a
+  number.
+- You're not using an AI coding agent.
+- You don't need per-domain enforcement.
+
+## Use coverctl when
+
+Anything beyond the above. Especially:
+
+- Polyglot codebases where wiring N coverage tools is N times the work.
+- Teams using Claude Code / Cursor / Cline that want the agent to read
+  coverage signals before commit.
+- Critical-path code that needs stricter coverage than utility code.
+
+## What you don't lose
+
+coverctl never hides the underlying tool. `coverctl run -v` shows
+exactly what `go test` invocation it produced; the same with `pytest
+--cov`, `nyc`, `cargo llvm-cov`, etc. If something fails, you can
+reproduce it with the native command directly. coverctl is a thin
+governance layer over a stable substrate, not a replacement.
+
+## See also
+
+- [coverctl vs Codecov](/coverctl/compare/coverctl-vs-codecov/)
+- [coverctl vs Coveralls](/coverctl/compare/coverctl-vs-coveralls/)
+- [The agent loop, end to end](/coverctl/agent-loop-tutorial/)

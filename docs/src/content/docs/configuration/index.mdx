@@ -1,9 +1,11 @@
 ---
-title: Configuration
-description: coverctl configuration file reference
+title: Policy basics
+description: What your AI coding agent sees in .coverctl.yaml. Per-domain coverage thresholds — the policy file at the heart of agent-loop coverage governance.
 ---
 
-coverctl uses a YAML configuration file (default: `.coverctl.yaml`) to define coverage policies.
+`.coverctl.yaml` is what your AI coding agent reads when it calls `coverctl check`. It defines which directories belong to which **domain** (auth, payments, utilities, ...) and what coverage threshold each domain must meet. The agent reads the same file you do — there is no separate agent-mode configuration.
+
+This page is the file-format reference. For deeper patterns — diff-based enforcement, profile merging, integration tests — see [Advanced configuration](/coverctl/configuration/advanced/).
 
 ## File Location
 

@@ -1,0 +1,144 @@
+---
+title: MCP threat model
+description: Lethal Trifecta framing, input + output boundary controls, prompt-injection defenses, residual risks. The procurement-grade security write-up.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+This page mirrors `docs/security/mcp-threat-model.md` from the
+repository, rendered for the docs site so procurement reviewers can
+deep-link without checking out the repo.
+
+## Purpose
+
+Threat model for `coverctl mcp serve`, the trust boundaries around MCP
+inputs and outputs, and the hardening controls in place to reduce
+prompt-injection-to-code-execution risk.
+
+## System boundary
+
+- **Entry point:** MCP tool/resource requests over stdio.
+- **Primary component:** `internal/mcp/server.go`.
+- **Input control surface:** `internal/mcp/sanitize.go`
+  (input validation/sanitisation for untrusted MCP fields).
+- **Output control surface:** `internal/mcp/sanitize_output.go`
+  (canonicalisation of user-controlled strings flowing back to agent).
+
+## The Lethal Trifecta
+
+Per Simon Willison's framing, agents fail when three properties combine:
+
+1. **Access to private data** — coverctl reads coverage profiles.
+2. **Exposure to untrusted content** — coverage profiles can carry
+   attacker-controlled strings (filenames in hostile PRs, weaponised
+   test names, profile-derived paths).
+3. **Ability to exfiltrate externally** — the agent's context window
+   is the exfiltration channel; anything reaching the agent can be
+   smuggled out via subsequent tool calls or replies.
+
+coverctl breaks the Trifecta by hardening the boundaries on **both**
+ingress and egress of MCP traffic.
+
+## Input boundary controls
+
+### 1) Path scoping and validation
+
+Scoped path validation applied to MCP path inputs before use. Rejected
+inputs return a structured rejection response (`passed=false`, explicit
+error, safe summary, agent-actionable `remediation`).
+
+### 2) Build-flag sanitisation
+
+`internal/mcp/sanitize.go` blocks dangerous argument classes for
+MCP-originated inputs:
+
+- Dangerous long flags: `--rootdir`, `--cov-config`, `--init-script`,
+  `--require`, `--node-options`, `--manifest-path`, `--target-dir`,
+  `--inspect`, `--experimental-loader`, etc.
+- Dangerous short prefixes: `-D`, `-I`, `-P`.
+- Shell metacharacters and control characters in free-form arg inputs.
+- Invalid tag and timeout formats.
+
+### 3) Stable rejection schema
+
+Every input rejection emits the same JSON shape:
+
+```json
+{
+  "passed":      false,
+  "error_code":  "INPUT_REJECTED_DANGEROUS_FLAG",
+  "error":       "rejected MCP input testArgs[0]=\"--rootdir=/tmp\": ...",
+  "summary":     "Rejected unsafe MCP input",
+  "remediation": "Remove the rejected flag from testArgs. ..."
+}
+```
+
+Schema is **append-only** — new codes may land; existing codes will
+not be renamed without a major-version bump. See [rejection schema
+reference](/coverctl/security/rejection-schema/) for the full code
+table.
+
+## Output boundary controls
+
+MCP responses flow back into the agent's context. If a coverage profile
+contains attacker-controlled strings, those strings become a *new*
+prompt-injection vector — the return-trip half of the Lethal Trifecta.
+coverctl closes this with output canonicalisation.
+
+- **File paths** in tool outputs (`files[].file`,
+  `improved[].file`, `regressed[].file`, `items[].name`,
+  `domainDeltas` keys, `domains[].domain`) are restricted to
+  `[A-Za-z0-9._/-]`. Any other character is replaced with `?`. Paths
+  longer than 256 characters are truncated.
+- **Free-form strings** (`summary`, `error`, `warnings[]`) have control
+  characters (NUL, CR, LF, tabs) replaced with a single space, backticks
+  rewritten to single quotes, and length capped at 1024 bytes.
+- Sanitisation is **idempotent** and applied at every handler that
+  emits user-controlled strings: `check`, `report`, `compare`, `debt`.
+  Helpers live in `internal/mcp/sanitize_output.go`.
+
+## Fail-closed behavior
+
+Any failed sanitisation returns a rejection; tool execution does not
+proceed. Rejection responses are deterministic and machine-readable for
+CI/agent handling.
+
+## Explicit boundaries / non-goals
+
+- **CLI calls from a human terminal are not sanitised** the way MCP
+  inputs are; the operator is the trust boundary there.
+- coverctl does **not** sandbox downstream language toolchains; it
+  reduces attack surface by constraining MCP-supplied arguments and
+  outputs.
+
+## Operational guidance
+
+- Use MCP mode for agent workflows: `coverctl mcp serve`.
+- Prefer local-first execution in trusted repos.
+- Keep toolchain dependencies updated.
+- Treat repeated MCP rejection spikes as an indicator of prompt-
+  injection attempts or malformed agent prompts.
+
+## Residual risk
+
+- New or unknown dangerous flags in third-party runners may emerge over
+  time. Mitigation: maintain denylist updates in `sanitize.go`, keep
+  tests current, and monitor rejection telemetry/logs.
+- Output-canonicalisation is a regex-based control; novel encoding
+  vectors in coverage profiles may bypass it. Mitigation: adversarial
+  eval suite (`internal/eval/`) gates every release.
+
+## Code references
+
+- `internal/mcp/server.go`
+- `internal/mcp/sanitize.go` (input boundary)
+- `internal/mcp/sanitize_output.go` (output boundary)
+- `internal/mcp/sanitize_test.go`
+- `internal/mcp/sanitize_output_test.go`
+- `internal/eval/scenarios/` (adversarial regression corpus)
+
+<Aside type="tip" title="Reporting a finding">
+If you discover a way around either boundary, please report it
+privately per [SECURITY.md](https://github.com/felixgeelhaar/coverctl/blob/main/SECURITY.md)
+rather than opening a public issue.
+</Aside>

@@ -9,6 +9,21 @@ coverctl ships an [MCP](https://modelcontextprotocol.io) server so AI coding age
 
 The MCP server is the canonical surface. The CLI is the substrate behind it; humans can use either.
 
+## The agent loop
+
+```text
+You ─► Agent edits ─► coverctl check (MCP) ─► passed:false / failing:<domain>
+                              ▲                          │
+                              │                          ▼
+                              └─ Agent fixes ◄── coverctl suggest / debt (MCP)
+                                                         │
+                                                         ▼
+                                                  Commit lands clean
+                                              CI never sees the regression
+```
+
+Full walkthrough: [The agent loop, end to end](/coverctl/agent-loop-tutorial/).
+
 ## Quickstart
 
 <Tabs>

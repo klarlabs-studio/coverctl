@@ -1,0 +1,81 @@
+---
+title: For platform & devex teams
+description: Standardising agent-loop coverage governance across many polyglot repos. Threat model, rejection schema, telemetry posture, and procurement-ready artifacts.
+---
+
+import { LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+If your platform or developer-experience team is evaluating coverctl
+for org-wide rollout, this page is the procurement-ready summary. Every
+artifact a security or compliance review will ask for is linked below.
+
+## What ships in coverctl, end to end
+
+- **Local-first by default.** CLI and MCP server run on the developer's
+  machine over stdio. No source upload, no SaaS account, no third-party
+  dependency in the agent's reach.
+- **Agent-callable through MCP.** Speaks the multi-vendor Model Context
+  Protocol (Anthropic, OpenAI, Google, Microsoft, AWS — Linux Foundation
+  co-governance). Forward-compatible with any future MCP client.
+- **Mode-aware tool surface.** Agent mode advertises three tools
+  (`check`, `suggest`, `debt`); CI mode adds the rest. Avoids agent
+  tool-selection drift on a 9-tool surface.
+- **Stable rejection schema.** Every MCP tool failure carries
+  `error_code`, `summary`, and `remediation` fields agents pattern-match
+  on. Procurement-graded contract.
+- **Hardened MCP boundary.** Input sanitisation rejects test-runner
+  flags that load arbitrary code; output canonicalisation prevents
+  return-trip prompt injection through hostile filenames in coverage
+  profiles (Lethal Trifecta).
+- **Adversarial eval gate on every release.** 50+ scenarios under
+  `internal/eval/` run in CI; the rejection schema is regression-tested.
+
+## Procurement-ready artifacts
+
+<CardGrid>
+  <LinkCard
+    title="Threat model"
+    description="Lethal Trifecta framing, input + output boundary controls, residual risks, code references."
+    href="/coverctl/security/threat-model/"
+  />
+  <LinkCard
+    title="Rejection schema reference"
+    description="Stable error_code + remediation contract every agent reads. Append-only schema; no rename without major version bump."
+    href="/coverctl/security/rejection-schema/"
+  />
+  <LinkCard
+    title="GTM funnel metrics spec"
+    description="What's instrumented, what stays opt-in, how telemetry traffic shape behaves on the wire."
+    href="https://github.com/felixgeelhaar/coverctl/blob/main/docs/design/gtm-metrics-spec.md"
+  />
+  <LinkCard
+    title="Architecture overview"
+    description="Layered DDD structure, wedge artifact links, boundary documentation. Read before reviewing the codebase."
+    href="https://github.com/felixgeelhaar/coverctl/blob/main/ARCHITECTURE.md"
+  />
+</CardGrid>
+
+## License + monetization
+
+Apache-2.0 licensed CLI and MCP server. A hosted layer for cross-repo
+coverage history is on the roadmap and is **additive, not a paywall**.
+Pricing and stage gates live on the [Pricing & roadmap](/coverctl/pricing/)
+page.
+
+## Inbound for evaluation
+
+Considering coverctl org-wide and want to walk through architecture,
+trust boundaries, or evaluation criteria?
+
+<LinkCard
+  title="Open a platform-evaluation issue →"
+  description="Tag a GitHub issue with the platform-evaluation label. We'll respond with whatever artifact your review needs."
+  href="https://github.com/felixgeelhaar/coverctl/issues/new?labels=platform-evaluation&title=Platform%20evaluation%20%E2%80%94"
+/>
+
+## Why this exists
+
+ICP brief targets polyglot AI-coding teams of 5–80 developers. Platform
+and DevEx teams are the **secondary buyer persona** — once a champion
+adopts coverctl, the platform team standardises it across the org. This
+page is for that champion's procurement walkthrough.

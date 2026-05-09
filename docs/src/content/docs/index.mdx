@@ -28,7 +28,18 @@ Works best on standard Go/Python/JavaScript/Java/Rust projects with conventional
 
 ---
 
-## What it looks like in the agent loop
+## The agent loop
+
+```text
+You ─► Agent edits ─► coverctl check (MCP) ─► passed:false / failing:api
+                              ▲                          │
+                              │                          ▼
+                              └─ Agent fixes ◄── coverctl suggest api (MCP)
+                                                         │
+                                                         ▼
+                                                  Commit lands clean
+                                              CI never sees the regression
+```
 
 Below: an actual agent session shape after `coverctl mcp serve` is wired into Claude Code. *Rendered for clarity — your client may format tool-calls differently.*
 

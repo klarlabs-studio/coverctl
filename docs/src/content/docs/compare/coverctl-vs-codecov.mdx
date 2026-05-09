@@ -1,0 +1,74 @@
+---
+title: coverctl vs Codecov
+description: When to use agent-loop coverage governance vs post-merge dashboard reporting. Honest comparison — both tools serve real needs.
+---
+
+Both tools care about coverage. They solve different problems.
+
+## TL;DR
+
+| | coverctl | Codecov |
+|---|---|---|
+| **Category** | Agent-loop coverage governance | Coverage dashboard / reporting |
+| **When it runs** | Inside the agent edit loop, before commit | After merge, in CI |
+| **Primary user** | The AI coding agent (and the human at the keyboard) | The human reviewing the PR or the dashboard |
+| **Surface** | MCP server + CLI, local-first | SaaS dashboard + GitHub PR comments |
+| **Source upload** | None | Profile uploaded to Codecov.io |
+| **Per-domain policy** | First-class, in `.coverctl.yaml` | Yes (component config) |
+| **Multi-language** | 15 languages, uniform interface | 30+ via parsers |
+| **Agent integration** | Native MCP — agent calls coverage as a tool | None |
+| **Pricing** | Apache-2.0 free; hosted layer on roadmap | Free tier + paid Cloud / Enterprise |
+
+## Use Codecov when
+
+- Your primary need is **post-merge visibility** — what's the trend on
+  `main` over time?
+- You want a **shared dashboard** the whole team reads, with PR
+  comments rendered into GitHub's UI by Codecov's bot.
+- You're comfortable uploading coverage profiles to a SaaS service.
+- You don't yet use AI coding agents in a way that benefits from
+  in-loop coverage feedback.
+
+## Use coverctl when
+
+- Your team writes code through Claude Code, Cursor, Cline, or another
+  MCP-capable AI agent.
+- You want coverage feedback **before** the agent commits, not minutes
+  after CI fails.
+- You prefer **local-first** — no profile leaves the machine, no SaaS
+  account to manage.
+- You want **one config** enforcing per-domain policy across a polyglot
+  repo, with agents reading the same signal humans do.
+
+## Use both when
+
+The two tools solve complementary problems. Common pairing:
+
+- **coverctl** in the agent edit loop and the pre-commit hook to catch
+  regressions before they leave the developer's machine.
+- **Codecov** in CI for post-merge dashboards, trend reporting, and PR
+  bot comments your reviewers already read.
+
+The `.coverctl.yaml` policy file is the source of truth either way.
+coverctl evaluates it locally and inside the agent; you can also run
+`coverctl check -o json` in CI and feed the same policy into Codecov's
+status check.
+
+## Why we built coverctl alongside Codecov
+
+The wedge is **not** "Codecov but better." Codecov is a strong
+post-hoc dashboard. The category coverctl creates — agent-loop coverage
+governance — does not exist in dashboards. Once your code is being
+written by an AI agent at human-impossible throughput, the relevant
+question is: what does the agent see at the moment of decision? That's
+where coverctl lives.
+
+If you only want post-hoc reporting, use Codecov. If your agents are
+making coverage decisions inline, you need both.
+
+## See also
+
+- [coverctl vs Coveralls](/coverctl/compare/coverctl-vs-coveralls/)
+- [coverctl vs native commands](/coverctl/compare/coverctl-vs-native/)
+- [The agent loop, end to end](/coverctl/agent-loop-tutorial/)
+- [MCP server reference](/coverctl/mcp/)

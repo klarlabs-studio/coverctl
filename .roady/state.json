@@ -1,6 +1,6 @@
 {
   "project_id": "coverctl",
-  "version": 148,
+  "version": 159,
   "task_states": {
     "T-1": {
       "status": "done",
@@ -525,6 +525,39 @@
       "completed_at": "2026-05-09T12:20:52.946574+02:00",
       "elapsed_minutes": 2
     },
+    "T47": {
+      "status": "done",
+      "path": "",
+      "owner": "ai-agent",
+      "evidence": [
+        "docs/astro.config.mjs sidebar reorganized to 6 wedge-ordered groups (Start here / Use coverctl with your agent / For platform \u0026 devex teams / Configure and operate / Compare / Reference). Site description reframed to category phrase. Stub pages created for all new sidebar slugs to keep build green."
+      ],
+      "started_at": "2026-05-09T13:01:01.806749+02:00",
+      "completed_at": "2026-05-09T13:05:04.916548+02:00",
+      "elapsed_minutes": 4
+    },
+    "T48": {
+      "status": "done",
+      "path": "",
+      "owner": "ai-agent",
+      "evidence": [
+        "docs/src/content/docs/agent-loop-tutorial.mdx — full Diataxis-tutorial walking install + MCP wire + first agent-initiated check + structured rejection + suggest chain + fix + commit. ~250 lines. Includes ASCII-art canonical diagram, hands-on Steps walkthrough, healthy/unhealthy agent-behavior calibration, and what-just-happened summary."
+      ],
+      "started_at": "2026-05-09T13:05:07.483643+02:00",
+      "completed_at": "2026-05-09T13:06:25.277591+02:00",
+      "elapsed_minutes": 1
+    },
+    "T49": {
+      "status": "done",
+      "path": "",
+      "owner": "ai-agent",
+      "evidence": [
+        "Canonical agent-loop diagram (ASCII art) embedded in 3 places: docs/src/content/docs/agent-loop-tutorial.mdx (full version with extended cycle), docs/src/content/docs/index.mdx (compact version under 'The agent loop' heading), docs/src/content/docs/mcp.mdx (compact version + link to full tutorial). ASCII chosen over Mermaid to avoid new dependency; can upgrade to Mermaid in follow-up without breaking content."
+      ],
+      "started_at": "2026-05-09T13:06:43.971145+02:00",
+      "completed_at": "2026-05-09T13:07:25.792285+02:00",
+      "elapsed_minutes": 0
+    },
     "T5": {
       "status": "done",
       "path": "",
@@ -535,6 +568,68 @@
       "started_at": "2026-05-09T08:33:44.972883+02:00",
       "completed_at": "2026-05-09T08:39:16.797352+02:00",
       "elapsed_minutes": 5
+    },
+    "T50": {
+      "status": "done",
+      "path": "",
+      "owner": "ai-agent",
+      "evidence": [
+        "17 non-landing pages: title + description rewritten with wedge keywords ('agent-loop coverage governance', 'MCP coverage server', 'agent-callable') in first 160 characters. installation.mdx, quick-start*.mdx, cli/*.mdx (7), configuration/*.mdx (4), guides/*.mdx (3)."
+      ],
+      "started_at": "2026-05-09T13:07:28.439967+02:00",
+      "completed_at": "2026-05-09T13:09:28.895975+02:00",
+      "elapsed_minutes": 2
+    },
+    "T51": {
+      "status": "done",
+      "path": "",
+      "owner": "ai-agent",
+      "evidence": [
+        "High-traffic pages reframed: installation.mdx leads with brew install + 'no SaaS account, no source upload', moves go install to alternative; cli/index.mdx leads with 'CLI is substrate behind MCP coverage server'; configuration/index.mdx leads with 'what your AI coding agent reads in .coverctl.yaml'. Remaining 14 pages (T52) keep wedge-aligned frontmatter; bulk content reframe deferred."
+      ],
+      "started_at": "2026-05-09T13:09:36.404604+02:00",
+      "completed_at": "2026-05-09T13:09:47.725155+02:00",
+      "elapsed_minutes": 0
+    },
+    "T52": {
+      "status": "pending",
+      "path": "",
+      "elapsed_minutes": 0
+    },
+    "T53": {
+      "status": "pending",
+      "path": "",
+      "elapsed_minutes": 0
+    },
+    "T54": {
+      "status": "pending",
+      "path": "",
+      "elapsed_minutes": 0
+    },
+    "T55": {
+      "status": "pending",
+      "path": "",
+      "elapsed_minutes": 0
+    },
+    "T56": {
+      "status": "pending",
+      "path": "",
+      "elapsed_minutes": 0
+    },
+    "T57": {
+      "status": "pending",
+      "path": "",
+      "elapsed_minutes": 0
+    },
+    "T58": {
+      "status": "pending",
+      "path": "",
+      "elapsed_minutes": 0
+    },
+    "T59": {
+      "status": "pending",
+      "path": "",
+      "elapsed_minutes": 0
     },
     "T6": {
       "status": "done",
@@ -547,6 +642,56 @@
       "completed_at": "2026-05-09T11:13:55.475982+02:00",
       "elapsed_minutes": 3
     },
+    "T60": {
+      "status": "pending",
+      "path": "",
+      "elapsed_minutes": 0
+    },
+    "T61": {
+      "status": "pending",
+      "path": "",
+      "elapsed_minutes": 0
+    },
+    "T62": {
+      "status": "pending",
+      "path": "",
+      "elapsed_minutes": 0
+    },
+    "T63": {
+      "status": "pending",
+      "path": "",
+      "elapsed_minutes": 0
+    },
+    "T64": {
+      "status": "pending",
+      "path": "",
+      "elapsed_minutes": 0
+    },
+    "T65": {
+      "status": "pending",
+      "path": "",
+      "elapsed_minutes": 0
+    },
+    "T66": {
+      "status": "pending",
+      "path": "",
+      "elapsed_minutes": 0
+    },
+    "T67": {
+      "status": "pending",
+      "path": "",
+      "elapsed_minutes": 0
+    },
+    "T68": {
+      "status": "pending",
+      "path": "",
+      "elapsed_minutes": 0
+    },
+    "T69": {
+      "status": "pending",
+      "path": "",
+      "elapsed_minutes": 0
+    },
     "T7": {
       "status": "done",
       "path": "",
@@ -556,6 +701,26 @@
       ],
       "started_at": "2026-05-09T11:13:57.625506+02:00",
       "completed_at": "2026-05-09T11:14:06.987862+02:00",
+      "elapsed_minutes": 0
+    },
+    "T70": {
+      "status": "pending",
+      "path": "",
+      "elapsed_minutes": 0
+    },
+    "T71": {
+      "status": "pending",
+      "path": "",
+      "elapsed_minutes": 0
+    },
+    "T72": {
+      "status": "pending",
+      "path": "",
+      "elapsed_minutes": 0
+    },
+    "T73": {
+      "status": "pending",
+      "path": "",
       "elapsed_minutes": 0
     },
     "T8": {
@@ -579,6 +744,11 @@
       "started_at": "2026-05-09T08:54:40.491421+02:00",
       "completed_at": "2026-05-09T08:56:52.629075+02:00",
       "elapsed_minutes": 2
+    },
+    "task-agent-loop-tutorial-page-and-canonical-diagram": {
+      "status": "pending",
+      "path": "",
+      "elapsed_minutes": 0
     },
     "task-ai/agent-success-metrics-baseline": {
       "status": "done",
@@ -613,6 +783,11 @@
       "completed_at": "2026-05-08T22:08:58.049729+02:00",
       "elapsed_minutes": 0
     },
+    "task-cli-reference-page-template-standardization": {
+      "status": "pending",
+      "path": "",
+      "elapsed_minutes": 0
+    },
     "task-community-and-platform-teams-surface-area": {
       "status": "done",
       "path": "",
@@ -622,6 +797,21 @@
       ],
       "started_at": "2026-05-09T12:23:04.509095+02:00",
       "completed_at": "2026-05-09T12:23:18.622903+02:00",
+      "elapsed_minutes": 0
+    },
+    "task-comparison-pages": {
+      "status": "pending",
+      "path": "",
+      "elapsed_minutes": 0
+    },
+    "task-component-primitive-vocabulary-and-configuration-snippet-pattern": {
+      "status": "pending",
+      "path": "",
+      "elapsed_minutes": 0
+    },
+    "task-content-led-site-infrastructure": {
+      "status": "pending",
+      "path": "",
       "elapsed_minutes": 0
     },
     "task-core-foundation": {
@@ -657,6 +847,11 @@
       "completed_at": "2026-05-09T11:48:46.974659+02:00",
       "elapsed_minutes": 0
     },
+    "task-diataxis-split-for-oversized-pages": {
+      "status": "pending",
+      "path": "",
+      "elapsed_minutes": 0
+    },
     "task-golden-path-ux-for-first-run": {
       "status": "done",
       "path": "",
@@ -679,6 +874,11 @@
       "completed_at": "2026-05-08T22:08:38.50594+02:00",
       "elapsed_minutes": 0
     },
+    "task-jordan-path-site-surface-(for-platform-teams)": {
+      "status": "pending",
+      "path": "",
+      "elapsed_minutes": 0
+    },
     "task-module-root-failure-remediation": {
       "status": "done",
       "path": "",
@@ -688,6 +888,16 @@
       ],
       "started_at": "2026-05-09T11:48:26.678884+02:00",
       "completed_at": "2026-05-09T11:48:42.644249+02:00",
+      "elapsed_minutes": 0
+    },
+    "task-pre-wedge-content-purge-and-seo-frontmatter-audit": {
+      "status": "pending",
+      "path": "",
+      "elapsed_minutes": 0
+    },
+    "task-pricing-and-roadmap-page": {
+      "status": "pending",
+      "path": "",
       "elapsed_minutes": 0
     },
     "task-product-messaging-\u0026-docs-alignment": {
@@ -745,6 +955,21 @@
       "completed_at": "2026-05-09T12:23:00.336234+02:00",
       "elapsed_minutes": 0
     },
+    "task-site-sidebar-ia-re-architecture": {
+      "status": "pending",
+      "path": "",
+      "elapsed_minutes": 0
+    },
+    "task-site-wayfinding-and-print-polish": {
+      "status": "pending",
+      "path": "",
+      "elapsed_minutes": 0
+    },
+    "task-social-proof-surface": {
+      "status": "pending",
+      "path": "",
+      "elapsed_minutes": 0
+    },
     "task-transparency-moment-artifact": {
       "status": "done",
       "path": "",
@@ -757,5 +982,5 @@
       "elapsed_minutes": 0
     }
   },
-  "updated_at": "2026-05-09T12:23:20.834881+02:00"
+  "updated_at": "2026-05-09T13:09:47.725156+02:00"
 }

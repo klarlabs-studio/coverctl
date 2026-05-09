@@ -1,28 +1,35 @@
 ---
-title: Installation
-description: How to install coverctl
+title: Install coverctl
+description: Install coverctl — agent-loop coverage governance for polyglot codebases. brew, go install, or download a prebuilt binary.
 ---
 
 import { Tabs, TabItem } from '@astrojs/starlight/components';
 
-## Requirements
+coverctl is a single self-contained binary. It runs locally — no SaaS account, no source upload. After install, run `coverctl mcp doctor` to validate setup.
 
-- **Go 1.25+** (required to install coverctl; also needed for Go project coverage)
-- **Git** (for diff-based coverage features)
+## Recommended: prebuilt binary via Homebrew
 
-:::tip[Multi-Language Support]
-coverctl supports 15 languages: Go, Python, JavaScript/TypeScript, Java, Rust, C#, C/C++, PHP, Ruby, Swift, Dart, Scala, Elixir, and Shell. It auto-detects your project type during initialization.
-:::
+```bash
+brew install felixgeelhaar/tap/coverctl
+```
 
-## Install from Source
+Works on macOS and Linux. Same binary runs the CLI and the MCP server (`coverctl mcp serve`) the agent calls.
 
-The recommended way to install coverctl is using `go install`:
+## Alternative: install from source with Go
+
+If you already have Go 1.25+ on your machine, or you prefer source installs:
 
 ```bash
 go install github.com/felixgeelhaar/coverctl@latest
 ```
 
-This installs the latest release to your `$GOPATH/bin` directory.
+This installs the latest release to your `$GOPATH/bin` directory. Go is **not** required for coverctl itself if you use the Homebrew binary — only for Go project coverage.
+
+## Requirements
+
+- **Git** (for diff-based coverage features)
+- For Go project coverage: Go 1.20+ in the project under test
+- For other languages: their native test runner (pytest, nyc/c8, cargo-llvm-cov, JaCoCo, etc.) — coverctl invokes it for you
 
 ## Install a Specific Version
 

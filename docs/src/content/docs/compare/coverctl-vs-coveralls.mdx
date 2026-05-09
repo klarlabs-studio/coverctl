@@ -1,0 +1,62 @@
+---
+title: coverctl vs Coveralls
+description: When to use agent-loop coverage governance vs Coveralls' coverage history and PR badges. Honest comparison.
+---
+
+## TL;DR
+
+| | coverctl | Coveralls |
+|---|---|---|
+| **Category** | Agent-loop coverage governance | Coverage history / PR badge service |
+| **When it runs** | Inside the agent edit loop, before commit | After merge, in CI |
+| **Surface** | MCP server + CLI, local-first | SaaS dashboard + PR check + badge |
+| **Source upload** | None | Profile uploaded to coveralls.io |
+| **Per-domain policy** | First-class, in `.coverctl.yaml` | No — overall coverage only |
+| **Multi-language** | 15 languages, uniform interface | Many via plugins |
+| **Agent integration** | Native MCP | None |
+| **Pricing** | Apache-2.0 free; hosted layer on roadmap | Free for open source; paid for private repos |
+
+## Use Coveralls when
+
+- You want a **simple coverage badge** in a README and a public
+  history graph for an open-source project.
+- You don't need per-domain policy enforcement; aggregate percentage
+  is fine.
+- Your project does not use AI coding agents in a way that needs
+  in-loop coverage feedback.
+
+## Use coverctl when
+
+- Your code is being written through an AI coding agent.
+- You need **per-domain enforcement** — auth at 90 %, utilities at
+  60 % — not a single overall number.
+- You want coverage feedback **before** commit, not after CI.
+- You prefer local-first — no profile leaves the machine.
+
+## Use both when
+
+Coveralls remains a useful badge service for open-source projects.
+coverctl protects the agent edit loop. Common pairing:
+
+- **coverctl** locally and in the pre-commit hook for policy
+  enforcement.
+- **Coveralls** in CI for the public badge and a single-number
+  history that contributors can see.
+
+## Differences worth naming
+
+Coveralls reports a single coverage number. coverctl rejects that
+framing entirely — overall coverage hides regressions in critical
+paths. A 90 % overall number with auth at 40 % is a project that
+will fail in production. coverctl evaluates each domain against its
+own threshold and fails the build if any domain drops below.
+
+If you need per-domain governance, Coveralls is the wrong tool. If
+you need a public coverage badge, coverctl can generate one (`coverctl
+badge`) but does not provide a hosted dashboard.
+
+## See also
+
+- [coverctl vs Codecov](/coverctl/compare/coverctl-vs-codecov/)
+- [coverctl vs native commands](/coverctl/compare/coverctl-vs-native/)
+- [The agent loop, end to end](/coverctl/agent-loop-tutorial/)

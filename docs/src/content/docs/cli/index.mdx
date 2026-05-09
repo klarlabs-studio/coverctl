@@ -1,9 +1,11 @@
 ---
-title: CLI Overview
-description: coverctl command-line interface reference
+title: CLI overview
+description: coverctl CLI reference. The CLI is the substrate behind the MCP coverage server; humans use the same agent-loop coverage governance that AI agents do.
 ---
 
-coverctl provides a comprehensive CLI for managing test coverage across 15 supported languages.
+The CLI is the substrate behind the MCP coverage server. Every tool the agent calls — `check`, `suggest`, `debt` — is also a CLI command. Humans use the same surface AI agents do; the policy file (`.coverctl.yaml`) is shared.
+
+The MCP server (`coverctl mcp serve`) is the canonical way to use coverctl inside an AI coding agent. The CLI is what you use from a terminal — and what powers everything underneath the agent.
 
 ## Global Flags
 
