@@ -59,13 +59,16 @@ func LoadScenariosFS(fsys fs.FS, root string) ([]Scenario, error) {
 }
 
 // Run executes every scenario against the given dispatcher and returns an
-// aggregated report.
+// aggregated report. Judges (rule-based plus optionally HTTPLLMJudge from
+// env) run after Expect on scenarios that ship a non-empty Judge block.
 func Run(ctx context.Context, d Dispatcher, scenarios []Scenario) Report {
 	report := Report{
 		ByCategory: map[string]CategoryStat{},
 	}
+	rule := RuleJudge{}
+	llm, llmErr := NewHTTPLLMJudge() // nil + ErrSkipped when no API key
 	for _, s := range scenarios {
-		r := runOne(ctx, d, s)
+		r := runOne(ctx, d, s, rule, llm, llmErr)
 		report.Total++
 		stat := report.ByCategory[s.Category]
 		stat.Total++
@@ -81,7 +84,7 @@ func Run(ctx context.Context, d Dispatcher, scenarios []Scenario) Report {
 	return report
 }
 
-func runOne(ctx context.Context, d Dispatcher, s Scenario) Result {
+func runOne(ctx context.Context, d Dispatcher, s Scenario, rule Judge, llm Judge, llmErr error) Result {
 	r := Result{Scenario: s}
 	resp, err := d.Dispatch(ctx, s.Tool, s.Input)
 	r.Response = resp
@@ -129,6 +132,24 @@ func runOne(ctx context.Context, d Dispatcher, s Scenario) Result {
 	for _, field := range s.Expect.HasField {
 		if _, ok := resp[field]; !ok {
 			r.Reasons = append(r.Reasons, fmt.Sprintf("missing field %q in response", field))
+		}
+	}
+
+	if s.Judge.AgentReply != "" {
+		criteria := JudgeCriteria{
+			AgentReply:     s.Judge.AgentReply,
+			ToolResponse:   resp,
+			MustContain:    s.Judge.MustContain,
+			MustNotContain: s.Judge.MustNotContain,
+			LLMQuestion:    s.Judge.LLMQuestion,
+		}
+		if err := rule.Score(ctx, criteria); err != nil {
+			r.Reasons = append(r.Reasons, err.Error())
+		}
+		if llm != nil && llmErr == nil && s.Judge.LLMQuestion != "" {
+			if err := llm.Score(ctx, criteria); err != nil {
+				r.Reasons = append(r.Reasons, err.Error())
+			}
 		}
 	}
 

@@ -203,6 +203,8 @@ func Run(args []string, stdout, stderr io.Writer, svc Service) int {
 		return runPRComment(ctx, cmdArgs, stdout, stderr, svc, global)
 	case "mcp":
 		return runMCP(ctx, cmdArgs, stdout, stderr, svc, global)
+	case "survey":
+		return runSurvey(ctx, cmdArgs, stdout, stderr, global)
 	default:
 		usage(stderr)
 		return 2
@@ -1111,6 +1113,26 @@ Examples:
   coverctl mcp serve
   coverctl mcp serve -c custom.yaml
   coverctl mcp serve --history .cover/history.json`,
+
+	"survey": `coverctl survey - Sean Ellis 40% PMF feedback prompt
+
+Asks one question:
+  How would you feel if you could no longer use coverctl?
+
+Responses are appended to ~/.coverctl/survey.jsonl. Nothing is
+transmitted; aggregation is opt-in via the trace donation pipeline
+(deferred per docs/design/gtm-metrics-spec.md).
+
+Usage:
+  coverctl survey                    # interactive prompt
+  coverctl survey --answer very      # scripted: very|somewhat|not|skip
+  coverctl survey --data-dir ./tmp   # override storage location
+
+Why we ask:
+  The Sean Ellis 40% threshold is the standard PMF benchmark. If at
+  least 40% of users would be very disappointed without the product,
+  scaling GTM is justified; below that threshold we go back to
+  discovery before investing in growth.`,
 }
 
 func commandHelp(cmd string, w io.Writer) int {
@@ -1149,7 +1171,7 @@ _coverctl() {
     COMPREPLY=()
     cur="${COMP_WORDS[COMP_CWORD]}"
     prev="${COMP_WORDS[COMP_CWORD-1]}"
-    commands="check run watch init detect report badge trend record suggest debt ignore mcp help version completion c r w i"
+    commands="check run watch init detect report badge trend record suggest debt ignore mcp survey help version completion c r w i"
     global_flags="-q --quiet --no-color --ci --debug"
 
     if [[ ${COMP_CWORD} -eq 1 ]]; then

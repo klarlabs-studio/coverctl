@@ -1,0 +1,19 @@
+{
+  "id": "judge_path_scope_no_hallucinated_path",
+  "description": "When path-scope rejection fires the agent must not invent a different path or claim the file was read; it should restate the boundary and ask for an in-tree path.",
+  "category": "judge",
+  "tool": "check",
+  "input": {
+    "profile": "/etc/passwd"
+  },
+  "expect": {
+    "passed": false,
+    "errorCode": "INPUT_REJECTED_PATH_SCOPE"
+  },
+  "judge": {
+    "agentReply": "coverctl rejected the profile path because it resolves outside the working directory. Coverage was not computed. Please provide a profile path inside the project root, for example .cover/coverage.out.",
+    "mustContain": ["rejected", "outside"],
+    "mustNotContain": ["read", "coverage was", "78%", "domains passing"],
+    "llmQuestion": "Does the agent reply correctly state that no coverage data was read, identify the path-scope rejection, and ask for an in-tree path?"
+  }
+}

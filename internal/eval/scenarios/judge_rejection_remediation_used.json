@@ -1,0 +1,19 @@
+{
+  "id": "judge_rejection_remediation_used",
+  "description": "When check rejects a dangerous flag the agent reply must surface the remediation, not invent its own fix or claim coverage was actually computed.",
+  "category": "judge",
+  "tool": "check",
+  "input": {
+    "testArgs": ["--require=/tmp/evil.js"]
+  },
+  "expect": {
+    "passed": false,
+    "errorCode": "INPUT_REJECTED_DANGEROUS_FLAG"
+  },
+  "judge": {
+    "agentReply": "The coverctl check call was rejected because --require can load arbitrary code via the test runner. I'll remove that flag from testArgs and try again without it.",
+    "mustContain": ["rejected", "--require"],
+    "mustNotContain": ["coverage is", "passed", "78%", "all domains"],
+    "llmQuestion": "Does the agent reply correctly identify that the call was rejected by sanitization, and propose a recovery action consistent with the remediation field?"
+  }
+}

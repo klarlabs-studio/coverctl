@@ -1,6 +1,6 @@
 {
   "project_id": "coverctl",
-  "version": 76,
+  "version": 82,
   "task_states": {
     "T-1": {
       "status": "done",
@@ -229,9 +229,15 @@
       "elapsed_minutes": 3
     },
     "T22": {
-      "status": "pending",
+      "status": "done",
       "path": "",
-      "elapsed_minutes": 0
+      "owner": "ai-agent",
+      "evidence": [
+        "internal/cli/cmd_survey.go (runSurvey + promptSurvey + normalizeSurveyAnswer + writeSurveyResponse + surveyRepoFingerprint); cli.go dispatch + commandHelpText[\"survey\"] + bash completion list updated; cmd_survey_test.go covers normalize forms, prompt flow, EOF, JSONL append, scripted skip/valid/bad-answer paths. Local-only storage; donation deferred to receiver infra (T22 in spec)."
+      ],
+      "started_at": "2026-05-09T11:14:24.972817+02:00",
+      "completed_at": "2026-05-09T11:16:51.867678+02:00",
+      "elapsed_minutes": 2
     },
     "T23": {
       "status": "pending",
@@ -277,13 +283,25 @@
       "elapsed_minutes": 5
     },
     "T6": {
-      "status": "pending",
+      "status": "done",
       "path": "",
-      "elapsed_minutes": 0
+      "owner": "ai-agent",
+      "evidence": [
+        "internal/eval/judge.go (Judge interface, RuleJudge, HTTPLLMJudge with COVERCTL_EVAL_LLM_JUDGE opt-in gate); types.go ScenarioJudge field; harness.go applies judge after Expect; 2 judge scenarios (rejection_remediation_used, path_scope_no_hallucinated_path); judge_test.go covers rule pass/fail, opt-in gate, build with key, harness wiring. 11/11 scenarios pass."
+      ],
+      "started_at": "2026-05-09T11:10:11.18748+02:00",
+      "completed_at": "2026-05-09T11:13:55.475982+02:00",
+      "elapsed_minutes": 3
     },
     "T7": {
-      "status": "pending",
+      "status": "done",
       "path": "",
+      "owner": "ai-agent",
+      "evidence": [
+        ".github/workflows/eval.yml — PR/push runs rule-only eval (default); workflow_dispatch with run-llm-judge=true triggers LLM judge using ANTHROPIC_API_KEY secret. eval-llm job depends on eval (rule) job."
+      ],
+      "started_at": "2026-05-09T11:13:57.625506+02:00",
+      "completed_at": "2026-05-09T11:14:06.987862+02:00",
       "elapsed_minutes": 0
     },
     "T8": {
@@ -397,5 +415,5 @@
       "elapsed_minutes": 0
     }
   },
-  "updated_at": "2026-05-09T09:06:23.803705+02:00"
+  "updated_at": "2026-05-09T11:16:51.867679+02:00"
 }

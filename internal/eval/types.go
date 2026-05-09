@@ -42,6 +42,33 @@ type Scenario struct {
 	Input map[string]any `json:"input"`
 	// Expect describes the assertions the harness will run on the response.
 	Expect Expect `json:"expect"`
+	// Judge, when non-zero, runs after Expect to score a candidate agent
+	// reply against the response. Use for scenarios that test how an
+	// agent should interpret coverctl output, not just whether the
+	// response is structurally correct.
+	Judge ScenarioJudge `json:"judge,omitempty"`
+}
+
+// ScenarioJudge encodes a JSON-serializable JudgeCriteria plus the
+// inputs the harness needs to run RuleJudge and (optionally)
+// HTTPLLMJudge.
+//
+// The agent reply is a *canned* string committed to the scenario file —
+// it represents what an agent would (or has been observed to) say given
+// this response. The judge scores whether the canned reply is faithful.
+// In a future iteration the canned reply can be replaced with a live
+// agent invocation; the schema stays the same.
+type ScenarioJudge struct {
+	// AgentReply is the candidate text scored by the judge. Empty
+	// disables judging entirely for this scenario.
+	AgentReply string `json:"agentReply,omitempty"`
+	// MustContain enforces presence in AgentReply (RuleJudge).
+	MustContain []string `json:"mustContain,omitempty"`
+	// MustNotContain enforces absence in AgentReply (RuleJudge).
+	MustNotContain []string `json:"mustNotContain,omitempty"`
+	// LLMQuestion is the yes/no question for HTTPLLMJudge. Empty skips
+	// the LLM check even when ANTHROPIC_API_KEY is set.
+	LLMQuestion string `json:"llmQuestion,omitempty"`
 }
 
 // Expect bundles the assertions evaluated against a scenario response.

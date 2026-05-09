@@ -1,0 +1,75 @@
+name: Eval Harness
+
+# The eval harness gates on every PR. Two profiles:
+#
+#  - Default (PR / push): runs the rule-based judge corpus only. No LLM
+#    calls, no billing, deterministic results. The wedge metric (output-
+#    boundary integrity, rejection-schema conformance, sanitization
+#    accuracy) is enforced here.
+#
+#  - LLM-judge (manual / scheduled): set ANTHROPIC_API_KEY repo secret
+#    and trigger via workflow_dispatch with run-llm-judge=true. Uses the
+#    HTTPLLMJudge in internal/eval/judge.go to score scenarios that ship
+#    an `llmQuestion` field — output-interpretation accuracy.
+#
+# Why split: LLM judging is billed and non-deterministic. Running it on
+# every PR would be expensive and noisy. The split keeps the PR signal
+# fast and free while still giving us a flywheel for the harder checks.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      run-llm-judge:
+        description: "Enable HTTPLLMJudge against ANTHROPIC_API_KEY secret"
+        required: false
+        default: "false"
+
+permissions:
+  contents: read
+
+jobs:
+  eval:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        go-version: ["1.25.x"]
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - name: Set up Go
+        uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c # v6
+        with:
+          go-version: ${{ matrix.go-version }}
+      - name: Run eval harness (rule-based judge)
+        run: |
+          go test -v -run TestEvalScenarios ./internal/eval/...
+        env:
+          # Default: rule-only. The eval harness gates LLM judging on an
+          # explicit opt-in so a stray ANTHROPIC_API_KEY in the runner
+          # environment cannot accidentally bill the account.
+          COVERCTL_EVAL_LLM_JUDGE: ""
+
+  eval-llm:
+    if: github.event_name == 'workflow_dispatch' && inputs.run-llm-judge == 'true'
+    runs-on: ubuntu-latest
+    needs: eval
+    strategy:
+      matrix:
+        go-version: ["1.25.x"]
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - name: Set up Go
+        uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c # v6
+        with:
+          go-version: ${{ matrix.go-version }}
+      - name: Run eval harness (rule + LLM judge)
+        run: |
+          go test -v -run TestEvalScenarios ./internal/eval/...
+        env:
+          COVERCTL_EVAL_LLM_JUDGE: "1"
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          # Optional model override; defaults to claude-sonnet-4-6 when unset.
+          ANTHROPIC_MODEL: ${{ vars.ANTHROPIC_EVAL_MODEL }}
