@@ -1,6 +1,6 @@
 {
   "project_id": "coverctl",
-  "version": 82,
+  "version": 84,
   "task_states": {
     "T-1": {
       "status": "done",
@@ -240,9 +240,15 @@
       "elapsed_minutes": 2
     },
     "T23": {
-      "status": "pending",
+      "status": "done",
       "path": "",
-      "elapsed_minutes": 0
+      "owner": "ai-agent",
+      "evidence": [
+        "docs/research/usability-test-protocol.md (cohort, recruitment post, screener, session structure, observation rubric, consent text, anti-patterns, stop conditions); docs/research/usability-test-findings-template.md (template to fill after sessions). Recruitment and session scheduling remain user work — those are not code deliverables."
+      ],
+      "started_at": "2026-05-09T11:25:36.001081+02:00",
+      "completed_at": "2026-05-09T11:27:36.301626+02:00",
+      "elapsed_minutes": 2
     },
     "T24": {
       "status": "pending",
@@ -415,5 +421,5 @@
       "elapsed_minutes": 0
     }
   },
-  "updated_at": "2026-05-09T11:16:51.867679+02:00"
+  "updated_at": "2026-05-09T11:27:36.301627+02:00"
 }
