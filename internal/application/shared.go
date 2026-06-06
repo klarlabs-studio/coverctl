@@ -6,7 +6,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/felixgeelhaar/coverctl/internal/domain"
+	"go.klarlabs.de/coverctl/internal/domain"
 )
 
 // loadOrDetectConfig loads config from path or auto-detects if not found.

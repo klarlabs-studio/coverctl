@@ -6,8 +6,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/felixgeelhaar/coverctl/internal/application"
-	"github.com/felixgeelhaar/coverctl/internal/infrastructure/gotool"
+	"go.klarlabs.de/coverctl/internal/application"
+	"go.klarlabs.de/coverctl/internal/infrastructure/gotool"
 )
 
 type GitDiff struct {

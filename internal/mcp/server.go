@@ -8,11 +8,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/felixgeelhaar/coverctl/internal/application"
-	"github.com/felixgeelhaar/coverctl/internal/infrastructure/config"
-	"github.com/felixgeelhaar/coverctl/internal/infrastructure/history"
-	"github.com/felixgeelhaar/coverctl/internal/pathutil"
-	"github.com/felixgeelhaar/mcp-go"
+	"go.klarlabs.de/coverctl/internal/application"
+	"go.klarlabs.de/coverctl/internal/infrastructure/config"
+	"go.klarlabs.de/coverctl/internal/infrastructure/history"
+	"go.klarlabs.de/coverctl/internal/pathutil"
+	"go.klarlabs.de/mcp"
 )
 
 // Server wraps the application service with MCP protocol handling.

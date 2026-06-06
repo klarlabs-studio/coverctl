@@ -3,14 +3,14 @@
   "name": "io.github.felixgeelhaar/coverctl",
   "description": "Go code coverage analysis tool with MCP server for AI-powered coverage workflows",
   "repository": {
-    "url": "https://github.com/felixgeelhaar/coverctl",
+    "url": "https://github.com/klarlabs-studio/coverctl",
     "source": "github"
   },
   "version": "1.15.0",
   "packages": [
     {
       "registryType": "mcpb",
-      "identifier": "https://github.com/felixgeelhaar/coverctl/releases/download/v1.15.0/coverctl-mcp-darwin-arm64.mcpb",
+      "identifier": "https://github.com/klarlabs-studio/coverctl/releases/download/v1.15.0/coverctl-mcp-darwin-arm64.mcpb",
       "fileSha256": "6820b95a4ba2caf4ee9d3ed770f5ff3f9f858e42c82527ef1b39d66952c7341a",
       "transport": {
         "type": "stdio"
@@ -18,7 +18,7 @@
     },
     {
       "registryType": "mcpb",
-      "identifier": "https://github.com/felixgeelhaar/coverctl/releases/download/v1.15.0/coverctl-mcp-darwin-amd64.mcpb",
+      "identifier": "https://github.com/klarlabs-studio/coverctl/releases/download/v1.15.0/coverctl-mcp-darwin-amd64.mcpb",
       "fileSha256": "27a25c907cbb35d57e4bd59780f3f18d1d6bac5467616f0991f4fb8d4a859ed2",
       "transport": {
         "type": "stdio"
@@ -26,7 +26,7 @@
     },
     {
       "registryType": "mcpb",
-      "identifier": "https://github.com/felixgeelhaar/coverctl/releases/download/v1.15.0/coverctl-mcp-linux-amd64.mcpb",
+      "identifier": "https://github.com/klarlabs-studio/coverctl/releases/download/v1.15.0/coverctl-mcp-linux-amd64.mcpb",
       "fileSha256": "664e37822bade31e43765ac84668f16b6607a0c25a7774bef257a1bd86c74556",
       "transport": {
         "type": "stdio"
@@ -34,7 +34,7 @@
     },
     {
       "registryType": "mcpb",
-      "identifier": "https://github.com/felixgeelhaar/coverctl/releases/download/v1.15.0/coverctl-mcp-linux-arm64.mcpb",
+      "identifier": "https://github.com/klarlabs-studio/coverctl/releases/download/v1.15.0/coverctl-mcp-linux-arm64.mcpb",
       "fileSha256": "8b98bcb73f1c2ca9d4e91d5fa0a60e98086804cf9cf598786eb28e4ad3688c31",
       "transport": {
         "type": "stdio"
@@ -42,7 +42,7 @@
     },
     {
       "registryType": "mcpb",
-      "identifier": "https://github.com/felixgeelhaar/coverctl/releases/download/v1.15.0/coverctl-mcp-windows-amd64.mcpb",
+      "identifier": "https://github.com/klarlabs-studio/coverctl/releases/download/v1.15.0/coverctl-mcp-windows-amd64.mcpb",
       "fileSha256": "c51541c2c18865b97c0d79b8e319b67b99eceb2b06b9c9063c1160d00723145f",
       "transport": {
         "type": "stdio"
@@ -50,7 +50,7 @@
     },
     {
       "registryType": "mcpb",
-      "identifier": "https://github.com/felixgeelhaar/coverctl/releases/download/v1.15.0/coverctl-mcp-windows-arm64.mcpb",
+      "identifier": "https://github.com/klarlabs-studio/coverctl/releases/download/v1.15.0/coverctl-mcp-windows-arm64.mcpb",
       "fileSha256": "8ad3daa42259b7f9d05461a8d1f7c53a9a257d4adb6ba4447181ada1615cc607",
       "transport": {
         "type": "stdio"

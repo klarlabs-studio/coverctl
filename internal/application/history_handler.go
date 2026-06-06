@@ -3,7 +3,7 @@ package application
 import (
 	"context"
 
-	"github.com/felixgeelhaar/coverctl/internal/domain"
+	"go.klarlabs.de/coverctl/internal/domain"
 )
 
 // HistoryHandler handles coverage history operations.

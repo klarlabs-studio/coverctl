@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/felixgeelhaar/coverctl/internal/application"
-	"github.com/felixgeelhaar/coverctl/internal/infrastructure/history"
+	"go.klarlabs.de/coverctl/internal/application"
+	"go.klarlabs.de/coverctl/internal/infrastructure/history"
 )
 
 // runRecord implements `coverctl record`.

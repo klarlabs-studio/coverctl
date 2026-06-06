@@ -108,7 +108,7 @@ Cap each phase at the listed time. Cut rather than overrun.
 | Intro + consent | 5 min | Explain purpose, get screen-share recording consent |
 | Background interview | 5 min | Stack, AI usage, current coverage tooling, last red-CI moment |
 | Discovery task | 10 min | "You want to add coverage governance to this repo. Find a tool, install it, and reach a first useful signal. Think aloud." (Do **not** mention coverctl by name yet.) |
-| Coverctl install | 10 min | If they did not pick coverctl spontaneously, hand them the URL: `https://felixgeelhaar.github.io/coverctl/`. Continue think-aloud. |
+| Coverctl install | 10 min | If they did not pick coverctl spontaneously, hand them the URL: `https://klarlabs-studio.github.io/coverctl/`. Continue think-aloud. |
 | First failure recovery | 10 min | Whatever they hit first (init failure, FAIL on first check, missing toolchain). Watch how they react. Do not help unless they hit a 3-min stall. |
 | Debrief | 5 min | Three closing questions (below) |
 

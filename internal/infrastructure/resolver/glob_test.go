@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/felixgeelhaar/coverctl/internal/domain"
+	"go.klarlabs.de/coverctl/internal/domain"
 )
 
 func TestGlobResolverResolve(t *testing.T) {

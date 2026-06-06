@@ -6,7 +6,7 @@ import (
 	"math"
 	"sort"
 
-	"github.com/felixgeelhaar/coverctl/internal/domain"
+	"go.klarlabs.de/coverctl/internal/domain"
 )
 
 // AnalyticsHandler handles coverage analysis operations.

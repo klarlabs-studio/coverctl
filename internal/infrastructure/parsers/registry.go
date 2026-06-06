@@ -7,13 +7,13 @@ import (
 	"fmt"
 	"path/filepath"
 
-	"github.com/felixgeelhaar/coverctl/internal/application"
-	"github.com/felixgeelhaar/coverctl/internal/domain"
-	"github.com/felixgeelhaar/coverctl/internal/infrastructure/coverprofile"
-	"github.com/felixgeelhaar/coverctl/internal/infrastructure/parsers/cobertura"
-	"github.com/felixgeelhaar/coverctl/internal/infrastructure/parsers/detector"
-	"github.com/felixgeelhaar/coverctl/internal/infrastructure/parsers/jacoco"
-	"github.com/felixgeelhaar/coverctl/internal/infrastructure/parsers/lcov"
+	"go.klarlabs.de/coverctl/internal/application"
+	"go.klarlabs.de/coverctl/internal/domain"
+	"go.klarlabs.de/coverctl/internal/infrastructure/coverprofile"
+	"go.klarlabs.de/coverctl/internal/infrastructure/parsers/cobertura"
+	"go.klarlabs.de/coverctl/internal/infrastructure/parsers/detector"
+	"go.klarlabs.de/coverctl/internal/infrastructure/parsers/jacoco"
+	"go.klarlabs.de/coverctl/internal/infrastructure/parsers/lcov"
 )
 
 // Registry manages multiple profile parsers and auto-detects formats.

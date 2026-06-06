@@ -6,7 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/felixgeelhaar/coverctl/internal/domain"
+	"go.klarlabs.de/coverctl/internal/domain"
 )
 
 // DefaultMaxEntries is the default number of history entries to keep.

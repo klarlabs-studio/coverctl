@@ -48,8 +48,8 @@ build_mcpb() {
   "compatibility": {
     "platforms": ["${platform}"]
   },
-  "repository": "https://github.com/felixgeelhaar/coverctl",
-  "homepage": "https://github.com/felixgeelhaar/coverctl"
+  "repository": "https://github.com/klarlabs-studio/coverctl",
+  "homepage": "https://github.com/klarlabs-studio/coverctl"
 }
 EOF
 

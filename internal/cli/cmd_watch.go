@@ -5,7 +5,7 @@ import (
 	"flag"
 	"io"
 
-	"github.com/felixgeelhaar/coverctl/internal/application"
+	"go.klarlabs.de/coverctl/internal/application"
 )
 
 // runWatchCmd implements `coverctl watch`. (The legacy runWatch helper

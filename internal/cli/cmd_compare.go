@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/felixgeelhaar/coverctl/internal/application"
+	"go.klarlabs.de/coverctl/internal/application"
 )
 
 // runCompare implements `coverctl compare`.

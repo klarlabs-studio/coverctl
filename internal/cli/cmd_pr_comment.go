@@ -7,7 +7,7 @@ import (
 	"io"
 	"strings"
 
-	"github.com/felixgeelhaar/coverctl/internal/application"
+	"go.klarlabs.de/coverctl/internal/application"
 )
 
 // runPRComment implements `coverctl pr-comment`.

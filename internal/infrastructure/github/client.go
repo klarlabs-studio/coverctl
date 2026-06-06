@@ -12,7 +12,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/felixgeelhaar/coverctl/internal/application"
+	"go.klarlabs.de/coverctl/internal/application"
 )
 
 const (

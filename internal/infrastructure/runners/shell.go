@@ -7,8 +7,8 @@ import (
 	"os/exec"
 	"path/filepath"
 
-	"github.com/felixgeelhaar/coverctl/internal/application"
-	"github.com/felixgeelhaar/coverctl/internal/infrastructure/cmdrun"
+	"go.klarlabs.de/coverctl/internal/application"
+	"go.klarlabs.de/coverctl/internal/infrastructure/cmdrun"
 )
 
 // ShellRunner implements CoverageRunner for Shell/Bash projects.

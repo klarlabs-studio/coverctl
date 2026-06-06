@@ -5,10 +5,10 @@ import (
 	"os"
 	"testing"
 
-	"github.com/felixgeelhaar/coverctl/internal/application"
-	"github.com/felixgeelhaar/coverctl/internal/domain"
-	"github.com/felixgeelhaar/coverctl/internal/eval"
-	"github.com/felixgeelhaar/coverctl/internal/mcp"
+	"go.klarlabs.de/coverctl/internal/application"
+	"go.klarlabs.de/coverctl/internal/domain"
+	"go.klarlabs.de/coverctl/internal/eval"
+	"go.klarlabs.de/coverctl/internal/mcp"
 )
 
 // stubService implements mcp.Service with no-op semantics. The eval

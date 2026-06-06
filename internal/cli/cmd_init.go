@@ -7,7 +7,7 @@ import (
 	"io"
 	"os"
 
-	"github.com/felixgeelhaar/coverctl/internal/application"
+	"go.klarlabs.de/coverctl/internal/application"
 )
 
 // runInit implements `coverctl init`.

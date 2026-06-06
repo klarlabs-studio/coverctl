@@ -26354,6 +26354,862 @@
       "file_path": ".roady/events.jsonl",
       "severity": "high",
       "created_at": "2026-05-09T11:13:11.712473Z"
+    },
+    {
+      "fingerprint": "ceb4843b2855424d939015c3ed2f9aeb182236c0f08bf6b05ffc45fdff9daffe",
+      "rule_id": "AI-036",
+      "file_path": "docs/src/styles/custom.css",
+      "severity": "medium",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "01c3855b1692ea822b5fd007a8478b57d461af48c03a7c865bb836eca8b996df",
+      "rule_id": "AI-036",
+      "file_path": "docs/src/styles/custom.css",
+      "severity": "medium",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "627c51cf0ad7885cc8e4012127ff928083f064867b0efdebb88799356d7fc581",
+      "rule_id": "AI-036",
+      "file_path": "docs/src/styles/custom.css",
+      "severity": "medium",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "e833072cd38aee29401d400fee4176c3ed52d746ae2f12859fa097197aa368b3",
+      "rule_id": "AI-036",
+      "file_path": "docs/src/styles/custom.css",
+      "severity": "medium",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "767d876595d0c2636e225fbd32888e0c1246aa271ec86b628cbf6ee1d180cbe4",
+      "rule_id": "AI-036",
+      "file_path": "docs/src/styles/custom.css",
+      "severity": "medium",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "dcf21b86549522b9b3a88be17d8404d2cdc2b720ffeeda7c6f80c63cd14f54f7",
+      "rule_id": "AI-036",
+      "file_path": "docs/src/styles/custom.css",
+      "severity": "medium",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "2974b0662e1b87c8267d83c0549e0fd92341ab4933e6744abdc4000a8f013fad",
+      "rule_id": "IAC-308",
+      "file_path": ".github/workflows/eval.yml",
+      "severity": "low",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "89e2decc496a53c723d50fd7d83dbd52ca9b329f8b9d557e21471f96008000ec",
+      "rule_id": "IAC-314",
+      "file_path": ".github/workflows/dependabot-auto-merge.yml",
+      "severity": "medium",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "6e1bcfd3fa04f09f87d4bced62b5b53e5001c4a573844beb1fe8a1118ef4127e",
+      "rule_id": "SEC-161",
+      "file_path": ".github/workflows/eval.yml",
+      "severity": "medium",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "70f54fab7e31fed0bd0e0315403fa69fa69a584031452f1a0e3487c4b15df1de",
+      "rule_id": "SEC-162",
+      "file_path": ".github/workflows/eval.yml",
+      "severity": "medium",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "363fde11068ae5e624da1c99fbcac2b6c9f9ead09986cc6f585754123cd3765e",
+      "rule_id": "SEC-163",
+      "file_path": ".github/workflows/dependabot-auto-merge.yml",
+      "severity": "medium",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "05607272ea17cd8453dd4466233e73c220509e4576d225096929d571dae855ec",
+      "rule_id": "SEC-163",
+      "file_path": ".github/workflows/eval.yml",
+      "severity": "medium",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "ce4ec9874dc35c2a7b9d103a8feb34b3b8ef0b4643fdb0b5a16feaecac5fc671",
+      "rule_id": "SEC-616",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "6f479b4659d3dc4267538c82548e4ddc49fa9bb691ff088d9dc1e133e9921410",
+      "rule_id": "SEC-616",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "0f5320edfb577e7d6fa6a6f815e75a2f2f77bd157aeb6dd143fc6a76ea33c111",
+      "rule_id": "SEC-616",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "f9a0eab39d92317fd5e160faeb73a756b5d65100019ba71d30df60f43786292b",
+      "rule_id": "SEC-616",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "1796963b4332f745ee35a179e0f1aba4402508a6313f0142ba194f872d61dfd0",
+      "rule_id": "SEC-616",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "46254b19adbfcb0c326a5f1f86ad2aade506830c5e0fe033543fcad4514fa8c1",
+      "rule_id": "SEC-616",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "59b91c740ca2b0e948fd321728f637085135bf9f7c57fc755e2476730ceecf66",
+      "rule_id": "SEC-616",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "d4165f9e9033cd5a65daec28e7ad06e864d0e87d01f6b8f24021609b76bf5e06",
+      "rule_id": "SEC-616",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "667989d79b0da4ed9b18345d7ac5f92fe74ffa0342fd4f0622fa5461f4131745",
+      "rule_id": "SEC-616",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "a08f31a66b86735e25490a66ebb3cc6a60a01c423c960292be52f72a6173819e",
+      "rule_id": "SEC-616",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "e921571585bcd5705ad9f0b0f7b6da1fb14f789d99b47664a2343a9bfa9b74be",
+      "rule_id": "SEC-616",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "d1db250154f3a028570106fb6508be48630cd75be01ac5ed86d1075fb5d6685d",
+      "rule_id": "SEC-616",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "d4e771bdf3a779cdf96235ea28ebeb6f5af641e4e8fcba1101d3b6f23e966cd5",
+      "rule_id": "SEC-616",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "a2207c06a03b74519446deb0100b33c0197f067dfac3b8e5ca04d64a11a2bb29",
+      "rule_id": "SEC-616",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "423641bce6d824f74e1bf95158a8318a9221bb0b129d00371a0c3fd6e225c905",
+      "rule_id": "SEC-616",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "4f9ef7894eab0c7f397a2b4d7e82b0a89ef7886c56ed24b8e67fb9086083b77c",
+      "rule_id": "SEC-616",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "27fcc9260f7994d54fe7a673bb31cf80196b63e41e3c6cbe77feb091be5b9a1f",
+      "rule_id": "SEC-616",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "8fe6eaafc10bb641c7842b85d3904051b4a09f22deb762152ed0112117e1132d",
+      "rule_id": "SEC-616",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "7a63505eae8723accae70354ba697171e8d72f506c58ae056dacbe102b93a12f",
+      "rule_id": "SEC-616",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "bde0f4d4facc05d5cf5ad74fecd85e43b0b994fe10d442ce9529d77a0bfe4c7d",
+      "rule_id": "SEC-616",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "838709ca688b51c37a25a7f166f37a8c79844f508f0f3572371434437c41c8ab",
+      "rule_id": "SEC-616",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "2a78991e5bfca2040eefe9b633f66fea2103a12ccb0e38edc2e588e5656f4758",
+      "rule_id": "SEC-616",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "feb9d915d74b40d5cb52d8f65fb52d72d7d6add65e0a291dc6fcbbabfbb2ba27",
+      "rule_id": "SEC-616",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "af6a5cb9afbd82ba28eb4553171a2a7c364e4b323d6493d127bb642361286989",
+      "rule_id": "SEC-616",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "72fb40ce1fc292ff1fb3fe0d73681c547d5981ddf64e3d999cb968d11e836769",
+      "rule_id": "SEC-616",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "12b73da743cd86d2d2c6863807464a79cc4e9051e1be7a48d0fdc3e9a2b36e83",
+      "rule_id": "SEC-616",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "82f8b457cf33f5756d6fe4cfa229a8b4445f2b048cd8eab32224b13c32bda718",
+      "rule_id": "SEC-616",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "40cd7539c768744b915e7fd9c64670fd8e1de10c1c02ce0dfb38f197acb70f74",
+      "rule_id": "SEC-616",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "aa96bf86fa0c8125fcb9d580e7b100efe88ae45ba903ff16e176b6392d152560",
+      "rule_id": "SEC-616",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "0dba14632b8caa7a59ff56ac04dd16b39d1c736af6c0450e7ba6be9801e46157",
+      "rule_id": "SEC-616",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "9c201d2ccf73df80666e1afb93d837e7ec31ca294bb882e1a6376d8f1768436d",
+      "rule_id": "SEC-616",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "ff6c4fc9c7bec10c4ad4248d823835a78b97bc65f45aa1c62064c1652dbb88a1",
+      "rule_id": "SEC-616",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "333ba9347e415afd8347ef5b2f0c648f28e529b5b6f724630e28d67ae6cc3258",
+      "rule_id": "SEC-616",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "ffa13717f1557321026bfc6e760b97a724a8efe6087146f357f4bfb33f67d70e",
+      "rule_id": "SEC-616",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "ce724b5c35297d5e74fdbd1f8b1984f64cfa7b03bf4006e50a420209bfaa75a5",
+      "rule_id": "SEC-616",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "9ee31f8f580bdaa6b490be8c1b7dd8262c2530bac759cc9799c9e6a278493e2d",
+      "rule_id": "SEC-616",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "c10f553e0db0d050b5072d275744cd81997ee1793a791208ac03218e3bd170c5",
+      "rule_id": "SEC-616",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "1e333e55826c62ca184cdea5293a64e25384ab11bb01e82ba4b35986ec8c2418",
+      "rule_id": "SEC-616",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "fd0f8a3312bd83bc7cd5c502ac656a79ee1d66b870795b5b7bd134e86a5e8474",
+      "rule_id": "SEC-616",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "975f5d3aad63977a3aaf1de9b648e6bb37191439db4ef818a170f7af2d522bfb",
+      "rule_id": "SEC-616",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "52cfc7f7c72e0b72b7c5f27b70dcc797a56c613af711cdf0864d2e55c7b42efa",
+      "rule_id": "SEC-616",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "aadd406bbb6e990520842a40f4cb101e8e8cfda3170c8104080f1e6111fce2a4",
+      "rule_id": "SEC-616",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "d1e9edf53a2a5cbc7de86e26474186e1f96d6fe7c63b578fda294046d984e90d",
+      "rule_id": "SEC-616",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "2138f13e0bd4e40d649c876faa14c48c7342edeb0e2112ce6a6e6b2a1aa778b0",
+      "rule_id": "SEC-616",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "b3fd040a7c4607e90d96e43e64783e5f130aabbd9fc714cb502e695d236efd80",
+      "rule_id": "SEC-616",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "c7527502c0df198ff00d1dfcb8a806f61c1ac91945124385e48dadfd93082c52",
+      "rule_id": "SEC-616",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "a30dc4e674278b6c5c28f0a28bb23bcef1c8b0c82260e70a17cb63bfe0f7b6df",
+      "rule_id": "SEC-616",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "bbcd2d9a40b7b02d0c2c433dd99b967774a9844fc93f7e887962c18dbe74fa4a",
+      "rule_id": "SEC-616",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "264c18eb57760d3739c47dfc8a6886c11de1f58f300d5306196376f8371c5b84",
+      "rule_id": "SEC-616",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "6bef17d22a1178a676134dff1b98f8bed0b4ce41da05903c1b1480aeb25986f2",
+      "rule_id": "SEC-616",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "3e207a26865dea013d27a038db43207e78a6827932ee20ed42df93cbf4b3a5ce",
+      "rule_id": "SEC-616",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "89302e7bd6bde045f4e90930a0334703c0eb60e022b775b46a4f4682667abaca",
+      "rule_id": "SEC-629",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "30a08a87820e5cdddda61491945700bbcd9c4bb8075124e606d202c5941133e3",
+      "rule_id": "SEC-652",
+      "file_path": "docs/src/content/docs/mcp.mdx",
+      "severity": "high",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "e331cb8e54e8665de515ed635a78d5c1c40ce753f9c59e2de1fcaae118dfcaa8",
+      "rule_id": "SEC-659",
+      "file_path": ".github/workflows/eval.yml",
+      "severity": "high",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "865e1be704c7115180e31d805e8906127196fe7cd494bb3ed73fc988ad605c08",
+      "rule_id": "SEC-659",
+      "file_path": ".github/workflows/eval.yml",
+      "severity": "high",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "afc773a2f775733bf93e9ad0a16664ade6b15fb2526c716b787417ba28680692",
+      "rule_id": "SEC-659",
+      "file_path": ".github/workflows/eval.yml",
+      "severity": "high",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "ba871b3e0dd454069597372072cb2132df7ed960996a960786f4cb44db5b4824",
+      "rule_id": "SEC-659",
+      "file_path": ".github/workflows/eval.yml",
+      "severity": "high",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "f4486b93a1d6e0a2c055640e7d1a3f51bc3963e2b2648c6193b265450a80580b",
+      "rule_id": "SEC-692",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "1cab16688126ebe59798e5086cb07cf4d31f85ecc195dabd48c4767d62ac506c",
+      "rule_id": "SEC-692",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "f6c97daef4cbb838898492e5eb02ba84e2d97e62397689a936db34524ef44601",
+      "rule_id": "SEC-692",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "41f7b1b2dae9882172b7b8026192129d64449face7ba43b1fa9c37d329e49ecc",
+      "rule_id": "SEC-692",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "e3b7db637fc6b648f244e3274caf210e5e11ef94a367ee4d45f77a22cdd8c0dc",
+      "rule_id": "SEC-692",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "e38e00e502b4031b50f985697d753a3e51ac07d55cd60ecdc57cfb1bdd6e3dc1",
+      "rule_id": "SEC-692",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "0a4793515d5e12bb86acadd9a33f1e4ed322b13f50973f4da267c07005e268b3",
+      "rule_id": "SEC-692",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "cf1d6a1cfe4e8e485e0b8eee90d84da24739d88b342c8dcde097cffad1d085bc",
+      "rule_id": "SEC-692",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "864b5615e49648f82bd4a6038eb895bc9b730890c14083a064a0588fa9bb4072",
+      "rule_id": "SEC-692",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "828b33a36383ef5c8b78a82af1f60aec7de279a9e5e0363d04c201d260433e37",
+      "rule_id": "SEC-692",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "d33f942aec0acbf15db8751356f7b253144b5b5f000c0a7990c0de8fcb60eb00",
+      "rule_id": "SEC-692",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "5642510befce08f4b5c813cc73fa9e30e0665e1360bb00aa2289c2de9189c36f",
+      "rule_id": "SEC-692",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "297e57b63b3b2c4bc35d05b3de552b9596d1c1823f80c7a43684ca390e00c309",
+      "rule_id": "SEC-692",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "514183f46458f5e095b7aea2a472a4aa30e316f0c15e0073b90ad73caf17201c",
+      "rule_id": "SEC-692",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "d11f0771f893636bab70a0ddb2c2626c95a53e3f53a98ea64ef3c5926b882de0",
+      "rule_id": "SEC-692",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "e4754a6681ef47143b63d19165847802ba74f0c510986d80412f11890e4b0ad5",
+      "rule_id": "SEC-692",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "7dc38322712221213aff04377a2e9090ad066f9f5a9a7cb192a7725ec2c7e02e",
+      "rule_id": "SEC-692",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "e51b69f6ed74480bafc72b7e3cdc0a1d15c7f87f354b427cc93d59a84c233cbd",
+      "rule_id": "SEC-692",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "103c51f06a0b2449b63bce7c9575c71e1bbf3de0ff9c7163eaaceeaad5af46bf",
+      "rule_id": "SEC-692",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "0201f312896769ede63ff0bab279c646020c5bf4989ff127f38d108fc72ef262",
+      "rule_id": "SEC-692",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "2e5072d1c6da2963fc26dc36cdc943274a4dd3c1fe2d1e60eb4c4db7cf86cae8",
+      "rule_id": "SEC-692",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "ae47bc93a5c8578a03a7555cd46b19394edefc1fd447daab76025f771baca45d",
+      "rule_id": "SEC-692",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "2e74403cf8a6cb2f0427109f7029b1d892b15ed299fadcdfbc4328862f00e0dd",
+      "rule_id": "SEC-692",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "cea9612a5e723473a0d6772ae644ce7f943d1ecdf571ffb46670b63c027e7935",
+      "rule_id": "SEC-692",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "6bfee1014c21a3d0cbae58cb9939b44e8a9516393007155bf425870490edc95e",
+      "rule_id": "SEC-692",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "887c59f8393fb9966463bb1810e2c603898e17cb7e94d91f261731a0b16bcad2",
+      "rule_id": "SEC-692",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "55f65f71edaca0e506c8e811ac781230a5e739925a51631979d05b6a1a5026b7",
+      "rule_id": "SEC-692",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "18722c63a7884fcf2b0286bd4f582c120b45715e47472da54b81c722d7429099",
+      "rule_id": "SEC-692",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "2fbce735be3a3c2c6444be32784dd480f7f3afa3b64ce8a0b6ca4e410508cf89",
+      "rule_id": "SEC-692",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "a253fb1558b9f74673a94659f761652380df38c346156f043f271d0db97dee24",
+      "rule_id": "SEC-692",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "749843ae5c8c44c5cf6a20493760e7b55625585fbfeb3d05de894c7f88e94d0c",
+      "rule_id": "SEC-692",
+      "file_path": "go.sum",
+      "severity": "high",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "c0b3721ce94ece66951c83f69beaf3b94136cf8716105edf9b350dfd4c317af8",
+      "rule_id": "VULN-001",
+      "file_path": "go.sum",
+      "severity": "medium",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "f4d0ed6e35d6fb56ecf40f0871c8ecbfa9cd3da48e75db69abf30ee280115ee9",
+      "rule_id": "VULN-001",
+      "file_path": "go.sum",
+      "severity": "medium",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "bfa7374a71bfa1c49191c0cc63333dc5f8c9e046efba9bd68103bf639b6230de",
+      "rule_id": "VULN-001",
+      "file_path": "go.sum",
+      "severity": "medium",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "76e4de8b049b0b546252a2bba896daf69dffc5559b920d35a29dece9d557e476",
+      "rule_id": "VULN-001",
+      "file_path": "go.sum",
+      "severity": "medium",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "4cdc57b30285f97a51cb7714766221c584f8caaa2d40ee4e5e22f4061303b638",
+      "rule_id": "VULN-001",
+      "file_path": "go.sum",
+      "severity": "medium",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "6dbcbbf8ceb86f5f8f45514c57b5e2f501e8092b743a8430002b610328584737",
+      "rule_id": "VULN-001",
+      "file_path": "go.sum",
+      "severity": "medium",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
+    },
+    {
+      "fingerprint": "606cedd61b7b93e09bfea65c4728a93f6439e5f4bac3cea00cd3726e1b05ff8f",
+      "rule_id": "VULN-001",
+      "file_path": "go.sum",
+      "severity": "medium",
+      "reason": "module path migration to go.klarlabs.de/coverctl (fingerprints shifted)",
+      "created_at": "2026-06-06T20:27:43.537138Z"
     }
   ]
 }

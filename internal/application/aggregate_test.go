@@ -4,7 +4,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/felixgeelhaar/coverctl/internal/domain"
+	"go.klarlabs.de/coverctl/internal/domain"
 )
 
 func TestAggregateByDomain(t *testing.T) {
@@ -20,7 +20,7 @@ func TestAggregateByDomain(t *testing.T) {
 	}
 	exclude := []string{"internal/gen/*"}
 
-	modulePath := "github.com/felixgeelhaar/coverctl"
+	modulePath := "go.klarlabs.de/coverctl"
 	result := AggregateByDomain(files, domainDirs, exclude, moduleRoot, modulePath, nil)
 	if got := result["core"]; got.Covered != 1 || got.Total != 2 {
 		t.Fatalf("unexpected core coverage: %+v", got)
@@ -63,9 +63,9 @@ func TestModuleRelativePathNoRoot(t *testing.T) {
 
 func TestAggregateWithModulePath(t *testing.T) {
 	moduleRoot := "/repo"
-	modulePath := "github.com/felixgeelhaar/coverctl"
+	modulePath := "go.klarlabs.de/coverctl"
 	files := map[string]domain.CoverageStat{
-		"github.com/felixgeelhaar/coverctl/cmd/coverctl/main.go": {Covered: 8, Total: 10},
+		"go.klarlabs.de/coverctl/cmd/coverctl/main.go": {Covered: 8, Total: 10},
 	}
 	domainDirs := map[string][]string{
 		"cmd": {filepath.Join(moduleRoot, "cmd/coverctl")},
@@ -114,7 +114,7 @@ func TestAggregateByDomainWithDomainExcludes(t *testing.T) {
 	domainExcludes := map[string][]string{
 		"core": {"internal/core/gen/*"},
 	}
-	modulePath := "github.com/felixgeelhaar/coverctl"
+	modulePath := "go.klarlabs.de/coverctl"
 	result := AggregateByDomainWithExcludes(files, domainDirs, nil, domainExcludes, moduleRoot, modulePath, nil)
 
 	// core should have only handler.go (5/10), proto.go is excluded

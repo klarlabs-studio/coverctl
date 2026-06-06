@@ -9,7 +9,7 @@ import (
 	"io"
 	"os/exec"
 
-	"github.com/felixgeelhaar/coverctl/internal/domain"
+	"go.klarlabs.de/coverctl/internal/domain"
 )
 
 type DomainResolver struct {

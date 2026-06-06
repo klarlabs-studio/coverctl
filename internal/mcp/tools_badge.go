@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/felixgeelhaar/coverctl/internal/application"
+	"go.klarlabs.de/coverctl/internal/application"
 )
 
 // handleBadge handles the `badge` tool: generate an SVG coverage badge.

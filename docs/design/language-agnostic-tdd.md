@@ -271,11 +271,11 @@ package parsers
 import (
     "fmt"
 
-    "github.com/felixgeelhaar/coverctl/internal/application"
-    "github.com/felixgeelhaar/coverctl/internal/infrastructure/parsers/cobertura"
-    goparser "github.com/felixgeelhaar/coverctl/internal/infrastructure/parsers/go"
-    "github.com/felixgeelhaar/coverctl/internal/infrastructure/parsers/jacoco"
-    "github.com/felixgeelhaar/coverctl/internal/infrastructure/parsers/lcov"
+    "go.klarlabs.de/coverctl/internal/application"
+    "go.klarlabs.de/coverctl/internal/infrastructure/parsers/cobertura"
+    goparser "go.klarlabs.de/coverctl/internal/infrastructure/parsers/go"
+    "go.klarlabs.de/coverctl/internal/infrastructure/parsers/jacoco"
+    "go.klarlabs.de/coverctl/internal/infrastructure/parsers/lcov"
 )
 
 // New creates a parser for the specified format.
@@ -346,8 +346,8 @@ import (
     "strconv"
     "strings"
 
-    "github.com/felixgeelhaar/coverctl/internal/application"
-    "github.com/felixgeelhaar/coverctl/internal/domain"
+    "go.klarlabs.de/coverctl/internal/application"
+    "go.klarlabs.de/coverctl/internal/domain"
 )
 
 // Parser implements ProfileParser for LCOV format.
@@ -459,8 +459,8 @@ import (
     "fmt"
     "os"
 
-    "github.com/felixgeelhaar/coverctl/internal/application"
-    "github.com/felixgeelhaar/coverctl/internal/domain"
+    "go.klarlabs.de/coverctl/internal/application"
+    "go.klarlabs.de/coverctl/internal/domain"
 )
 
 // coverage represents the root Cobertura XML element.
@@ -568,7 +568,7 @@ import (
     "path/filepath"
     "strings"
 
-    "github.com/felixgeelhaar/coverctl/internal/application"
+    "go.klarlabs.de/coverctl/internal/application"
 )
 
 // Format detects the coverage format of the given file.
@@ -646,7 +646,7 @@ import (
     "os"
     "path/filepath"
 
-    "github.com/felixgeelhaar/coverctl/internal/application"
+    "go.klarlabs.de/coverctl/internal/application"
 )
 
 // Marker represents a file marker for language detection.
@@ -723,7 +723,7 @@ import (
     "os/exec"
     "path/filepath"
 
-    "github.com/felixgeelhaar/coverctl/internal/application"
+    "go.klarlabs.de/coverctl/internal/application"
 )
 
 // Runner implements CoverageRunner for Python projects.
@@ -812,11 +812,11 @@ package runners
 import (
     "fmt"
 
-    "github.com/felixgeelhaar/coverctl/internal/application"
-    gorunner "github.com/felixgeelhaar/coverctl/internal/infrastructure/runners/go"
-    "github.com/felixgeelhaar/coverctl/internal/infrastructure/runners/node"
-    "github.com/felixgeelhaar/coverctl/internal/infrastructure/runners/python"
-    "github.com/felixgeelhaar/coverctl/internal/infrastructure/runners/rust"
+    "go.klarlabs.de/coverctl/internal/application"
+    gorunner "go.klarlabs.de/coverctl/internal/infrastructure/runners/go"
+    "go.klarlabs.de/coverctl/internal/infrastructure/runners/node"
+    "go.klarlabs.de/coverctl/internal/infrastructure/runners/python"
+    "go.klarlabs.de/coverctl/internal/infrastructure/runners/rust"
 )
 
 // New creates a runner for the specified language.
@@ -944,7 +944,7 @@ merge:
 
 package coverprofile
 
-import goparser "github.com/felixgeelhaar/coverctl/internal/infrastructure/parsers/go"
+import goparser "go.klarlabs.de/coverctl/internal/infrastructure/parsers/go"
 
 // Parser is deprecated. Use parsers.New(application.FormatGo) instead.
 type Parser = goparser.Parser
@@ -1156,7 +1156,7 @@ func TestFormat_DetectsCoberturaFromXML(t *testing.T) {
 
 require (
     // Existing
-    github.com/felixgeelhaar/mcp-go v1.4.0
+    go.klarlabs.de/mcp v1.4.0
 
     // New (if needed)
     // None - using stdlib xml and text parsing

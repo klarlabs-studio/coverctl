@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"github.com/felixgeelhaar/coverctl/internal/cli"
+	"go.klarlabs.de/coverctl/internal/cli"
 )
 
 func main() {

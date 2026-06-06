@@ -7,9 +7,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/felixgeelhaar/coverctl/internal/application"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"go.klarlabs.de/coverctl/internal/application"
 )
 
 func TestDetector_DetectFormat_GoProfile(t *testing.T) {
