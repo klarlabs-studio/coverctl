@@ -24,7 +24,7 @@ WINDOWS_ARM64_SHA=$(shasum -a 256 dist/coverctl-mcp-windows-arm64.mcpb | cut -d'
 cat > server.json <<EOF
 {
   "\$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
-  "name": "io.github.felixgeelhaar/coverctl",
+  "name": "io.github.klarlabs-studio/coverctl",
   "description": "Go code coverage analysis tool with MCP server for AI-powered coverage workflows",
   "repository": {
     "url": "https://github.com/klarlabs-studio/coverctl",
