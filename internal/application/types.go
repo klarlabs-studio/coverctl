@@ -5,7 +5,7 @@ import (
 	"errors"
 	"io"
 
-	"github.com/felixgeelhaar/coverctl/internal/domain"
+	"go.klarlabs.de/coverctl/internal/domain"
 )
 
 type OutputFormat string

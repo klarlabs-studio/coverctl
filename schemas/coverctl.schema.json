@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/felixgeelhaar/coverctl/schemas/coverctl.schema.json",
+  "$id": "https://github.com/klarlabs-studio/coverctl/schemas/coverctl.schema.json",
   "title": "coverctl configuration",
   "description": "Configuration schema for coverctl - multi-language coverage policy enforcement",
   "type": "object",

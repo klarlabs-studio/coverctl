@@ -84,10 +84,10 @@ func TestLayerBoundary_DomainStaysClean(t *testing.T) {
 	imports := importsOf(t, filepath.Join(root, "internal", "domain"))
 
 	forbidden := []string{
-		"github.com/felixgeelhaar/coverctl/internal/application",
-		"github.com/felixgeelhaar/coverctl/internal/infrastructure",
-		"github.com/felixgeelhaar/coverctl/internal/cli",
-		"github.com/felixgeelhaar/coverctl/internal/mcp",
+		"go.klarlabs.de/coverctl/internal/application",
+		"go.klarlabs.de/coverctl/internal/infrastructure",
+		"go.klarlabs.de/coverctl/internal/cli",
+		"go.klarlabs.de/coverctl/internal/mcp",
 	}
 	for file, paths := range imports {
 		for _, p := range paths {
@@ -111,9 +111,9 @@ func TestLayerBoundary_ApplicationStaysClean(t *testing.T) {
 	imports := importsOf(t, filepath.Join(root, "internal", "application"))
 
 	forbidden := []string{
-		"github.com/felixgeelhaar/coverctl/internal/infrastructure",
-		"github.com/felixgeelhaar/coverctl/internal/cli",
-		"github.com/felixgeelhaar/coverctl/internal/mcp",
+		"go.klarlabs.de/coverctl/internal/infrastructure",
+		"go.klarlabs.de/coverctl/internal/cli",
+		"go.klarlabs.de/coverctl/internal/mcp",
 	}
 	for file, paths := range imports {
 		for _, p := range paths {

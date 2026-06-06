@@ -7,9 +7,9 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/felixgeelhaar/coverctl/internal/application"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"go.klarlabs.de/coverctl/internal/application"
 )
 
 // newTestServer creates an httptest.Server and returns a Client wired to it.

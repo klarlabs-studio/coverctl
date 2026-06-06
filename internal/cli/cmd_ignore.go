@@ -5,7 +5,7 @@ import (
 	"flag"
 	"io"
 
-	"github.com/felixgeelhaar/coverctl/internal/application"
+	"go.klarlabs.de/coverctl/internal/application"
 )
 
 // runIgnore implements `coverctl ignore`.

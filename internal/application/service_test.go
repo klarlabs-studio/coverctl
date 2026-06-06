@@ -11,7 +11,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/felixgeelhaar/coverctl/internal/domain"
+	"go.klarlabs.de/coverctl/internal/domain"
 )
 
 var errSentinel = errors.New("sentinel")
@@ -119,7 +119,7 @@ func TestServiceCheckPass(t *testing.T) {
 	svc := &Service{
 		ConfigLoader:   fakeConfigLoader{exists: true, cfg: cfg},
 		Autodetector:   fakeAutodetector{},
-		DomainResolver: fakeResolver{dirs: map[string][]string{"core": {"/repo/internal/core"}}, moduleRoot: "/repo", modulePath: "github.com/felixgeelhaar/coverctl"},
+		DomainResolver: fakeResolver{dirs: map[string][]string{"core": {"/repo/internal/core"}}, moduleRoot: "/repo", modulePath: "go.klarlabs.de/coverctl"},
 		CoverageRunner: fakeRunner{profile: ".cover/coverage.out"},
 		ProfileParser:  fakeParser{stats: map[string]domain.CoverageStat{"internal/core/a.go": {Covered: 8, Total: 10}}},
 		Reporter:       reporter,
@@ -141,7 +141,7 @@ func TestServiceCheckFail(t *testing.T) {
 	svc := &Service{
 		ConfigLoader:   fakeConfigLoader{exists: true, cfg: cfg},
 		Autodetector:   fakeAutodetector{},
-		DomainResolver: fakeResolver{dirs: map[string][]string{"core": {"/repo/internal/core"}}, moduleRoot: "/repo", modulePath: "github.com/felixgeelhaar/coverctl"},
+		DomainResolver: fakeResolver{dirs: map[string][]string{"core": {"/repo/internal/core"}}, moduleRoot: "/repo", modulePath: "go.klarlabs.de/coverctl"},
 		CoverageRunner: fakeRunner{profile: ".cover/coverage.out"},
 		ProfileParser:  fakeParser{stats: map[string]domain.CoverageStat{"internal/core/a.go": {Covered: 8, Total: 10}}},
 		Reporter:       reporter,
@@ -170,7 +170,7 @@ func TestServiceCheckWarnings(t *testing.T) {
 				"api":  {"/repo/internal/core"},
 			},
 			moduleRoot: "/repo",
-			modulePath: "github.com/felixgeelhaar/coverctl",
+			modulePath: "go.klarlabs.de/coverctl",
 		},
 		CoverageRunner: fakeRunner{profile: ".cover/coverage.out"},
 		ProfileParser:  fakeParser{stats: map[string]domain.CoverageStat{"internal/core/a.go": {Covered: 8, Total: 10}}},
@@ -252,7 +252,7 @@ func TestServiceReportUsesAutodetect(t *testing.T) {
 	svc := &Service{
 		ConfigLoader:   fakeConfigLoader{exists: false},
 		Autodetector:   fakeAutodetector{cfg: cfg},
-		DomainResolver: fakeResolver{dirs: map[string][]string{"module": {"/repo"}}, moduleRoot: "/repo", modulePath: "github.com/felixgeelhaar/coverctl"},
+		DomainResolver: fakeResolver{dirs: map[string][]string{"module": {"/repo"}}, moduleRoot: "/repo", modulePath: "go.klarlabs.de/coverctl"},
 		ProfileParser:  fakeParser{stats: map[string]domain.CoverageStat{"main.go": {Covered: 1, Total: 1}}},
 		Reporter:       reporter,
 		Out:            io.Discard,
@@ -319,7 +319,7 @@ func TestServiceCheckRunnerError(t *testing.T) {
 	svc := &Service{
 		ConfigLoader:   fakeConfigLoader{exists: true, cfg: cfg},
 		Autodetector:   fakeAutodetector{},
-		DomainResolver: fakeResolver{dirs: map[string][]string{"module": {"/repo"}}, moduleRoot: "/repo", modulePath: "github.com/felixgeelhaar/coverctl"},
+		DomainResolver: fakeResolver{dirs: map[string][]string{"module": {"/repo"}}, moduleRoot: "/repo", modulePath: "go.klarlabs.de/coverctl"},
 		CoverageRunner: fakeRunner{err: errSentinel},
 		ProfileParser:  fakeParser{stats: map[string]domain.CoverageStat{}},
 		Reporter:       &fakeReporter{},
@@ -334,7 +334,7 @@ func TestServiceCheckProfileParserError(t *testing.T) {
 	cfg := Config{Version: 1, Policy: domain.Policy{DefaultMin: 80, Domains: []domain.Domain{{Name: "module", Match: []string{"./..."}}}}}
 	svc := &Service{
 		ConfigLoader:   fakeConfigLoader{exists: true, cfg: cfg},
-		DomainResolver: fakeResolver{dirs: map[string][]string{"module": {"/repo"}}, moduleRoot: "/repo", modulePath: "github.com/felixgeelhaar/coverctl"},
+		DomainResolver: fakeResolver{dirs: map[string][]string{"module": {"/repo"}}, moduleRoot: "/repo", modulePath: "go.klarlabs.de/coverctl"},
 		CoverageRunner: fakeRunner{profile: ".cover/coverage.out"},
 		ProfileParser:  fakeParser{err: errSentinel},
 		Reporter:       &fakeReporter{},
@@ -364,7 +364,7 @@ func TestServiceReportParserError(t *testing.T) {
 	cfg := Config{Version: 1, Policy: domain.Policy{DefaultMin: 80, Domains: []domain.Domain{{Name: "module", Match: []string{"./..."}}}}}
 	svc := &Service{
 		ConfigLoader:   fakeConfigLoader{exists: true, cfg: cfg},
-		DomainResolver: fakeResolver{dirs: map[string][]string{"module": {"/repo"}}, moduleRoot: "/repo", modulePath: "github.com/felixgeelhaar/coverctl"},
+		DomainResolver: fakeResolver{dirs: map[string][]string{"module": {"/repo"}}, moduleRoot: "/repo", modulePath: "go.klarlabs.de/coverctl"},
 		ProfileParser:  fakeParser{err: errSentinel},
 		Reporter:       &fakeReporter{},
 		Out:            io.Discard,
@@ -441,7 +441,7 @@ func TestServiceLoadOrDetectNoDomains(t *testing.T) {
 
 func TestAggregateByDomainNormalizesAndExcludes(t *testing.T) {
 	moduleRoot := filepath.Join(t.TempDir(), "repo")
-	modulePath := "github.com/felixgeelhaar/coverctl"
+	modulePath := "go.klarlabs.de/coverctl"
 	files := map[string]domain.CoverageStat{
 		modulePath + "/internal/core/a.go":                       {Covered: 2, Total: 3},
 		filepath.Join(moduleRoot, "internal", "ignored", "b.go"): {Covered: 1, Total: 1},
@@ -485,7 +485,7 @@ func TestMatchesAnyDirModuleRootAndRelatives(t *testing.T) {
 
 func TestNormalizeCoverageFileVariousCases(t *testing.T) {
 	moduleRoot := filepath.Join(t.TempDir(), "repo")
-	modulePath := "github.com/felixgeelhaar/coverctl"
+	modulePath := "go.klarlabs.de/coverctl"
 
 	if got := normalizeCoverageFile(modulePath, modulePath, moduleRoot); got != filepath.Clean(moduleRoot) {
 		t.Fatalf("expected module path to map to module root, got %s", got)
@@ -588,7 +588,7 @@ func TestServiceCheckWithDomainFilter(t *testing.T) {
 				"api":  {"/repo/internal/api"},
 			},
 			moduleRoot: "/repo",
-			modulePath: "github.com/felixgeelhaar/coverctl",
+			modulePath: "go.klarlabs.de/coverctl",
 		},
 		CoverageRunner: fakeRunner{profile: ".cover/coverage.out"},
 		ProfileParser: fakeParser{stats: map[string]domain.CoverageStat{

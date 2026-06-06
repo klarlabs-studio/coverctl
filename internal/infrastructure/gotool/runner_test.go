@@ -8,8 +8,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/felixgeelhaar/coverctl/internal/application"
-	"github.com/felixgeelhaar/coverctl/internal/domain"
+	"go.klarlabs.de/coverctl/internal/application"
+	"go.klarlabs.de/coverctl/internal/domain"
 )
 
 func TestBuildCoverPkg(t *testing.T) {
@@ -132,7 +132,7 @@ func TestRunnerRunIntegration(t *testing.T) {
 	runner := Runner{
 		Module: ModuleResolver{},
 		ExecOutput: func(ctx context.Context, dir string, args []string) ([]byte, error) {
-			return []byte("github.com/felixgeelhaar/coverctl/internal/core\n"), nil
+			return []byte("go.klarlabs.de/coverctl/internal/core\n"), nil
 		},
 		Exec: func(ctx context.Context, dir string, args []string) error {
 			if len(args) > 2 && args[0] == "tool" && args[1] == "covdata" {
@@ -636,7 +636,7 @@ func TestRunnerRunIntegrationWithBuildFlags(t *testing.T) {
 	runner := Runner{
 		Module: ModuleResolver{},
 		ExecOutput: func(ctx context.Context, dir string, args []string) ([]byte, error) {
-			return []byte("github.com/felixgeelhaar/coverctl/internal/core\n"), nil
+			return []byte("go.klarlabs.de/coverctl/internal/core\n"), nil
 		},
 		Exec: func(ctx context.Context, dir string, args []string) error {
 			if len(args) > 0 && args[0] == "test" && strings.Contains(strings.Join(args, " "), "-c") {

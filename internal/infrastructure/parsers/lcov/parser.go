@@ -15,9 +15,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/felixgeelhaar/coverctl/internal/application"
-	"github.com/felixgeelhaar/coverctl/internal/domain"
-	"github.com/felixgeelhaar/coverctl/internal/pathutil"
+	"go.klarlabs.de/coverctl/internal/application"
+	"go.klarlabs.de/coverctl/internal/domain"
+	"go.klarlabs.de/coverctl/internal/pathutil"
 )
 
 // Parser implements ProfileParser for LCOV format.

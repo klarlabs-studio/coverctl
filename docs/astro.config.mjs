@@ -4,7 +4,7 @@ import starlight from '@astrojs/starlight';
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://felixgeelhaar.github.io',
+  site: 'https://klarlabs-studio.github.io',
   base: '/coverctl',
   vite: {
     build: {
@@ -35,11 +35,11 @@ export default defineConfig({
         {
           icon: 'github',
           label: 'GitHub',
-          href: 'https://github.com/felixgeelhaar/coverctl',
+          href: 'https://github.com/klarlabs-studio/coverctl',
         },
       ],
       editLink: {
-        baseUrl: 'https://github.com/felixgeelhaar/coverctl/edit/main/docs/',
+        baseUrl: 'https://github.com/klarlabs-studio/coverctl/edit/main/docs/',
       },
       customCss: ['./src/styles/custom.css'],
       head: [
@@ -47,7 +47,7 @@ export default defineConfig({
           tag: 'meta',
           attrs: {
             property: 'og:image',
-            content: 'https://felixgeelhaar.github.io/coverctl/og-image.png',
+            content: 'https://klarlabs-studio.github.io/coverctl/og-image.png',
           },
         },
         {

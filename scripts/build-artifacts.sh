@@ -13,9 +13,9 @@ COMMIT=$(git rev-parse --short HEAD 2>/dev/null || echo "unknown")
 DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
 LDFLAGS="-s -w \
-  -X github.com/felixgeelhaar/coverctl/internal/cli.Version=${VERSION} \
-  -X github.com/felixgeelhaar/coverctl/internal/cli.Commit=${COMMIT} \
-  -X github.com/felixgeelhaar/coverctl/internal/cli.Date=${DATE}"
+  -X go.klarlabs.de/coverctl/internal/cli.Version=${VERSION} \
+  -X go.klarlabs.de/coverctl/internal/cli.Commit=${COMMIT} \
+  -X go.klarlabs.de/coverctl/internal/cli.Date=${DATE}"
 
 echo "Building version: ${VERSION} (commit: ${COMMIT})"
 

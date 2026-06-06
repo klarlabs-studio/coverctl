@@ -3,7 +3,7 @@ package mcp
 import (
 	"errors"
 
-	"github.com/felixgeelhaar/coverctl/internal/infrastructure/gotool"
+	"go.klarlabs.de/coverctl/internal/infrastructure/gotool"
 )
 
 // classifyRuntimeError inspects an error returned by the application

@@ -11,8 +11,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/felixgeelhaar/coverctl/internal/application"
-	"github.com/felixgeelhaar/coverctl/internal/domain"
+	"go.klarlabs.de/coverctl/internal/application"
+	"go.klarlabs.de/coverctl/internal/domain"
 )
 
 func TestWithRuntimeLimit_Disabled(t *testing.T) {

@@ -5,8 +5,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/felixgeelhaar/coverctl/internal/domain"
-	"github.com/felixgeelhaar/coverctl/internal/infrastructure/gotool"
+	"go.klarlabs.de/coverctl/internal/domain"
+	"go.klarlabs.de/coverctl/internal/infrastructure/gotool"
 )
 
 func TestDetectDomains(t *testing.T) {

@@ -22,9 +22,9 @@ builds:
       - arm64
     ldflags:
       - -s -w
-      - -X github.com/felixgeelhaar/coverctl/internal/cli.Version={{.Version}}
-      - -X github.com/felixgeelhaar/coverctl/internal/cli.Commit={{.ShortCommit}}
-      - -X github.com/felixgeelhaar/coverctl/internal/cli.Date={{.Date}}
+      - -X go.klarlabs.de/coverctl/internal/cli.Version={{.Version}}
+      - -X go.klarlabs.de/coverctl/internal/cli.Commit={{.ShortCommit}}
+      - -X go.klarlabs.de/coverctl/internal/cli.Date={{.Date}}
 
 archives:
   - id: default
@@ -47,7 +47,7 @@ checksum:
 #
 # Verify with:
 #   cosign verify-blob \
-#     --certificate-identity-regexp '^https://github.com/felixgeelhaar/coverctl/.*' \
+#     --certificate-identity-regexp '^https://github.com/klarlabs-studio/coverctl/.*' \
 #     --certificate-oidc-issuer 'https://token.actions.githubusercontent.com' \
 #     --signature checksums.txt.sig \
 #     --certificate checksums.txt.pem \
@@ -92,7 +92,7 @@ changelog:
 
 release:
   github:
-    owner: felixgeelhaar
+    owner: klarlabs-studio
     name: coverctl
   draft: false
   prerelease: auto

@@ -4,9 +4,9 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/felixgeelhaar/coverctl/internal/domain"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"go.klarlabs.de/coverctl/internal/domain"
 )
 
 func TestNewGoModuleNormalizer(t *testing.T) {

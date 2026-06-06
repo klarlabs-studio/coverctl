@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/felixgeelhaar/coverctl/internal/infrastructure/gotool"
+	"go.klarlabs.de/coverctl/internal/infrastructure/gotool"
 )
 
 func TestClassifyRuntimeError_NilReturnsFalse(t *testing.T) {

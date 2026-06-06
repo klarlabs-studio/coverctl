@@ -11,7 +11,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/felixgeelhaar/coverctl/internal/domain"
+	"go.klarlabs.de/coverctl/internal/domain"
 )
 
 type Service struct {

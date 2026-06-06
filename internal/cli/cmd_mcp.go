@@ -9,7 +9,7 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/felixgeelhaar/coverctl/internal/mcp"
+	"go.klarlabs.de/coverctl/internal/mcp"
 )
 
 // detectMCPMode picks a default tool-surface mode based on environment

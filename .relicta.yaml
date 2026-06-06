@@ -14,7 +14,7 @@ changelog:
   include_date: true
   link_commits: false
   link_issues: false
-  repository_url: https://github.com/felixgeelhaar/coverctl
+  repository_url: https://github.com/klarlabs-studio/coverctl
   exclude:
     - chore
     - docs
@@ -51,7 +51,7 @@ plugins:
   - name: github
     enabled: true
     config:
-      owner: felixgeelhaar
+      owner: klarlabs-studio
       repo: coverctl
       draft: false
       assets:

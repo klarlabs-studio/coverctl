@@ -3,7 +3,7 @@ package cli
 import (
 	"testing"
 
-	"github.com/felixgeelhaar/coverctl/internal/mcp"
+	"go.klarlabs.de/coverctl/internal/mcp"
 )
 
 func TestDetectMCPMode(t *testing.T) {

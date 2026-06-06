@@ -6,7 +6,7 @@ import (
 )
 
 func TestMatchPattern(t *testing.T) {
-	modulePath := "github.com/felixgeelhaar/coverctl"
+	modulePath := "go.klarlabs.de/coverctl"
 
 	tests := []struct {
 		name       string
@@ -17,43 +17,43 @@ func TestMatchPattern(t *testing.T) {
 		// Wildcard patterns
 		{
 			name:       "matches internal subdirectory with wildcard",
-			importPath: "github.com/felixgeelhaar/coverctl/internal/cli",
+			importPath: "go.klarlabs.de/coverctl/internal/cli",
 			pattern:    "./internal/cli/...",
 			want:       true,
 		},
 		{
 			name:       "matches nested internal subdirectory with wildcard",
-			importPath: "github.com/felixgeelhaar/coverctl/internal/cli/subpkg",
+			importPath: "go.klarlabs.de/coverctl/internal/cli/subpkg",
 			pattern:    "./internal/cli/...",
 			want:       true,
 		},
 		{
 			name:       "does not match different directory with wildcard",
-			importPath: "github.com/felixgeelhaar/coverctl/internal/application",
+			importPath: "go.klarlabs.de/coverctl/internal/application",
 			pattern:    "./internal/cli/...",
 			want:       false,
 		},
 		{
 			name:       "matches exact directory with wildcard",
-			importPath: "github.com/felixgeelhaar/coverctl/internal",
+			importPath: "go.klarlabs.de/coverctl/internal",
 			pattern:    "./internal/...",
 			want:       true,
 		},
 		{
 			name:       "matches cmd directory with wildcard",
-			importPath: "github.com/felixgeelhaar/coverctl/cmd/coverctl",
+			importPath: "go.klarlabs.de/coverctl/cmd/coverctl",
 			pattern:    "./cmd/...",
 			want:       true,
 		},
 		{
 			name:       "root wildcard matches everything",
-			importPath: "github.com/felixgeelhaar/coverctl/internal/cli",
+			importPath: "go.klarlabs.de/coverctl/internal/cli",
 			pattern:    "./...",
 			want:       true,
 		},
 		{
 			name:       "root wildcard matches root package",
-			importPath: "github.com/felixgeelhaar/coverctl",
+			importPath: "go.klarlabs.de/coverctl",
 			pattern:    "./...",
 			want:       true,
 		},
@@ -61,13 +61,13 @@ func TestMatchPattern(t *testing.T) {
 		// Exact patterns
 		{
 			name:       "exact match",
-			importPath: "github.com/felixgeelhaar/coverctl/internal/cli",
+			importPath: "go.klarlabs.de/coverctl/internal/cli",
 			pattern:    "./internal/cli",
 			want:       true,
 		},
 		{
 			name:       "exact match does not match subdirectory",
-			importPath: "github.com/felixgeelhaar/coverctl/internal/cli/subpkg",
+			importPath: "go.klarlabs.de/coverctl/internal/cli/subpkg",
 			pattern:    "./internal/cli",
 			want:       false,
 		},
@@ -75,7 +75,7 @@ func TestMatchPattern(t *testing.T) {
 		// Edge cases
 		{
 			name:       "does not match partial directory name",
-			importPath: "github.com/felixgeelhaar/coverctl/internal/clifoo",
+			importPath: "go.klarlabs.de/coverctl/internal/clifoo",
 			pattern:    "./internal/cli/...",
 			want:       false,
 		},

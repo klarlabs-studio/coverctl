@@ -5,7 +5,7 @@ import (
 	"io"
 	"time"
 
-	"github.com/felixgeelhaar/coverctl/internal/domain"
+	"go.klarlabs.de/coverctl/internal/domain"
 )
 
 const htmlTemplate = `<!DOCTYPE html>

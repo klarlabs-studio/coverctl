@@ -9,8 +9,8 @@ import (
 	"os/exec"
 	"path/filepath"
 
-	"github.com/felixgeelhaar/coverctl/internal/infrastructure/config"
-	"github.com/felixgeelhaar/coverctl/internal/mcp"
+	"go.klarlabs.de/coverctl/internal/infrastructure/config"
+	"go.klarlabs.de/coverctl/internal/mcp"
 )
 
 // runMCPDoctor implements `coverctl mcp doctor` — a first-run validation

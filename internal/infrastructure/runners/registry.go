@@ -8,8 +8,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/felixgeelhaar/coverctl/internal/application"
-	"github.com/felixgeelhaar/coverctl/internal/infrastructure/gotool"
+	"go.klarlabs.de/coverctl/internal/application"
+	"go.klarlabs.de/coverctl/internal/infrastructure/gotool"
 )
 
 // languageAliases maps a language name (the one a user might pass via

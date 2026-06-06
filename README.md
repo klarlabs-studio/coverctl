@@ -4,7 +4,7 @@
 
 [Get started ↓](#get-started) · [What it looks like ↓](#what-it-looks-like-in-the-agent-loop) · [MCP tools ↓](#mcp-tools) · [CLI reference ↓](#cli-reference) · [Why this exists ↓](#why-this-exists) · [Community ↓](#community)
 
-![MCP](https://img.shields.io/badge/MCP-server-blueviolet) ![Releases](https://img.shields.io/github/v/release/felixgeelhaar/coverctl?label=release)
+![MCP](https://img.shields.io/badge/MCP-server-blueviolet) ![Releases](https://img.shields.io/github/v/release/klarlabs-studio/coverctl?label=release)
 
 > *"Our AI agents ship code fast, but they're blind to coverage policy while editing. We only see breakage in CI, after context is gone, and the same agent then guesses its way to a fix."*
 
@@ -272,7 +272,7 @@ Considering coverctl org-wide? Open a GitHub issue with label `platform-evaluati
 
 - **Claude Code Plugin Marketplace** — install `coverctl` directly via `/plugin install`.
 - **MCP Registry** — listed at [registry.modelcontextprotocol.io](https://registry.modelcontextprotocol.io).
-- **GitHub Discussions** — [github.com/felixgeelhaar/coverctl/discussions](https://github.com/felixgeelhaar/coverctl/discussions).
+- **GitHub Discussions** — [go.klarlabs.de/coverctl/discussions](https://github.com/klarlabs-studio/coverctl/discussions).
 - **Sponsor coverctl development** — [github.com/sponsors/felixgeelhaar](https://github.com/sponsors/felixgeelhaar).
 
 Used coverctl for a few weeks? Run `coverctl survey` to share PMF feedback (local-only by default; nothing transmitted unless you opt in).

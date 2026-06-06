@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/felixgeelhaar/coverctl/internal/pathutil"
+	"go.klarlabs.de/coverctl/internal/pathutil"
 )
 
 // namedPath pairs a user-facing field name with its value for error reporting.

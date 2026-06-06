@@ -9,9 +9,9 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/felixgeelhaar/coverctl/internal/application"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"go.klarlabs.de/coverctl/internal/application"
 )
 
 // roundTripFunc adapts a function to the http.RoundTripper interface.

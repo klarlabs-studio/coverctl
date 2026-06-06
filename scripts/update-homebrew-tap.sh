@@ -46,20 +46,20 @@ cat > Formula/coverctl.rb << EOF
 # To install: brew tap felixgeelhaar/tap && brew install coverctl
 class Coverctl < Formula
   desc "Declarative, domain-aware coverage enforcement for any language"
-  homepage "https://github.com/felixgeelhaar/coverctl"
+  homepage "https://github.com/klarlabs-studio/coverctl"
   version "${VERSION}"
   license "MIT"
 
   on_macos do
     if Hardware::CPU.arm?
-      url "https://github.com/felixgeelhaar/coverctl/releases/download/v#{version}/coverctl-darwin-arm64.tar.gz"
+      url "https://github.com/klarlabs-studio/coverctl/releases/download/v#{version}/coverctl-darwin-arm64.tar.gz"
       sha256 "${SHA_DARWIN_ARM64}"
 
       def install
         bin.install "coverctl-darwin-arm64" => "coverctl"
       end
     else
-      url "https://github.com/felixgeelhaar/coverctl/releases/download/v#{version}/coverctl-darwin-amd64.tar.gz"
+      url "https://github.com/klarlabs-studio/coverctl/releases/download/v#{version}/coverctl-darwin-amd64.tar.gz"
       sha256 "${SHA_DARWIN_AMD64}"
 
       def install
@@ -70,14 +70,14 @@ class Coverctl < Formula
 
   on_linux do
     if Hardware::CPU.arm?
-      url "https://github.com/felixgeelhaar/coverctl/releases/download/v#{version}/coverctl-linux-arm64.tar.gz"
+      url "https://github.com/klarlabs-studio/coverctl/releases/download/v#{version}/coverctl-linux-arm64.tar.gz"
       sha256 "${SHA_LINUX_ARM64}"
 
       def install
         bin.install "coverctl-linux-arm64" => "coverctl"
       end
     else
-      url "https://github.com/felixgeelhaar/coverctl/releases/download/v#{version}/coverctl-linux-amd64.tar.gz"
+      url "https://github.com/klarlabs-studio/coverctl/releases/download/v#{version}/coverctl-linux-amd64.tar.gz"
       sha256 "${SHA_LINUX_AMD64}"
 
       def install
