@@ -36,14 +36,14 @@ CRED_FILE=$(mktemp)
 trap 'rm -f "$CRED_FILE"' EXIT
 echo "https://x-access-token:${HOMEBREW_TAP_TOKEN}@github.com" > "$CRED_FILE"
 git config --global credential.helper "store --file=${CRED_FILE}"
-git clone "https://github.com/felixgeelhaar/homebrew-tap.git" tap
+git clone "https://github.com/klarlabs-studio/homebrew-tap.git" tap
 cd tap
 
 # Generate updated formula
 echo "Generating formula..."
 cat > Formula/coverctl.rb << EOF
 # Homebrew formula for Coverctl
-# To install: brew tap felixgeelhaar/tap && brew install coverctl
+# To install: brew tap klarlabs-studio/tap && brew install coverctl
 class Coverctl < Formula
   desc "Declarative, domain-aware coverage enforcement for any language"
   homepage "https://github.com/klarlabs-studio/coverctl"

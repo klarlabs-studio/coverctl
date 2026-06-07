@@ -13,7 +13,7 @@ Works best on standard Go/Python/JavaScript/Java/Rust projects with conventional
 ## Get started
 
 ```bash
-brew install felixgeelhaar/tap/coverctl
+brew install klarlabs-studio/tap/coverctl
 ```
 
 Wire into Claude Code (`~/.config/claude-code/mcp.json`):
