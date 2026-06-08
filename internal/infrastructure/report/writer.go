@@ -217,7 +217,7 @@ func writeBrief(w io.Writer, result domain.Result) error {
 
 	// Build output line
 	var sb strings.Builder
-	sb.WriteString(fmt.Sprintf("%s | %.1f%% overall | %d/%d domains passing", status, overall, passing, total))
+	fmt.Fprintf(&sb, "%s | %.1f%% overall | %d/%d domains passing", status, overall, passing, total)
 
 	// Add failing domains if any
 	if len(failedDomains) > 0 {
@@ -226,13 +226,13 @@ func writeBrief(w io.Writer, result domain.Result) error {
 			if i > 0 {
 				sb.WriteString(",")
 			}
-			sb.WriteString(fmt.Sprintf(" %s (%.1f%%)", d.Domain, d.Percent))
+			fmt.Fprintf(&sb, " %s (%.1f%%)", d.Domain, d.Percent)
 		}
 	}
 
 	// Add warning count if any
 	if len(result.Warnings) > 0 {
-		sb.WriteString(fmt.Sprintf(" | %d warnings", len(result.Warnings)))
+		fmt.Fprintf(&sb, " | %d warnings", len(result.Warnings))
 	}
 
 	sb.WriteString("\n")

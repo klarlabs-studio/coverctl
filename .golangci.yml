@@ -30,6 +30,18 @@ linters:
         - fmt.Fprint
         - fmt.Fprintf
         - fmt.Fprintln
+    gosec:
+      excludes:
+        # FP-prone rules newly enforced by golangci v2.12.2's bundled gosec.
+        # Taint (G703/G704/G706) is nox's job once nox/taint-analysis is
+        # verified; G115/G118/G204 are high-noise. Keep gosec's stable,
+        # high-signal rules (creds, crypto, file perms).
+        - G115   # integer overflow conversion
+        - G118   # context cancellation in goroutine
+        - G204   # subprocess with variable
+        - G703   # path traversal via taint
+        - G704   # SSRF via taint
+        - G706   # taint flow
   exclusions:
     rules:
       # Tests legitimately use math/rand (deterministic fixtures, fuzz

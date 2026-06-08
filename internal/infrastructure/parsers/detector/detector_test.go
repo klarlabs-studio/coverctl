@@ -231,8 +231,8 @@ func TestDetector_DetectFormat_LCOVManyFunctions(t *testing.T) {
 	content.WriteString("SF:src/lib.rs\n")
 	// Write enough FN/FNDA lines to push DA past 4KB
 	for i := range 200 {
-		content.WriteString(fmt.Sprintf("FN:%d,function_with_a_long_name_%d\n", i+1, i))
-		content.WriteString(fmt.Sprintf("FNDA:1,function_with_a_long_name_%d\n", i))
+		fmt.Fprintf(&content, "FN:%d,function_with_a_long_name_%d\n", i+1, i)
+		fmt.Fprintf(&content, "FNDA:1,function_with_a_long_name_%d\n", i)
 	}
 	content.WriteString("DA:1,1\nDA:2,0\nLF:2\nLH:1\nend_of_record\n")
 

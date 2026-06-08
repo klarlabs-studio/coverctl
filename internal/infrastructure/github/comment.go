@@ -49,9 +49,9 @@ func FormatCoverageComment(result domain.Result, comparison *application.Compare
 	}
 	b.WriteString("\n")
 
-	b.WriteString(fmt.Sprintf("| Overall | %.1f%% |", overallPercent))
+	fmt.Fprintf(&b, "| Overall | %.1f%% |", overallPercent)
 	if comparison != nil {
-		b.WriteString(fmt.Sprintf(" %s |", formatDelta(comparison.Delta)))
+		fmt.Fprintf(&b, " %s |", formatDelta(comparison.Delta))
 	}
 	b.WriteString("\n\n")
 
@@ -81,10 +81,10 @@ func FormatCoverageComment(result domain.Result, comparison *application.Compare
 				statusIcon = ":white_check_mark:"
 			}
 
-			b.WriteString(fmt.Sprintf("| %s | %.1f%% | %s |", d.Domain, d.Percent, statusIcon))
+			fmt.Fprintf(&b, "| %s | %.1f%% | %s |", d.Domain, d.Percent, statusIcon)
 			if comparison != nil && len(comparison.DomainDeltas) > 0 {
 				if delta, ok := comparison.DomainDeltas[d.Domain]; ok {
-					b.WriteString(fmt.Sprintf(" %s |", formatDelta(delta)))
+					fmt.Fprintf(&b, " %s |", formatDelta(delta))
 				} else {
 					b.WriteString(" - |")
 				}
@@ -106,8 +106,8 @@ func FormatCoverageComment(result domain.Result, comparison *application.Compare
 				if len(f.File) > 60 {
 					f.File = "..." + f.File[len(f.File)-57:]
 				}
-				b.WriteString(fmt.Sprintf("| %s | %.1f%% | %.1f%% | %s |\n",
-					f.File, f.BasePct, f.HeadPct, formatDelta(f.Delta)))
+				fmt.Fprintf(&b, "| %s | %.1f%% | %.1f%% | %s |\n",
+					f.File, f.BasePct, f.HeadPct, formatDelta(f.Delta))
 			}
 			b.WriteString("\n")
 		}
@@ -120,8 +120,8 @@ func FormatCoverageComment(result domain.Result, comparison *application.Compare
 				if len(f.File) > 60 {
 					f.File = "..." + f.File[len(f.File)-57:]
 				}
-				b.WriteString(fmt.Sprintf("| %s | %.1f%% | %.1f%% | %s |\n",
-					f.File, f.BasePct, f.HeadPct, formatDelta(f.Delta)))
+				fmt.Fprintf(&b, "| %s | %.1f%% | %.1f%% | %s |\n",
+					f.File, f.BasePct, f.HeadPct, formatDelta(f.Delta))
 			}
 			b.WriteString("\n")
 		}
@@ -133,7 +133,7 @@ func FormatCoverageComment(result domain.Result, comparison *application.Compare
 	if len(result.Warnings) > 0 {
 		b.WriteString("<details><summary>Warnings</summary>\n\n")
 		for _, w := range result.Warnings {
-			b.WriteString(fmt.Sprintf("- %s\n", w))
+			fmt.Fprintf(&b, "- %s\n", w)
 		}
 		b.WriteString("\n</details>\n\n")
 	}
