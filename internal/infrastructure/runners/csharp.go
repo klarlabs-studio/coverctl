@@ -87,7 +87,7 @@ func (r *CSharpRunner) Run(ctx context.Context, opts application.RunOptions) (st
 	if err := os.MkdirAll(tmpResultsDir, 0o750); err != nil {
 		return "", err
 	}
-	defer os.RemoveAll(tmpResultsDir)
+	defer func() { _ = os.RemoveAll(tmpResultsDir) }()
 
 	// Build command args
 	args := r.buildArgs(opts, tmpResultsDir)
@@ -172,14 +172,14 @@ func copyFile(src, dst string) error {
 	if err != nil {
 		return err
 	}
-	defer in.Close()
+	defer func() { _ = in.Close() }()
 
 	// #nosec G304 -- dst path is the canonical profile path constructed from project directory
 	out, err := os.Create(dst)
 	if err != nil {
 		return err
 	}
-	defer out.Close()
+	defer func() { _ = out.Close() }()
 
 	if _, err := io.Copy(out, in); err != nil {
 		return err

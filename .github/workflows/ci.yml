@@ -1,0 +1,37 @@
+# Thin caller for the shared klarlabs-studio Go CI bar.
+# All gate logic (race tests, lint+gocritic, nox security scan, build,
+# dependency review) lives in the reusable workflow — bump versions / add
+# jobs there, once, org-wide.
+#
+# coverage: false here is deliberate. The reusable's coverage gate installs
+# `go.klarlabs.de/coverctl@latest` (a released binary) to gate a repo. coverctl
+# IS that tool, so gating it with a previously-released build instead of the PR
+# source defeats dogfooding (a PR changing the gate logic would not be checked
+# by its own new logic). coverctl keeps its self-dogfood coverage gate in
+# coverage.yml, which builds `coverctl` from the PR source and runs it against
+# itself. See PR description for the full rationale.
+name: CI
+
+on:
+  push:
+    branches: [main]
+    paths-ignore: ["**.md", "docs/**", "LICENSE"]
+  pull_request:
+    branches: [main]
+    paths-ignore: ["**.md", "docs/**", "LICENSE"]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ci:
+    uses: klarlabs-studio/.github/.github/workflows/go-ci.yml@main
+    permissions:
+      contents: read
+      security-events: write
+      pull-requests: write
+    secrets: inherit
+    with:
+      coverage: false        # coverctl dogfoods its own gate from source (coverage.yml)
+      cross-platform: false  # pure Go CLI — ubuntu suffices

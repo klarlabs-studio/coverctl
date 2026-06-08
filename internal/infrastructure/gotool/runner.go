@@ -142,7 +142,7 @@ func (r Runner) RunIntegration(ctx context.Context, opts application.Integration
 	if err != nil {
 		return "", err
 	}
-	defer os.RemoveAll(tmpDir)
+	defer func() { _ = os.RemoveAll(tmpDir) }()
 
 	for _, pkg := range packages {
 		binName := strings.ReplaceAll(pkg, "/", "_") + ".test"

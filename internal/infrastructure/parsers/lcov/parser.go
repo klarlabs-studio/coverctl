@@ -44,7 +44,7 @@ func (p *Parser) Parse(path string) (map[string]domain.CoverageStat, error) {
 	if err != nil {
 		return nil, fmt.Errorf("open lcov file: %w", err)
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	stats := make(map[string]domain.CoverageStat)
 	scanner := bufio.NewScanner(file)

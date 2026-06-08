@@ -13,12 +13,13 @@ import (
 )
 
 // newTestServer creates an httptest.Server and returns a Client wired to it.
-func newTestServer(t *testing.T, handler http.Handler) (*Client, *httptest.Server) {
+// The server is registered for cleanup via t.Cleanup, so callers only need
+// the Client.
+func newTestServer(t *testing.T, handler http.Handler) *Client {
 	t.Helper()
 	srv := httptest.NewServer(handler)
 	t.Cleanup(srv.Close)
-	client := NewClientWithHTTP("testuser", "testpass", srv.Client(), srv.URL)
-	return client, srv
+	return NewClientWithHTTP("testuser", "testpass", srv.Client(), srv.URL)
 }
 
 func TestProvider(t *testing.T) {
@@ -56,10 +57,10 @@ func TestBasicAuthHeader(t *testing.T) {
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		capturedUsername, capturedPassword, authOK = r.BasicAuth()
 		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(commentList{})
+		_ = json.NewEncoder(w).Encode(commentList{})
 	})
 
-	client, _ := newTestServer(t, handler)
+	client := newTestServer(t, handler)
 
 	_, _ = client.FindCoverageComment(context.Background(), "ws", "repo", 1)
 
@@ -132,13 +133,13 @@ func TestFindCoverageComment(t *testing.T) {
 
 				w.WriteHeader(tt.statusCode)
 				if tt.statusCode == http.StatusOK {
-					json.NewEncoder(w).Encode(tt.response)
+					_ = json.NewEncoder(w).Encode(tt.response)
 				} else {
-					w.Write([]byte("error body"))
+					_, _ = w.Write([]byte("error body"))
 				}
 			})
 
-			client, _ := newTestServer(t, handler)
+			client := newTestServer(t, handler)
 			id, err := client.FindCoverageComment(context.Background(), "ws", "repo", 5)
 
 			if tt.wantErr {
@@ -212,13 +213,13 @@ func TestCreateComment(t *testing.T) {
 
 				w.WriteHeader(tt.statusCode)
 				if tt.statusCode == http.StatusCreated {
-					json.NewEncoder(w).Encode(tt.response)
+					_ = json.NewEncoder(w).Encode(tt.response)
 				} else {
-					w.Write([]byte("bad request"))
+					_, _ = w.Write([]byte("bad request"))
 				}
 			})
 
-			client, _ := newTestServer(t, handler)
+			client := newTestServer(t, handler)
 			id, url, err := client.CreateComment(context.Background(), "ws", "repo", 3, "test body")
 
 			if tt.wantErr {
@@ -275,11 +276,11 @@ func TestUpdateComment(t *testing.T) {
 
 				w.WriteHeader(tt.statusCode)
 				if tt.statusCode != http.StatusOK {
-					w.Write([]byte("error"))
+					_, _ = w.Write([]byte("error"))
 				}
 			})
 
-			client, _ := newTestServer(t, handler)
+			client := newTestServer(t, handler)
 			err := client.UpdateComment(context.Background(), "ws", "repo", 55, "updated body")
 
 			if tt.wantErr {
@@ -296,10 +297,10 @@ func TestUpdateComment(t *testing.T) {
 func TestFindCoverageComment_ContextCancelled(t *testing.T) {
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(commentList{})
+		_ = json.NewEncoder(w).Encode(commentList{})
 	})
 
-	client, _ := newTestServer(t, handler)
+	client := newTestServer(t, handler)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	cancel()
@@ -311,10 +312,10 @@ func TestFindCoverageComment_ContextCancelled(t *testing.T) {
 func TestCreateComment_ContextCancelled(t *testing.T) {
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusCreated)
-		json.NewEncoder(w).Encode(comment{})
+		_ = json.NewEncoder(w).Encode(comment{})
 	})
 
-	client, _ := newTestServer(t, handler)
+	client := newTestServer(t, handler)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	cancel()
@@ -328,7 +329,7 @@ func TestUpdateComment_ContextCancelled(t *testing.T) {
 		w.WriteHeader(http.StatusOK)
 	})
 
-	client, _ := newTestServer(t, handler)
+	client := newTestServer(t, handler)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	cancel()
@@ -343,7 +344,7 @@ func TestSetHeaders_NoAuthWhenCredentialsEmpty(t *testing.T) {
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		_, _, hasAuth = r.BasicAuth()
 		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(commentList{})
+		_ = json.NewEncoder(w).Encode(commentList{})
 	})
 
 	srv := httptest.NewServer(handler)

@@ -36,10 +36,8 @@ func (s *Server) handleBadge(ctx context.Context, input BadgeInput) (map[string]
 		output["passed"] = false
 		output["error"] = err.Error()
 		output["summary"] = "Failed to generate badge"
-	} else {
-		if input.Output != "" {
-			output["outputPath"] = input.Output
-		}
+	} else if input.Output != "" {
+		output["outputPath"] = input.Output
 	}
 	return output, nil
 }

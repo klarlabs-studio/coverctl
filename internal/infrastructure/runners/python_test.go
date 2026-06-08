@@ -186,7 +186,7 @@ func TestPythonRunnerRun(t *testing.T) {
 	if err := os.Chdir(tmpDir); err != nil {
 		t.Fatal(err)
 	}
-	defer os.Chdir(oldWd)
+	defer os.Chdir(oldWd) //nolint:errcheck
 
 	// Since we can't easily mock detectCoverageTool, let's test with a profile path
 	// The test will fail if no tool is detected, but we can verify args are built correctly

@@ -138,7 +138,7 @@ func TestFileStoreAppend(t *testing.T) {
 		store := FileStore{Path: path}
 
 		// Add first entry
-		store.Append(domain.HistoryEntry{Overall: 70.0})
+		_ = store.Append(domain.HistoryEntry{Overall: 70.0})
 
 		// Add second entry
 		if err := store.Append(domain.HistoryEntry{Overall: 75.0}); err != nil {
@@ -157,7 +157,7 @@ func TestFileStoreAppend(t *testing.T) {
 
 		// Add more entries than max
 		for i := 0; i < 5; i++ {
-			store.Append(domain.HistoryEntry{Overall: float64(70 + i)})
+			_ = store.Append(domain.HistoryEntry{Overall: float64(70 + i)})
 		}
 
 		h, _ := store.Load()

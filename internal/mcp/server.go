@@ -418,7 +418,7 @@ func (s *Server) handleInit(ctx context.Context, input InitInput) (map[string]an
 			"Check write permissions on the target path; run init from the repo root.",
 		), nil
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	if err := config.Write(file, cfg); err != nil {
 		return errorResponse(
@@ -810,17 +810,18 @@ func (s *Server) handlePRComment(ctx context.Context, input PRCommentInput) (map
 		"provider":    string(provider),
 	}
 
-	if err != nil {
+	switch {
+	case err != nil:
 		output["passed"] = false
 		output["error"] = err.Error()
 		output["summary"] = "Failed to post PR comment"
-	} else if input.DryRun {
+	case input.DryRun:
 		output["summary"] = "Generated PR comment (dry-run mode)"
-	} else if result.Created {
+	case result.Created:
 		output["commentId"] = result.CommentID
 		output["commentUrl"] = result.CommentURL
 		output["summary"] = fmt.Sprintf("Created comment on PR #%d: %s", prNumber, result.CommentURL)
-	} else {
+	default:
 		output["commentId"] = result.CommentID
 		output["summary"] = fmt.Sprintf("Updated existing comment #%d on PR #%d", result.CommentID, prNumber)
 	}
@@ -964,7 +965,7 @@ func writeConfig(configPath string, cfg application.Config) error {
 	if err != nil {
 		return fmt.Errorf("create config: %w", err)
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	if err := config.Write(file, cfg); err != nil {
 		return fmt.Errorf("write config: %w", err)

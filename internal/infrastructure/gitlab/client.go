@@ -113,7 +113,7 @@ func (c *Client) FindCoverageComment(ctx context.Context, owner, repo string, mr
 	if err != nil {
 		return 0, fmt.Errorf("http request: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusOK {
 		body, _ := io.ReadAll(resp.Body)
@@ -159,7 +159,7 @@ func (c *Client) CreateComment(ctx context.Context, owner, repo string, mrNumber
 	if err != nil {
 		return 0, "", fmt.Errorf("http request: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusCreated {
 		respBody, _ := io.ReadAll(resp.Body)
@@ -208,7 +208,7 @@ func (c *Client) UpdateComment(ctx context.Context, owner, repo string, noteID i
 	if err != nil {
 		return fmt.Errorf("http request: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusOK {
 		respBody, _ := io.ReadAll(resp.Body)

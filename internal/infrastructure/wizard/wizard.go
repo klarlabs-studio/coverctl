@@ -112,42 +112,43 @@ func (m *initWizardModel) Init() tea.Cmd {
 }
 
 func (m *initWizardModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	switch msg := msg.(type) {
-	case tea.KeyMsg:
-		switch msg.String() {
-		case "ctrl+c", "q":
-			m.aborted = true
+	keyMsg, ok := msg.(tea.KeyMsg)
+	if !ok {
+		return m, nil
+	}
+	switch keyMsg.String() {
+	case "ctrl+c", "q":
+		m.aborted = true
+		return m, tea.Quit
+	case "enter":
+		switch m.state {
+		case stateIntro:
+			m.state = stateEdit
+		case stateEdit:
+			m.state = stateConfirm
+		case stateConfirm:
+			m.confirmed = true
 			return m, tea.Quit
-		case "enter":
-			switch m.state {
-			case stateIntro:
-				m.state = stateEdit
-			case stateEdit:
-				m.state = stateConfirm
-			case stateConfirm:
-				m.confirmed = true
-				return m, tea.Quit
-			}
-		case "esc":
-			if m.state == stateConfirm {
-				m.state = stateEdit
-			}
-		case "up":
-			if m.state == stateEdit {
-				m.moveCursor(-1)
-			}
-		case "down":
-			if m.state == stateEdit {
-				m.moveCursor(1)
-			}
-		case "left", "-":
-			if m.state == stateEdit {
-				m.adjustSelection(-5)
-			}
-		case "right", "+":
-			if m.state == stateEdit {
-				m.adjustSelection(5)
-			}
+		}
+	case "esc":
+		if m.state == stateConfirm {
+			m.state = stateEdit
+		}
+	case "up":
+		if m.state == stateEdit {
+			m.moveCursor(-1)
+		}
+	case "down":
+		if m.state == stateEdit {
+			m.moveCursor(1)
+		}
+	case "left", "-":
+		if m.state == stateEdit {
+			m.adjustSelection(-5)
+		}
+	case "right", "+":
+		if m.state == stateEdit {
+			m.adjustSelection(5)
 		}
 	}
 	return m, nil
@@ -186,7 +187,7 @@ func (m *initWizardModel) adjustSelection(delta float64) {
 }
 
 func (m *initWizardModel) adjustDefault(delta float64) {
-	m.defaultMin = clamp(m.defaultMin+delta, 0, 100)
+	m.defaultMin = clamp(m.defaultMin+delta, 100)
 	for i := range m.domains {
 		if !m.domains[i].override {
 			m.domains[i].min = m.defaultMin
@@ -198,7 +199,7 @@ func (m *initWizardModel) adjustDomain(index int, delta float64) {
 	if index < 0 || index >= len(m.domains) {
 		return
 	}
-	value := clamp(m.domains[index].min+delta, 0, 100)
+	value := clamp(m.domains[index].min+delta, 100)
 	m.domains[index].min = value
 	if !m.domains[index].override {
 		m.domains[index].override = true
@@ -309,9 +310,10 @@ func (m *initWizardModel) toConfig() application.Config {
 	return cfg
 }
 
-func clamp(value, min, max float64) float64 {
-	if value < min {
-		return min
+// clamp constrains value to the range [0, max].
+func clamp(value, max float64) float64 {
+	if value < 0 {
+		return 0
 	}
 	if value > max {
 		return max

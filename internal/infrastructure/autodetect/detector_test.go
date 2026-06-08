@@ -531,7 +531,7 @@ func TestDetectorDetectCSharp(t *testing.T) {
 	if err := os.Chdir(root); err != nil {
 		t.Fatalf("chdir: %v", err)
 	}
-	defer os.Chdir(cwd)
+	defer os.Chdir(cwd) //nolint:errcheck
 	d := Detector{}
 	cfg, err := d.detectCSharp()
 	if err != nil {
@@ -554,7 +554,7 @@ func TestDetectorDetectCpp(t *testing.T) {
 	if err := os.Chdir(root); err != nil {
 		t.Fatalf("chdir: %v", err)
 	}
-	defer os.Chdir(cwd)
+	defer os.Chdir(cwd) //nolint:errcheck
 	d := Detector{}
 	cfg, err := d.detectCpp()
 	if err != nil {
@@ -577,7 +577,7 @@ func TestDetectorDetectPHP(t *testing.T) {
 	if err := os.Chdir(root); err != nil {
 		t.Fatalf("chdir: %v", err)
 	}
-	defer os.Chdir(cwd)
+	defer os.Chdir(cwd) //nolint:errcheck
 	d := Detector{}
 	cfg, err := d.detectPHP()
 	if err != nil {
@@ -600,7 +600,7 @@ func TestDetectorDetectRuby(t *testing.T) {
 	if err := os.Chdir(root); err != nil {
 		t.Fatalf("chdir: %v", err)
 	}
-	defer os.Chdir(cwd)
+	defer os.Chdir(cwd) //nolint:errcheck
 	d := Detector{}
 	cfg, err := d.detectRuby()
 	if err != nil {
@@ -623,7 +623,7 @@ func TestDetectorDetectSwift(t *testing.T) {
 	if err := os.Chdir(root); err != nil {
 		t.Fatalf("chdir: %v", err)
 	}
-	defer os.Chdir(cwd)
+	defer os.Chdir(cwd) //nolint:errcheck
 	d := Detector{}
 	cfg, err := d.detectSwift()
 	if err != nil {
@@ -734,7 +734,7 @@ func TestDetectorDetectDart(t *testing.T) {
 	if err := os.Chdir(root); err != nil {
 		t.Fatalf("chdir: %v", err)
 	}
-	defer os.Chdir(cwd)
+	defer os.Chdir(cwd) //nolint:errcheck
 	d := Detector{}
 	cfg, err := d.detectDart()
 	if err != nil {
@@ -757,7 +757,7 @@ func TestDetectorDetectScala(t *testing.T) {
 	if err := os.Chdir(root); err != nil {
 		t.Fatalf("chdir: %v", err)
 	}
-	defer os.Chdir(cwd)
+	defer os.Chdir(cwd) //nolint:errcheck
 	d := Detector{}
 	cfg, err := d.detectScala()
 	if err != nil {
@@ -780,7 +780,7 @@ func TestDetectorDetectElixir(t *testing.T) {
 	if err := os.Chdir(root); err != nil {
 		t.Fatalf("chdir: %v", err)
 	}
-	defer os.Chdir(cwd)
+	defer os.Chdir(cwd) //nolint:errcheck
 	d := Detector{}
 	cfg, err := d.detectElixir()
 	if err != nil {
@@ -803,7 +803,7 @@ func TestDetectorDetectShell(t *testing.T) {
 	if err := os.Chdir(root); err != nil {
 		t.Fatalf("chdir: %v", err)
 	}
-	defer os.Chdir(cwd)
+	defer os.Chdir(cwd) //nolint:errcheck
 	d := Detector{}
 	cfg, err := d.detectShell()
 	if err != nil {

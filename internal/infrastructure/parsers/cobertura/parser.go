@@ -70,7 +70,7 @@ func (p *Parser) Parse(path string) (map[string]domain.CoverageStat, error) {
 	if err != nil {
 		return nil, fmt.Errorf("open cobertura file: %w", err)
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	var cov coverage
 	if err := xml.NewDecoder(file).Decode(&cov); err != nil {

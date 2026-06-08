@@ -96,6 +96,7 @@ func (r *DartRunner) RunIntegration(ctx context.Context, opts application.Integr
 // detectTool determines whether to use dart or flutter based on pubspec.yaml content.
 func (r *DartRunner) detectTool(projectDir string) string {
 	pubspecPath := filepath.Join(projectDir, "pubspec.yaml")
+	// #nosec G304 -- pubspecPath is derived from the project directory under analysis
 	data, err := os.ReadFile(pubspecPath)
 	if err != nil {
 		return "dart"

@@ -15,7 +15,7 @@ func TestWatcherDetectsGoFileChanges(t *testing.T) {
 	if err != nil {
 		t.Fatalf("new watcher: %v", err)
 	}
-	defer w.Close()
+	defer func() { _ = w.Close() }()
 
 	if err := w.WatchDir(tmpDir); err != nil {
 		t.Fatalf("watch dir: %v", err)
@@ -47,7 +47,7 @@ func TestWatcherIgnoresNonGoFiles(t *testing.T) {
 	if err != nil {
 		t.Fatalf("new watcher: %v", err)
 	}
-	defer w.Close()
+	defer func() { _ = w.Close() }()
 
 	if err := w.WatchDir(tmpDir); err != nil {
 		t.Fatalf("watch dir: %v", err)
@@ -82,7 +82,7 @@ func TestWatcherWithCustomExtensions(t *testing.T) {
 	if err != nil {
 		t.Fatalf("new watcher: %v", err)
 	}
-	defer w.Close()
+	defer func() { _ = w.Close() }()
 
 	if err := w.WatchDir(tmpDir); err != nil {
 		t.Fatalf("watch dir: %v", err)
@@ -120,7 +120,7 @@ func TestWatcherSkipsHiddenDirs(t *testing.T) {
 	if err != nil {
 		t.Fatalf("new watcher: %v", err)
 	}
-	defer w.Close()
+	defer func() { _ = w.Close() }()
 
 	if err := w.WatchDir(tmpDir); err != nil {
 		t.Fatalf("watch dir: %v", err)
@@ -152,7 +152,7 @@ func TestWatcherDebounces(t *testing.T) {
 	if err != nil {
 		t.Fatalf("new watcher: %v", err)
 	}
-	defer w.Close()
+	defer func() { _ = w.Close() }()
 
 	if err := w.WatchDir(tmpDir); err != nil {
 		t.Fatalf("watch dir: %v", err)

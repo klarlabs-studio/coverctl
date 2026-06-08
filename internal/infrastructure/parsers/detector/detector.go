@@ -155,7 +155,7 @@ func readHead(path string, n int) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	buf := make([]byte, n)
 	nRead, err := file.Read(buf)

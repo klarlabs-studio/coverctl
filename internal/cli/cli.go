@@ -112,7 +112,7 @@ func parseGlobalFlags(args []string) (GlobalOptions, string, []string) {
 
 loop:
 	for i := 0; i < len(args); i++ {
-		arg := args[i]
+		arg := args[i] // #nosec G602 -- i is bounded by len(args) in the loop condition
 
 		switch arg {
 		case "-q", "--quiet":
@@ -411,7 +411,7 @@ func writeConfigFile(path string, cfg application.Config, stdout io.Writer, forc
 	if err != nil {
 		return err
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 	return config.Write(file, cfg)
 }
 
@@ -474,7 +474,7 @@ func writeBadgeFile(path string, percent float64, label, style string) error {
 	if err != nil {
 		return err
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	badgeStyle := badge.StyleFlat
 	if style == "flat-square" {
@@ -703,7 +703,7 @@ func runWatch(ctx context.Context, stdout, stderr io.Writer, svc Service, config
 		}
 		return 3
 	}
-	defer w.Close()
+	defer func() { _ = w.Close() }()
 
 	// Handle Ctrl+C gracefully
 	ctx, cancel := context.WithCancel(ctx)

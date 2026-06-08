@@ -183,7 +183,7 @@ func (j *HTTPLLMJudge) Score(ctx context.Context, c JudgeCriteria) error {
 	if err != nil {
 		return fmt.Errorf("anthropic call: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 	respBody, _ := io.ReadAll(resp.Body)
 	if resp.StatusCode != http.StatusOK {
 		return fmt.Errorf("anthropic %d: %s", resp.StatusCode, string(respBody))

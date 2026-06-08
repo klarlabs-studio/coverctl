@@ -350,7 +350,7 @@ func TestJavaRunnerRun(t *testing.T) {
 	if err := os.Chdir(tmpDir); err != nil {
 		t.Fatal(err)
 	}
-	defer os.Chdir(oldWd)
+	defer os.Chdir(oldWd) //nolint:errcheck
 
 	profile, err := runner.Run(context.Background(), application.RunOptions{})
 	if err != nil {

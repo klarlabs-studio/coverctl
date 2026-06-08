@@ -334,21 +334,22 @@ func (h *AnalyticsHandler) Compare(ctx context.Context, opts CompareOptions) (Co
 
 		fileDelta := domain.Round1(headPct - basePct)
 
-		if fileDelta > 0.1 {
+		switch {
+		case fileDelta > 0.1:
 			improved = append(improved, FileDelta{
 				File:    file,
 				BasePct: basePct,
 				HeadPct: headPct,
 				Delta:   fileDelta,
 			})
-		} else if fileDelta < -0.1 {
+		case fileDelta < -0.1:
 			regressed = append(regressed, FileDelta{
 				File:    file,
 				BasePct: basePct,
 				HeadPct: headPct,
 				Delta:   fileDelta,
 			})
-		} else {
+		default:
 			unchanged++
 		}
 	}
