@@ -1,0 +1,51 @@
+# Self-dogfood coverage gate for coverctl.
+#
+# The shared reusable Go CI workflow (ci.yml) intentionally runs with
+# `coverage: false` for this repo: its coverage gate installs
+# `go.klarlabs.de/coverctl@latest`, and gating coverctl with a released binary
+# rather than the PR source would defeat dogfooding. Instead we build coverctl
+# from the PR source and run it against its own test suite — the tool gates
+# itself with its current code. This also exercises `coverctl check` end-to-end
+# on every PR, which is the most honest possible test of the product.
+name: Coverage (dogfood)
+
+on:
+  push:
+    branches: [main]
+    paths-ignore: ["**.md", "docs/**", "LICENSE"]
+  pull_request:
+    branches: [main]
+    paths-ignore: ["**.md", "docs/**", "LICENSE"]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  coverage:
+    name: Coverage gate (dogfood)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - name: Set up Go
+        uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c # v6
+        with:
+          go-version: "1.25.x"
+          cache: true
+      - name: Build coverctl from source
+        run: go build -o coverctl .
+      - name: Run coverage check (dogfooding)
+        run: ./coverctl check --config .coverctl.yaml
+      - name: Capture structured coverage outputs
+        if: always()
+        run: mkdir -p .cover/ci-artifacts && ./coverctl check --config .coverctl.yaml --output json > .cover/ci-artifacts/check.json 2>&1 || true && ./coverctl report --config .coverctl.yaml --profile .cover/coverage.out --output json > .cover/ci-artifacts/report.json 2>&1 || true
+      - name: Upload coverage artifacts
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: coverage-structured-output
+          path: .cover/ci-artifacts/
+          if-no-files-found: warn
