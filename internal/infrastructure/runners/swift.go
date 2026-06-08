@@ -113,7 +113,6 @@ func (r *SwiftRunner) Run(ctx context.Context, opts application.RunOptions) (str
 	}
 
 	// Write LCOV output to the profile path
-	// #nosec G306 -- Coverage profile does not require restrictive permissions
 	if err := os.WriteFile(profile, output, 0o644); err != nil {
 		return "", fmt.Errorf("swift coverage failed: %w", err)
 	}
@@ -174,7 +173,6 @@ func runSwiftCommand(ctx context.Context, dir string, tool string, args []string
 
 // runSwiftCommandOutput executes a Swift or Xcode toolchain command and returns stdout.
 func runSwiftCommandOutput(ctx context.Context, dir string, tool string, args []string) ([]byte, error) {
-	// #nosec G204 -- Tool is validated by caller (swift, xcrun)
 	cmd := exec.CommandContext(ctx, tool, args...)
 	if dir != "" {
 		cmd.Dir = dir

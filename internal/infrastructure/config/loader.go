@@ -162,7 +162,7 @@ func (l Loader) loadWithCycleCheck(path string, visited map[string]struct{}) (ap
 	}
 	visited[absPath] = struct{}{}
 
-	raw, err := os.ReadFile(cleanPath) // #nosec G304 - path is validated above
+	raw, err := os.ReadFile(cleanPath)
 	if err != nil {
 		return application.Config{}, err
 	}

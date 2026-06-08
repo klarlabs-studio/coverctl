@@ -101,7 +101,6 @@ func (r *NodeRunner) RunIntegration(ctx context.Context, opts application.Integr
 func (r *NodeRunner) detectCoverageTool(projectDir string) string {
 	// Check package.json for hints
 	pkgPath := filepath.Join(projectDir, "package.json")
-	// #nosec G304 -- Path is constructed from trusted project directory
 	if data, err := os.ReadFile(pkgPath); err == nil {
 		var pkg struct {
 			Scripts      map[string]string `json:"scripts"`

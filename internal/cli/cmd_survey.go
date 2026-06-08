@@ -135,7 +135,6 @@ func writeSurveyResponse(dataDir, code string) error {
 		return fmt.Errorf("mkdir %s: %w", dataDir, err)
 	}
 	path := filepath.Join(dataDir, "survey.jsonl")
-	// #nosec G304 -- path is dataDir joined with a constant filename
 	f, err := os.OpenFile(path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o600)
 	if err != nil {
 		return fmt.Errorf("open %s: %w", path, err)

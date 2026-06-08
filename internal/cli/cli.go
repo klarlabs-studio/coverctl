@@ -112,7 +112,7 @@ func parseGlobalFlags(args []string) (GlobalOptions, string, []string) {
 
 loop:
 	for i := 0; i < len(args); i++ {
-		arg := args[i] // #nosec G602 -- i is bounded by len(args) in the loop condition
+		arg := args[i]
 
 		switch arg {
 		case "-q", "--quiet":
@@ -407,7 +407,7 @@ func writeConfigFile(path string, cfg application.Config, stdout io.Writer, forc
 	if err != nil {
 		return fmt.Errorf("invalid path: %w", err)
 	}
-	file, err := os.Create(cleanPath) // #nosec G304 - path is validated above
+	file, err := os.Create(cleanPath)
 	if err != nil {
 		return err
 	}
@@ -470,7 +470,7 @@ func writeBadgeFile(path string, percent float64, label, style string) error {
 	if err != nil {
 		return fmt.Errorf("invalid path: %w", err)
 	}
-	file, err := os.Create(cleanPath) // #nosec G304 - path is validated above
+	file, err := os.Create(cleanPath)
 	if err != nil {
 		return err
 	}

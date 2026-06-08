@@ -122,7 +122,7 @@ func (r DomainResolver) ModulePath(ctx context.Context) (string, error) {
 
 func goList(ctx context.Context, dir string, patterns ...string) ([]goPackage, error) {
 	args := append([]string{"list", "-json"}, patterns...)
-	cmd := exec.CommandContext(ctx, "go", args...) // #nosec G204 - patterns from trusted config, not user input
+	cmd := exec.CommandContext(ctx, "go", args...)
 	cmd.Dir = dir
 	out, err := cmd.Output()
 	if err != nil {

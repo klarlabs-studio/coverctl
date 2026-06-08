@@ -167,14 +167,12 @@ func runCSharpCommand(ctx context.Context, dir string, cmd string, args []string
 
 // copyFile copies the contents of src to dst, creating dst if it does not exist.
 func copyFile(src, dst string) error {
-	// #nosec G304 -- src path is constructed from filepath.Glob result within project directory
 	in, err := os.Open(src)
 	if err != nil {
 		return err
 	}
 	defer func() { _ = in.Close() }()
 
-	// #nosec G304 -- dst path is the canonical profile path constructed from project directory
 	out, err := os.Create(dst)
 	if err != nil {
 		return err

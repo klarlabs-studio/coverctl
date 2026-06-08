@@ -151,7 +151,7 @@ func isLCOV(content []byte) bool {
 
 // readHead reads the first n bytes of a file.
 func readHead(path string, n int) ([]byte, error) {
-	file, err := os.Open(path) // #nosec G304 - path is validated by caller
+	file, err := os.Open(path)
 	if err != nil {
 		return nil, err
 	}

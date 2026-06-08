@@ -73,7 +73,7 @@ func parseProfile(path string) (map[string]map[string]domain.CoverageStat, error
 		return nil, fmt.Errorf("invalid path: %w", err)
 	}
 
-	file, err := os.Open(cleanPath) // #nosec G304 - path is validated above
+	file, err := os.Open(cleanPath)
 	if err != nil {
 		return nil, err
 	}

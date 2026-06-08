@@ -409,7 +409,7 @@ func (s *Server) handleInit(ctx context.Context, input InitInput) (map[string]an
 	}
 
 	// Write the config file
-	file, err := os.Create(cleanPath) // #nosec G304 - path is validated above
+	file, err := os.Create(cleanPath)
 	if err != nil {
 		return errorResponse(
 			OpCodeFileWrite,
@@ -862,7 +862,7 @@ func detectPRContextMCP(provider application.PRProvider, owner, repo string, prN
 		// GitLab can also auto-detect MR number
 		if prNumber == 0 {
 			if mrIID := os.Getenv("CI_MERGE_REQUEST_IID"); mrIID != "" {
-				_, _ = fmt.Sscanf(mrIID, "%d", &prNumber) // #nosec G104 - parse failure leaves prNumber as 0, which is acceptable
+				_, _ = fmt.Sscanf(mrIID, "%d", &prNumber)
 			}
 		}
 	}
@@ -878,7 +878,7 @@ func detectPRContextMCP(provider application.PRProvider, owner, repo string, prN
 		// Bitbucket can also auto-detect PR number
 		if prNumber == 0 {
 			if prID := os.Getenv("BITBUCKET_PR_ID"); prID != "" {
-				_, _ = fmt.Sscanf(prID, "%d", &prNumber) // #nosec G104 - parse failure leaves prNumber as 0, which is acceptable
+				_, _ = fmt.Sscanf(prID, "%d", &prNumber)
 			}
 		}
 	}
@@ -939,7 +939,7 @@ func backupConfig(configPath string) (string, error) {
 	}
 
 	// Read original content
-	content, err := os.ReadFile(configPath) // #nosec G304 - path from trusted config
+	content, err := os.ReadFile(configPath)
 	if err != nil {
 		return "", fmt.Errorf("read config: %w", err)
 	}
@@ -961,7 +961,7 @@ func writeConfig(configPath string, cfg application.Config) error {
 		return fmt.Errorf("invalid config path: %w", err)
 	}
 
-	file, err := os.Create(cleanPath) // #nosec G304 - path is validated above
+	file, err := os.Create(cleanPath)
 	if err != nil {
 		return fmt.Errorf("create config: %w", err)
 	}

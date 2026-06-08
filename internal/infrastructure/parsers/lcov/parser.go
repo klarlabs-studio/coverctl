@@ -40,7 +40,7 @@ func (p *Parser) Parse(path string) (map[string]domain.CoverageStat, error) {
 		return nil, fmt.Errorf("invalid path: %w", err)
 	}
 
-	file, err := os.Open(cleanPath) // #nosec G304 - path is validated above
+	file, err := os.Open(cleanPath)
 	if err != nil {
 		return nil, fmt.Errorf("open lcov file: %w", err)
 	}

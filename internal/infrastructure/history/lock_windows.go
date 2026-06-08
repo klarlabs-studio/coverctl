@@ -23,7 +23,6 @@ func (s *FileStore) acquireLock() (*fileLock, error) {
 		return nil, err
 	}
 
-	// #nosec G304 -- Path is derived from trusted config
 	file, err := os.OpenFile(lockPath, os.O_CREATE|os.O_RDWR, 0o600)
 	if err != nil {
 		return nil, err

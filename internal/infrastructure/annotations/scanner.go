@@ -60,7 +60,7 @@ func (Scanner) Scan(_ context.Context, moduleRoot string, files []string) (map[s
 		if err != nil {
 			continue // Skip invalid paths
 		}
-		f, err := os.Open(cleanPath) // #nosec G304 - path is validated above
+		f, err := os.Open(cleanPath)
 		if err != nil {
 			if os.IsNotExist(err) {
 				continue

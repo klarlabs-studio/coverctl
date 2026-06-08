@@ -83,7 +83,7 @@ func (r Runner) Exec(ctx context.Context, dir, binary string, args []string) err
 	)
 	start := time.Now()
 
-	cmd := exec.CommandContext(ctx, binary, args...) // #nosec G204 - binary is a constant per-runner identifier; args are caller-validated
+	cmd := exec.CommandContext(ctx, binary, args...)
 	if dir != "" {
 		cmd.Dir = dir
 	}
