@@ -1,6 +1,6 @@
-# klarlabs-studio shared Go lint bar (golangci-lint v2). gocritic and gosec are
-# part of the org bar — do not drop them. Repo-specific exclusions go under
-# `exclusions.rules`.
+# klarlabs-studio shared Go lint bar (golangci-lint v2). gocritic is
+# part of the org bar — do not drop it. Code-level security is owned by nox.
+# Repo-specific exclusions go under `exclusions.rules`.
 version: "2"
 
 run:
@@ -18,7 +18,6 @@ linters:
     - unconvert
     - unparam
     - gocritic     # org engineering bar — do not drop
-    - gosec
   settings:
     misspell:
       locale: US
@@ -30,12 +29,6 @@ linters:
         - fmt.Fprint
         - fmt.Fprintf
         - fmt.Fprintln
-  exclusions:
-    rules:
-      # Tests legitimately use math/rand (deterministic fixtures, fuzz
-      # seeds). G404 weak-RNG does not apply to test code.
-      - path: _test\.go
-        linters: [gosec]
 
 formatters:
   enable:
