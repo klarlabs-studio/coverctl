@@ -24,3 +24,10 @@ scan:
     # Generated artifacts.
     - "nox-out/"
     - "release-artifacts/"
+
+# Activate nox's code-level taint SAST (source-to-sink): SSRF, injection,
+# path traversal. nox scan auto-installs + runs required plugins (cosign
+# verifies the signed plugin to community trust in CI).
+plugins:
+  required:
+    - nox/taint-analysis
