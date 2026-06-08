@@ -1723,11 +1723,9 @@ func TestAggregateByDomainWithAnnotations(t *testing.T) {
 	result := AggregateByDomain(files, domainDirs, nil, "/project", "", annotations)
 	if stat, ok := result["core"]; !ok {
 		t.Error("expected core domain in result")
-	} else {
+	} else if stat.Covered != 80 || stat.Total != 150 {
 		// Both files are aggregated, annotations affect evaluation not aggregation
-		if stat.Covered != 80 || stat.Total != 150 {
-			t.Errorf("expected 80/150, got %d/%d", stat.Covered, stat.Total)
-		}
+		t.Errorf("expected 80/150, got %d/%d", stat.Covered, stat.Total)
 	}
 }
 
@@ -1746,11 +1744,9 @@ func TestAggregateByDomainWithExcludesPerDomain(t *testing.T) {
 	result := AggregateByDomainWithExcludes(files, domainDirs, nil, domainExcludes, "/project", "", nil)
 	if stat, ok := result["core"]; !ok {
 		t.Error("expected core domain in result")
-	} else {
+	} else if stat.Covered != 80 || stat.Total != 150 {
 		// Both files are aggregated, excludes affect file rules not aggregation
-		if stat.Covered != 80 || stat.Total != 150 {
-			t.Errorf("expected 80/150, got %d/%d", stat.Covered, stat.Total)
-		}
+		t.Errorf("expected 80/150, got %d/%d", stat.Covered, stat.Total)
 	}
 }
 

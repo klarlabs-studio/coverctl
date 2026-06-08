@@ -1,20 +1,47 @@
+# klarlabs-studio shared Go lint bar (golangci-lint v2). gocritic and gosec are
+# part of the org bar — do not drop them. Repo-specific exclusions go under
+# `exclusions.rules`.
 version: "2"
 
 run:
   timeout: 5m
 
 linters:
-  default: none
+  default: standard
   enable:
+    - errcheck
     - govet
-    - staticcheck
     - ineffassign
+    - staticcheck
+    - unused
     - misspell
+    - unconvert
+    - unparam
+    - gocritic     # org engineering bar — do not drop
+    - gosec
   settings:
     misspell:
       locale: US
+    errcheck:
+      # coverctl is a CLI: fmt.Fprint* write to os.Stdout/Stderr and in-memory
+      # buffers, where a write error is neither actionable nor recoverable.
+      # Checking these is the canonical errcheck false positive.
+      exclude-functions:
+        - fmt.Fprint
+        - fmt.Fprintf
+        - fmt.Fprintln
+  exclusions:
+    rules:
+      # Tests legitimately use math/rand (deterministic fixtures, fuzz
+      # seeds). G404 weak-RNG does not apply to test code.
+      - path: _test\.go
+        linters: [gosec]
 
 formatters:
   enable:
     - gofmt
     - goimports
+
+issues:
+  max-issues-per-linter: 0
+  max-same-issues: 0

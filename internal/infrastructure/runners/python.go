@@ -168,7 +168,7 @@ func (r *PythonRunner) buildPytestArgs(opts application.RunOptions, profile stri
 }
 
 // buildCoverageArgs builds command line arguments for coverage.py.
-func (r *PythonRunner) buildCoverageArgs(opts application.RunOptions, profile string) []string {
+func (r *PythonRunner) buildCoverageArgs(opts application.RunOptions, _ string) []string {
 	// Using coverage.py with pytest
 	args := []string{
 		"-m", "coverage", "run",

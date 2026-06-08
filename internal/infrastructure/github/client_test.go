@@ -40,7 +40,7 @@ func TestAuthHeader(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		capturedAuthHeader = r.Header.Get("Authorization")
 		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode([]issueComment{})
+		_ = json.NewEncoder(w).Encode([]issueComment{})
 	}))
 	defer server.Close()
 
@@ -111,9 +111,9 @@ func TestFindCoverageComment(t *testing.T) {
 
 				w.WriteHeader(tt.statusCode)
 				if tt.statusCode == http.StatusOK {
-					json.NewEncoder(w).Encode(tt.comments)
+					_ = json.NewEncoder(w).Encode(tt.comments)
 				} else {
-					w.Write([]byte(`{"message":"forbidden"}`))
+					_, _ = w.Write([]byte(`{"message":"forbidden"}`))
 				}
 			}))
 			defer server.Close()
@@ -169,9 +169,9 @@ func TestCreateComment(t *testing.T) {
 
 				w.WriteHeader(tt.statusCode)
 				if tt.statusCode == http.StatusCreated {
-					json.NewEncoder(w).Encode(tt.response)
+					_ = json.NewEncoder(w).Encode(tt.response)
 				} else {
-					w.Write([]byte(`{"message":"validation failed"}`))
+					_, _ = w.Write([]byte(`{"message":"validation failed"}`))
 				}
 			}))
 			defer server.Close()
@@ -222,7 +222,7 @@ func TestUpdateComment(t *testing.T) {
 
 				w.WriteHeader(tt.statusCode)
 				if tt.statusCode != http.StatusOK {
-					w.Write([]byte(`{"message":"not found"}`))
+					_, _ = w.Write([]byte(`{"message":"not found"}`))
 				}
 			}))
 			defer server.Close()

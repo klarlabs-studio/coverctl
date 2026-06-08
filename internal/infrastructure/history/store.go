@@ -65,7 +65,7 @@ func (s *FileStore) Append(entry domain.HistoryEntry) error {
 	if err != nil {
 		return err
 	}
-	defer lock.release()
+	defer func() { _ = lock.release() }()
 
 	h, err := s.Load()
 	if err != nil {

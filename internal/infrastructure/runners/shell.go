@@ -310,6 +310,7 @@ func (r *ShellRunner) collectCoberturaProfile(coverageDir, profile string) error
 	}
 
 	// Read the source file and write to the canonical profile path
+	// #nosec G304 -- src is resolved from filepath.Glob within the project directory
 	data, err := os.ReadFile(src)
 	if err != nil {
 		return fmt.Errorf("reading coverage profile: %w", err)
@@ -319,7 +320,7 @@ func (r *ShellRunner) collectCoberturaProfile(coverageDir, profile string) error
 		return fmt.Errorf("creating profile directory: %w", err)
 	}
 
-	if err := os.WriteFile(profile, data, 0o644); err != nil {
+	if err := os.WriteFile(profile, data, 0o600); err != nil {
 		return fmt.Errorf("writing coverage profile: %w", err)
 	}
 

@@ -73,11 +73,12 @@ func runPRComment(ctx context.Context, args []string, stdout, stderr io.Writer, 
 		return exitCodeWithCI(err, 3, stderr, global)
 	}
 
-	if *dryRun {
+	switch {
+	case *dryRun:
 		fmt.Fprintln(stdout, result.CommentBody)
-	} else if result.Created {
+	case result.Created:
 		fmt.Fprintf(stdout, "Created comment: %s\n", result.CommentURL)
-	} else {
+	default:
 		fmt.Fprintf(stdout, "Updated comment #%d\n", result.CommentID)
 	}
 	return 0

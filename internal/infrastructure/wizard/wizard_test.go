@@ -87,13 +87,13 @@ func TestInitWizardMoveCursor(t *testing.T) {
 }
 
 func TestInitWizardClamp(t *testing.T) {
-	if clamp(-5, 0, 10) != 0 {
+	if clamp(-5, 10) != 0 {
 		t.Fatalf("expected clamp to min")
 	}
-	if clamp(20, 0, 10) != 10 {
+	if clamp(20, 10) != 10 {
 		t.Fatalf("expected clamp to max")
 	}
-	if clamp(5, 0, 10) != 5 {
+	if clamp(5, 10) != 5 {
 		t.Fatalf("expected clamp to keep value")
 	}
 }

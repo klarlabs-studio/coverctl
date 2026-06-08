@@ -210,7 +210,7 @@ func (r *NodeRunner) buildNycArgs(opts application.RunOptions, profile string) [
 }
 
 // buildNpmArgs builds command line arguments for npm test with coverage.
-func (r *NodeRunner) buildNpmArgs(opts application.RunOptions, profile string) []string {
+func (r *NodeRunner) buildNpmArgs(opts application.RunOptions, _ string) []string {
 	args := []string{
 		"test", "--",
 		"--coverage",

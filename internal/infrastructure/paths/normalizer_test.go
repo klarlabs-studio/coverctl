@@ -336,7 +336,7 @@ func TestMatchesDirectory(t *testing.T) {
 		{
 			name:     "file in subdirectory",
 			file:     filepath.Join("internal", "pkg", "sub", "file.go"),
-			dir:      filepath.Join("internal"),
+			dir:      "internal",
 			expected: true,
 		},
 		{
@@ -348,7 +348,7 @@ func TestMatchesDirectory(t *testing.T) {
 		{
 			name:     "file not in directory",
 			file:     filepath.Join("cmd", "main.go"),
-			dir:      filepath.Join("internal"),
+			dir:      "internal",
 			expected: false,
 		},
 		{

@@ -131,15 +131,16 @@ func defaultSurveyDir() string {
 // Format mirrors the broader telemetry pipeline so the same record can
 // be donated upstream once the receiver exists.
 func writeSurveyResponse(dataDir, code string) error {
-	if err := os.MkdirAll(dataDir, 0o755); err != nil {
+	if err := os.MkdirAll(dataDir, 0o750); err != nil {
 		return fmt.Errorf("mkdir %s: %w", dataDir, err)
 	}
 	path := filepath.Join(dataDir, "survey.jsonl")
-	f, err := os.OpenFile(path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o644)
+	// #nosec G304 -- path is dataDir joined with a constant filename
+	f, err := os.OpenFile(path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o600)
 	if err != nil {
 		return fmt.Errorf("open %s: %w", path, err)
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 
 	rec := fmt.Sprintf(
 		`{"event":"pmf_survey","ts":%q,"answer":%q,"repo":%q,"version":%q}`+"\n",

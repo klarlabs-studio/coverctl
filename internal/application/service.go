@@ -1037,9 +1037,7 @@ func (s *Service) Record(ctx context.Context, opts RecordOptions, store HistoryS
 }
 
 // timeNow is a variable to allow test injection
-var timeNow = func() time.Time {
-	return time.Now()
-}
+var timeNow = time.Now
 
 // Note: applyDeltas is defined in shared.go
 
@@ -1274,21 +1272,22 @@ func (s *Service) Compare(ctx context.Context, opts CompareOptions) (CompareResu
 
 		fileDelta := domain.Round1(headPct - basePct)
 
-		if fileDelta > 0.1 {
+		switch {
+		case fileDelta > 0.1:
 			improved = append(improved, FileDelta{
 				File:    file,
 				BasePct: basePct,
 				HeadPct: headPct,
 				Delta:   fileDelta,
 			})
-		} else if fileDelta < -0.1 {
+		case fileDelta < -0.1:
 			regressed = append(regressed, FileDelta{
 				File:    file,
 				BasePct: basePct,
 				HeadPct: headPct,
 				Delta:   fileDelta,
 			})
-		} else {
+		default:
 			unchanged++
 		}
 	}
