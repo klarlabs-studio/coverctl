@@ -30,7 +30,6 @@ linters:
         - fmt.Fprint
         - fmt.Fprintf
         - fmt.Fprintln
-  settings:
     gosec:
       excludes:
         # FP-prone rules newly enforced by golangci v2.12.2's bundled gosec.
