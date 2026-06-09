@@ -1,6 +1,6 @@
-# klarlabs-studio shared Go lint bar (golangci-lint v2). gocritic and gosec are
-# part of the org bar — do not drop them. Repo-specific exclusions go under
-# `exclusions.rules`.
+# klarlabs-studio shared Go lint bar (golangci-lint v2). gocritic is part of
+# the org bar — do not drop it. Code-level security is owned by nox
+# (taint-analysis + core ruleset), not gosec.
 version: "2"
 
 run:
@@ -18,7 +18,6 @@ linters:
     - unconvert
     - unparam
     - gocritic     # org engineering bar — do not drop
-    - gosec
   settings:
     misspell:
       locale: US
@@ -30,24 +29,8 @@ linters:
         - fmt.Fprint
         - fmt.Fprintf
         - fmt.Fprintln
-    gosec:
-      excludes:
-        # FP-prone rules newly enforced by golangci v2.12.2's bundled gosec.
-        # Taint (G703/G704/G706) is nox's job once nox/taint-analysis is
-        # verified; G115/G118/G204 are high-noise. Keep gosec's stable,
-        # high-signal rules (creds, crypto, file perms).
-        - G115   # integer overflow conversion
-        - G118   # context cancellation in goroutine
-        - G204   # subprocess with variable
-        - G703   # path traversal via taint
-        - G704   # SSRF via taint
-        - G706   # taint flow
-  exclusions:
-    rules:
-      # Tests legitimately use math/rand (deterministic fixtures, fuzz
-      # seeds). G404 weak-RNG does not apply to test code.
-      - path: _test\.go
-        linters: [gosec]
+  # Code-level security is owned by nox (taint-analysis + core ruleset),
+  # not gosec — no gosec exclusions needed.
 
 formatters:
   enable:
