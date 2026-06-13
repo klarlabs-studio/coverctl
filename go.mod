@@ -8,7 +8,7 @@ require (
 	github.com/fsnotify/fsnotify v1.10.1
 	github.com/mattn/go-isatty v0.0.22
 	github.com/stretchr/testify v1.11.1
-	go.klarlabs.de/mcp v1.15.0
+	go.klarlabs.de/mcp v1.17.0
 	golang.org/x/sys v0.45.0
 	gopkg.in/yaml.v3 v3.0.1
 )
