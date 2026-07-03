@@ -9,7 +9,7 @@ require (
 	github.com/mattn/go-isatty v0.0.22
 	github.com/stretchr/testify v1.11.1
 	go.klarlabs.de/mcp v1.20.0
-	golang.org/x/sys v0.45.0
+	golang.org/x/sys v0.46.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 
