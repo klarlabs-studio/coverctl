@@ -2,6 +2,48 @@
 
 All notable changes to `coverctl` will be documented here. Relicta manages this file automatically.
 
+## [1.18.0] - 2026-07-06
+
+Security & correctness hardening from a full deep review. The headline theme is
+**closing fail-open paths** — cases where the coverage gate reported PASS when it
+should have FAILED.
+
+### Fixed
+- **Gate fail-open: MCP `check` ignored `failUnder`/`ratchet`.** The overall-floor
+  and no-regression gates were enforced only on the CLI path, so an agent calling
+  the `check` tool with `ratchet: true` or `failUnder: N` got `passed: true` even
+  on a regression. Enforcement is now shared between the CLI and the MCP surface. (#103)
+- **Gate fail-open: negative statement counts inflated coverage.** A crafted/corrupt
+  coverage profile with a negative statement count underflowed a domain's denominator
+  (coverage > 100%), passing the gate. The parser now rejects negative counts. (#103)
+- **Gate fail-open: diff-coverage skipped specially-named files.** `git diff` under
+  the default `core.quotePath` C-quoted non-ASCII filenames, which dropped them from
+  the changed-file set. Now uses `git diff -z` with verbatim, NUL-framed paths. (#104)
+- **Gate fail-open: broken `**` glob left domains unenforced.** A pattern like
+  `src/**/*.py` matched zero directories, silently unenforcing that domain. Rewrote
+  `**` matching (doublestar semantics) and now fail closed on a zero-match domain. (#106)
+- Threshold comparison used the display-rounded percentage; 79.95% rounded up and
+  passed an 80% gate. The raw percentage is now compared; rounding is display-only. (#103)
+- `--ratchet` silently passed when the coverage history could not be read; it now
+  fails closed on a baseline-load error. (#103)
+- Bitbucket PR comments could duplicate because only the first page of existing
+  comments was scanned; pagination is now followed. (#107)
+- Windows path matching: exclude and directory attribution now normalize separators,
+  fixing fail-open mis-attribution on `\`-separated paths. (#109)
+
+### Security
+- Path containment enforced on the annotation scanner and config `extends` resolution,
+  preventing reads of files outside the module root via a crafted coverage report or
+  `.coverctl.yaml` (the legitimate monorepo `extends`/upward search still works). (#105)
+- MCP server: panic-recovery middleware (one bad tool call no longer kills the stdio
+  session); `suggest{writeConfig:true}` is read-only in agent mode (config writes
+  require `--mode=ci`) so an agent cannot silently relax the gate; config-write targets
+  are scope-validated; `check` has a default runtime cap. (#108)
+- VCS clients: reject cross-host redirects (GitLab `PRIVATE-TOKEN` can no longer leak
+  to an attacker host); path-escape `owner`/`repo` segments; bound response bodies. (#107)
+- Parsers/runners: input-size caps on all coverage parsers, JaCoCo integer-overflow
+  guard, timeouts on tool-detection subprocesses, and bounded child-process output. (#109)
+
 ## [1.13.0] - 2026-03-01
 
 ### Added
