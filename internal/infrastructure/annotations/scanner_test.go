@@ -105,3 +105,39 @@ func TestScannerIgnoresMissingFile(t *testing.T) {
 		t.Fatalf("expected missing file to be ignored: %v", err)
 	}
 }
+
+func TestScannerSkipsPathEscapingModuleRoot(t *testing.T) {
+	root := t.TempDir()
+	moduleRoot := filepath.Join(root, "module")
+	if err := os.MkdirAll(moduleRoot, 0o755); err != nil {
+		t.Fatalf("mkdir: %v", err)
+	}
+	// A secret file OUTSIDE the module root that carries an annotation. A
+	// coverage-map-derived `../secret.go` entry must not read it.
+	outside := filepath.Join(root, "secret.go")
+	if err := os.WriteFile(outside, []byte("// coverctl:domain=secret\n"), 0o644); err != nil {
+		t.Fatalf("write: %v", err)
+	}
+	out, err := (Scanner{}).Scan(context.Background(), moduleRoot, []string{"../secret.go"})
+	if err != nil {
+		t.Fatalf("scan: %v", err)
+	}
+	if len(out) != 0 {
+		t.Fatalf("expected escaping path to be skipped, got %v", out)
+	}
+	if _, ok := out["../secret.go"]; ok {
+		t.Fatal("escaping path must not be read")
+	}
+}
+
+func TestScannerSkipsWhenModuleRootEmpty(t *testing.T) {
+	// Without a module root, containment cannot be enforced, so reads are skipped
+	// rather than joining an attacker-influenced path freely.
+	out, err := (Scanner{}).Scan(context.Background(), "", []string{"main.go", "../../etc/passwd.go"})
+	if err != nil {
+		t.Fatalf("scan: %v", err)
+	}
+	if len(out) != 0 {
+		t.Fatalf("expected no annotations without a module root, got %v", out)
+	}
+}

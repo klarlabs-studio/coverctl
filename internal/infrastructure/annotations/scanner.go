@@ -52,15 +52,19 @@ func (Scanner) Scan(_ context.Context, moduleRoot string, files []string) (map[s
 		if !supportedExtensions[filepath.Ext(file)] {
 			continue
 		}
-		path := file
-		if moduleRoot != "" {
-			path = filepath.Join(moduleRoot, filepath.FromSlash(file))
+		// Containment requires a known module root. Without one we cannot prove a
+		// coverage-map-derived path stays inside the module, so skip the read
+		// rather than freely join an attacker-influenced ../ path.
+		if moduleRoot == "" {
+			continue
 		}
-		cleanPath, err := pathutil.ValidatePath(path)
+		// The file path originates from a (semi-trusted) coverage report; scope it
+		// to moduleRoot so a `..` or symlink entry cannot escape the module tree.
+		cleanPath, err := pathutil.ValidateScopedPath(filepath.FromSlash(file), moduleRoot)
 		if err != nil {
-			continue // Skip invalid paths
+			continue // Skip paths that escape the module root or are otherwise invalid
 		}
-		f, err := os.Open(cleanPath) // #nosec G304 - path is validated above
+		f, err := os.Open(cleanPath) // #nosec G304 - path is scoped to moduleRoot above
 		if err != nil {
 			if os.IsNotExist(err) {
 				continue

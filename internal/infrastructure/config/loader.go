@@ -6,6 +6,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"gopkg.in/yaml.v3"
 
@@ -181,11 +182,12 @@ func (l Loader) loadWithCycleCheck(path string, visited map[string]struct{}) (ap
 	// Handle config inheritance
 	var parentCfg application.Config
 	if cfg.Extends != "" {
-		// Resolve parent path relative to current config's directory
+		// Resolve parent path relative to current config's directory, enforcing
+		// containment so `extends` cannot be turned into an arbitrary-file read.
 		configDir := filepath.Dir(absPath)
-		parentPath := cfg.Extends
-		if !filepath.IsAbs(parentPath) {
-			parentPath = filepath.Join(configDir, parentPath)
+		parentPath, resolveErr := resolveExtendsPath(configDir, cfg.Extends)
+		if resolveErr != nil {
+			return application.Config{}, fmt.Errorf("resolving extends %q: %w", cfg.Extends, resolveErr)
 		}
 
 		parentCfg, err = l.loadWithCycleCheck(parentPath, visited)
@@ -216,6 +218,66 @@ func (l Loader) loadWithCycleCheck(path string, visited map[string]struct{}) (ap
 	}
 
 	return childCfg, nil
+}
+
+// resolveExtendsPath resolves an `extends:` value relative to the directory of
+// the config that declared it, enforcing containment.
+//
+// An `extends` value is attacker-influenced: an untrusted repository can ship a
+// .coverctl.yaml, so the value must not become an arbitrary-file read
+// primitive. We therefore:
+//   - reject null bytes,
+//   - reject `~`-prefixed paths (no home-directory pivot; no shell expansion
+//     happens so a literal `~` is almost never intended),
+//   - reject absolute paths (callers must use config-relative paths),
+//   - require the resolved parent config to live in an ancestor of, or the same
+//     directory as, the current config. This is the legitimate monorepo pattern
+//     (a child extends a base config located further up the tree) while blocking
+//     sideways escapes such as `../../../../home/user/.ssh/config`.
+//
+// This deliberately does NOT constrain FindConfigFrom's upward walk, which is an
+// intentional monorepo discovery mechanism.
+func resolveExtendsPath(configDir, extends string) (string, error) {
+	if strings.Contains(extends, "\x00") {
+		return "", pathutil.ErrNullBytes
+	}
+	if strings.HasPrefix(extends, "~") {
+		return "", fmt.Errorf("%w: extends must not start with '~'", pathutil.ErrPathEscapesBase)
+	}
+	if filepath.IsAbs(extends) {
+		return "", fmt.Errorf("%w: extends must be a relative path", pathutil.ErrPathEscapesBase)
+	}
+
+	resolved := filepath.Clean(filepath.Join(configDir, extends))
+	// Resolve symlinks (including on the final component) so a symlinked config
+	// cannot point the parent directory outside the allowed scope.
+	if real, err := filepath.EvalSymlinks(resolved); err == nil {
+		resolved = real
+	}
+
+	base := configDir
+	if real, err := filepath.EvalSymlinks(base); err == nil {
+		base = real
+	}
+
+	if !isAncestorOrEqual(filepath.Dir(resolved), base) {
+		return "", fmt.Errorf("%w: extends %q resolves outside the allowed ancestor scope", pathutil.ErrPathEscapesBase, extends)
+	}
+	return resolved, nil
+}
+
+// isAncestorOrEqual reports whether ancestor is the same directory as, or a
+// parent directory of, descendant, using a separator-aware comparison that
+// won't match `/foo/barbaz` against ancestor `/foo/bar`.
+func isAncestorOrEqual(ancestor, descendant string) bool {
+	if ancestor == descendant {
+		return true
+	}
+	prefix := ancestor
+	if !strings.HasSuffix(prefix, string(filepath.Separator)) {
+		prefix += string(filepath.Separator)
+	}
+	return strings.HasPrefix(descendant, prefix)
 }
 
 // buildAppConfig converts a fileConfig to an application.Config
