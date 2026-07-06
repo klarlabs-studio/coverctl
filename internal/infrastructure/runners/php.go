@@ -78,7 +78,7 @@ func (r *PHPRunner) Run(ctx context.Context, opts application.RunOptions) (strin
 	}
 
 	// Build command args
-	args := r.buildArgs(opts, profile, phpunitPath)
+	args := r.buildArgs(ctx, opts, profile, phpunitPath)
 
 	execFn := r.Exec
 	if execFn == nil {
@@ -117,12 +117,18 @@ func (r *PHPRunner) detectPHPUnit(projectDir string) string {
 	return ""
 }
 
-// detectCoverageDriver detects whether PCOV or Xdebug is available as the coverage driver.
-func (r *PHPRunner) detectCoverageDriver() string {
+// detectCoverageDriver detects whether PCOV or Xdebug is available as the
+// coverage driver. The `php -m` probe runs under a short timeout derived from
+// ctx and its stdout is captured into a bounded buffer so a hung or noisy PHP
+// binary cannot stall detection or exhaust memory.
+func (r *PHPRunner) detectCoverageDriver(ctx context.Context) string {
 	// Check for PCOV first (faster, preferred for coverage)
-	cmd := exec.Command("php", "-m")
-	output, err := cmd.Output()
-	if err == nil && strings.Contains(string(output), "pcov") {
+	probeCtx, cancel := context.WithTimeout(ctx, probeTimeout)
+	defer cancel()
+	cmd := exec.CommandContext(probeCtx, "php", "-m")
+	out := &boundedBuffer{max: maxProbeOutputBytes}
+	cmd.Stdout = out
+	if err := cmd.Run(); err == nil && strings.Contains(string(out.Bytes()), "pcov") {
 		return "pcov"
 	}
 
@@ -131,11 +137,11 @@ func (r *PHPRunner) detectCoverageDriver() string {
 }
 
 // buildArgs builds command line arguments for PHPUnit with coverage.
-func (r *PHPRunner) buildArgs(opts application.RunOptions, profile string, phpunitPath string) []string {
+func (r *PHPRunner) buildArgs(ctx context.Context, opts application.RunOptions, profile string, phpunitPath string) []string {
 	var args []string
 
 	// Add coverage driver flags
-	driver := r.detectCoverageDriver()
+	driver := r.detectCoverageDriver(ctx)
 	if driver == "pcov" {
 		args = append(args, "-dpcov.enabled=1")
 	}

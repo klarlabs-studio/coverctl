@@ -1,6 +1,7 @@
 package gotool
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"os"
@@ -12,6 +13,33 @@ import (
 	"go.klarlabs.de/coverctl/internal/domain"
 	"go.klarlabs.de/coverctl/internal/infrastructure/cmdrun"
 )
+
+// maxCmdOutputBytes caps stdout/stderr captured from a `go` subprocess (e.g.
+// `go list -json ./...`), bounding memory against a runaway child while
+// remaining generous enough for any realistic repository.
+const maxCmdOutputBytes = 256 << 20 // 256 MiB
+
+// boundedBuffer captures at most max bytes and silently discards the remainder.
+// Write always reports a full write so the child is never blocked on a full
+// pipe; only memory is bounded. Below max it behaves like a bytes.Buffer.
+type boundedBuffer struct {
+	buf bytes.Buffer
+	max int
+}
+
+func (b *boundedBuffer) Write(p []byte) (int, error) {
+	if remaining := b.max - b.buf.Len(); remaining > 0 {
+		if len(p) > remaining {
+			b.buf.Write(p[:remaining])
+		} else {
+			b.buf.Write(p)
+		}
+	}
+	return len(p), nil
+}
+
+// Bytes returns the captured (possibly truncated) output.
+func (b *boundedBuffer) Bytes() []byte { return b.buf.Bytes() }
 
 // Runner implements the CoverageRunner interface for Go projects.
 type Runner struct {
@@ -256,7 +284,13 @@ func runCommand(ctx context.Context, dir string, args []string) error {
 func runCommandOutput(ctx context.Context, dir string, args []string) ([]byte, error) {
 	cmd := exec.CommandContext(ctx, "go", args...)
 	cmd.Dir = dir
-	return cmd.CombinedOutput()
+	// Capture combined stdout+stderr into a single bounded buffer, matching
+	// CombinedOutput semantics while bounding memory.
+	out := &boundedBuffer{max: maxCmdOutputBytes}
+	cmd.Stdout = out
+	cmd.Stderr = out
+	err := cmd.Run()
+	return out.Bytes(), err
 }
 
 func runCommandEnv(ctx context.Context, dir string, env []string, cmdPath string, args []string) error {

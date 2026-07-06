@@ -2,6 +2,7 @@
 package paths
 
 import (
+	"path"
 	"path/filepath"
 	"strings"
 
@@ -84,23 +85,32 @@ func ModuleRelativePath(path, moduleRoot string) string {
 }
 
 // IsExcluded checks if a file path matches any of the exclusion patterns.
+//
+// Both the file path and each pattern are normalized to forward slashes and
+// matched with path.Match (which always treats "/" as the separator) rather
+// than filepath.Match (whose separator is "\" on Windows). Coverage keys use
+// "/" on every platform, so this keeps exclusion behavior consistent and
+// avoids failing open on Windows.
 func IsExcluded(file string, patterns []string) bool {
 	if len(patterns) == 0 {
 		return false
 	}
+	slashFile := filepath.ToSlash(file)
 	for _, pattern := range patterns {
-		if ok, _ := filepath.Match(pattern, file); ok {
+		if ok, _ := path.Match(filepath.ToSlash(pattern), slashFile); ok {
 			return true
 		}
 	}
 	return false
 }
 
-// MatchesDirectory checks if a file belongs to a directory.
+// MatchesDirectory checks if a file belongs to a directory. Both sides are
+// normalized to forward slashes so directory attribution works when coverage
+// keys use "/" but the runtime separator is "\" (Windows).
 func MatchesDirectory(file, dir string) bool {
-	cleanFile := filepath.Clean(file)
-	cleanDir := filepath.Clean(dir)
-	return strings.HasPrefix(cleanFile, cleanDir+string(filepath.Separator)) || cleanFile == cleanDir
+	cleanFile := filepath.ToSlash(filepath.Clean(file))
+	cleanDir := filepath.ToSlash(filepath.Clean(dir))
+	return strings.HasPrefix(cleanFile, cleanDir+"/") || cleanFile == cleanDir
 }
 
 // MatchesAnyDirectory checks if a file belongs to any of the given directories.
@@ -116,20 +126,23 @@ func MatchesAnyDirectory(file string, dirs []string) bool {
 // MatchesAnyDirectoryWithRoot checks if a file belongs to any of the given directories,
 // also checking relative paths from the module root.
 func MatchesAnyDirectoryWithRoot(file string, dirs []string, moduleRoot string) bool {
-	cleanFile := filepath.Clean(file)
+	cleanFile := filepath.ToSlash(filepath.Clean(file))
 	for _, dir := range dirs {
-		cleanDir := filepath.Clean(dir)
-		if strings.HasPrefix(cleanFile, cleanDir+string(filepath.Separator)) || cleanFile == cleanDir {
+		nativeDir := filepath.Clean(dir)
+		cleanDir := filepath.ToSlash(nativeDir)
+		if strings.HasPrefix(cleanFile, cleanDir+"/") || cleanFile == cleanDir {
 			return true
 		}
 		if moduleRoot != "" {
-			relDir, err := filepath.Rel(moduleRoot, cleanDir)
+			// filepath.Rel needs native separators; slash-normalize only the
+			// result before comparing against the (slash) coverage key.
+			relDir, err := filepath.Rel(moduleRoot, nativeDir)
 			if err == nil {
-				relDir = filepath.Clean(relDir)
-				if relDir == "." {
+				relSlash := filepath.ToSlash(filepath.Clean(relDir))
+				if relSlash == "." {
 					return true
 				}
-				if strings.HasPrefix(cleanFile, relDir+string(filepath.Separator)) || cleanFile == relDir {
+				if strings.HasPrefix(cleanFile, relSlash+"/") || cleanFile == relSlash {
 					return true
 				}
 			}

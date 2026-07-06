@@ -73,7 +73,7 @@ func (r *PythonRunner) Run(ctx context.Context, opts application.RunOptions) (st
 	}
 
 	// Detect which tool to use
-	tool := r.detectCoverageTool()
+	tool := r.detectCoverageTool(ctx)
 
 	var args []string
 	switch tool {
@@ -108,13 +108,17 @@ func (r *PythonRunner) RunIntegration(ctx context.Context, opts application.Inte
 	})
 }
 
-// detectCoverageTool determines which Python coverage tool is available.
-func (r *PythonRunner) detectCoverageTool() string {
+// detectCoverageTool determines which Python coverage tool is available. Each
+// probe subprocess runs under a short timeout derived from ctx so a hung
+// interpreter cannot stall detection indefinitely.
+func (r *PythonRunner) detectCoverageTool(ctx context.Context) string {
 	// Check for pytest-cov first (more common in modern projects)
 	if _, err := exec.LookPath("pytest"); err == nil {
 		// Check if pytest-cov is installed
-		cmd := exec.Command("python", "-c", "import pytest_cov")
-		if cmd.Run() == nil {
+		probeCtx, cancel := context.WithTimeout(ctx, probeTimeout)
+		err := exec.CommandContext(probeCtx, "python", "-c", "import pytest_cov").Run()
+		cancel()
+		if err == nil {
 			return "pytest-cov"
 		}
 	}
@@ -125,8 +129,9 @@ func (r *PythonRunner) detectCoverageTool() string {
 	}
 
 	// Try python -m coverage
-	cmd := exec.Command("python", "-m", "coverage", "--version")
-	if cmd.Run() == nil {
+	probeCtx, cancel := context.WithTimeout(ctx, probeTimeout)
+	defer cancel()
+	if exec.CommandContext(probeCtx, "python", "-m", "coverage", "--version").Run() == nil {
 		return "coverage"
 	}
 

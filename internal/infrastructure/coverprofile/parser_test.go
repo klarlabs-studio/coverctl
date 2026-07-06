@@ -3,6 +3,7 @@ package coverprofile
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -27,6 +28,26 @@ func TestParse(t *testing.T) {
 	}
 	if got := stats["internal/api/bar.go"]; got.Total != 1 || got.Covered != 1 {
 		t.Fatalf("unexpected api stats: %+v", got)
+	}
+}
+
+// TestParseOversizeLineBounded ensures a single pathologically long line
+// (no newline) is rejected by the capped scanner buffer rather than being
+// buffered unboundedly into memory.
+func TestParseOversizeLineBounded(t *testing.T) {
+	tmp := t.TempDir()
+	path := filepath.Join(tmp, "coverage.out")
+
+	// A valid mode line, then a single line larger than maxScanLineBytes with
+	// no trailing newline.
+	oversize := strings.Repeat("A", maxScanLineBytes+1024)
+	content := "mode: atomic\n" + oversize
+	if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
+		t.Fatalf("write: %v", err)
+	}
+
+	if _, err := (Parser{}).Parse(path); err == nil {
+		t.Fatal("expected error for oversize line, got nil")
 	}
 }
 

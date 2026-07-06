@@ -11,6 +11,7 @@ package lcov
 import (
 	"bufio"
 	"fmt"
+	"io"
 	"os"
 	"strconv"
 	"strings"
@@ -18,6 +19,15 @@ import (
 	"go.klarlabs.de/coverctl/internal/application"
 	"go.klarlabs.de/coverctl/internal/domain"
 	"go.klarlabs.de/coverctl/internal/pathutil"
+)
+
+const (
+	// maxCoverageBytes caps the total bytes read from a coverage file,
+	// bounding memory use against a crafted or corrupt input.
+	maxCoverageBytes = 256 << 20 // 256 MiB
+	// maxScanLineBytes caps a single scanned line so one unterminated line
+	// cannot allocate unbounded memory. Real LCOV lines are tiny.
+	maxScanLineBytes = 1 << 20 // 1 MiB
 )
 
 // Parser implements ProfileParser for LCOV format.
@@ -47,7 +57,8 @@ func (p *Parser) Parse(path string) (map[string]domain.CoverageStat, error) {
 	defer func() { _ = file.Close() }()
 
 	stats := make(map[string]domain.CoverageStat)
-	scanner := bufio.NewScanner(file)
+	scanner := bufio.NewScanner(io.LimitReader(file, maxCoverageBytes))
+	scanner.Buffer(make([]byte, 0, 64*1024), maxScanLineBytes)
 
 	var currentFile string
 	var covered, total int

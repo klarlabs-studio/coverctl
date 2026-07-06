@@ -136,6 +136,60 @@ func TestParser_ParseAll_Empty(t *testing.T) {
 	assert.Empty(t, stats)
 }
 
+// TestParser_Parse_HugeCountsDoNotOverflow ensures that very large mi/ci
+// attribute values are summed with int64 width so Mi+Ci never wraps negative
+// and silently drops an instrumented line (which would inflate coverage).
+func TestParser_Parse_HugeCountsDoNotOverflow(t *testing.T) {
+	// Values near int32 max: their sum overflows a 32-bit int but is fine as
+	// int64. A covered line (ci>0) must still count as covered.
+	content := `<?xml version="1.0"?>
+<report name="huge">
+  <package name="com/example">
+    <sourcefile name="Big.java">
+      <line nr="1" mi="2000000000" ci="2000000000" mb="0" cb="0"/>
+      <line nr="2" mi="2000000000" ci="0" mb="0" cb="0"/>
+    </sourcefile>
+  </package>
+</report>`
+
+	path := createTempFile(t, "jacoco.xml", content)
+
+	p := New()
+	stats, err := p.Parse(path)
+	require.NoError(t, err)
+
+	s := stats["com/example/Big.java"]
+	// Both lines are instrumented (mi+ci > 0); line 1 is covered (ci>0).
+	assert.Equal(t, 2, s.Total)
+	assert.Equal(t, 1, s.Covered)
+}
+
+// TestParser_Parse_NegativeCountsIgnored ensures a crafted profile with
+// negative mi/ci values cannot inflate coverage: such lines are skipped.
+func TestParser_Parse_NegativeCountsIgnored(t *testing.T) {
+	content := `<?xml version="1.0"?>
+<report name="negative">
+  <package name="com/example">
+    <sourcefile name="Bad.java">
+      <line nr="1" mi="-5" ci="-5" mb="0" cb="0"/>
+      <line nr="2" mi="0" ci="3" mb="0" cb="0"/>
+    </sourcefile>
+  </package>
+</report>`
+
+	path := createTempFile(t, "jacoco.xml", content)
+
+	p := New()
+	stats, err := p.Parse(path)
+	require.NoError(t, err)
+
+	s := stats["com/example/Bad.java"]
+	// Only line 2 is a valid instrumented+covered line; the negative line is
+	// dropped rather than counted.
+	assert.Equal(t, 1, s.Total)
+	assert.Equal(t, 1, s.Covered)
+}
+
 func createTempFile(t *testing.T, name, content string) string {
 	t.Helper()
 	tmpdir := t.TempDir()
