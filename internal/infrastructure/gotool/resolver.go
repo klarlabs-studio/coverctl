@@ -124,11 +124,14 @@ func goList(ctx context.Context, dir string, patterns ...string) ([]goPackage, e
 	args := append([]string{"list", "-json"}, patterns...)
 	cmd := exec.CommandContext(ctx, "go", args...) // #nosec G204 - patterns from trusted config, not user input
 	cmd.Dir = dir
-	out, err := cmd.Output()
-	if err != nil {
+	// Capture stdout into a bounded buffer so a runaway `go list` cannot
+	// exhaust memory. The ceiling is generous enough for any real repository.
+	out := &boundedBuffer{max: maxCmdOutputBytes}
+	cmd.Stdout = out
+	if err := cmd.Run(); err != nil {
 		return nil, err
 	}
-	dec := json.NewDecoder(bytesReader(out))
+	dec := json.NewDecoder(bytesReader(out.Bytes()))
 	pkgs := []goPackage{}
 	for {
 		var pkg goPackage

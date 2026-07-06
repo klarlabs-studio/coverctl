@@ -3,6 +3,7 @@ package coverprofile
 import (
 	"bufio"
 	"fmt"
+	"io"
 	"os"
 	"strconv"
 	"strings"
@@ -10,6 +11,15 @@ import (
 	"go.klarlabs.de/coverctl/internal/application"
 	"go.klarlabs.de/coverctl/internal/domain"
 	"go.klarlabs.de/coverctl/internal/pathutil"
+)
+
+const (
+	// maxCoverageBytes caps the total bytes read from a coverage profile,
+	// bounding memory use against a crafted or corrupt input.
+	maxCoverageBytes = 256 << 20 // 256 MiB
+	// maxScanLineBytes caps a single scanned line so one unterminated line
+	// cannot allocate unbounded memory. Real profile lines are tiny.
+	maxScanLineBytes = 1 << 20 // 1 MiB
 )
 
 // Parser implements ProfileParser for Go coverage profile format.
@@ -79,7 +89,8 @@ func parseProfile(path string) (map[string]map[string]domain.CoverageStat, error
 	}
 	defer func() { _ = file.Close() }()
 
-	scanner := bufio.NewScanner(file)
+	scanner := bufio.NewScanner(io.LimitReader(file, maxCoverageBytes))
+	scanner.Buffer(make([]byte, 0, 64*1024), maxScanLineBytes)
 	lineStats := make(map[string]map[string]domain.CoverageStat)
 	lineNo := 0
 	for scanner.Scan() {

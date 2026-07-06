@@ -69,7 +69,7 @@ func (r *RustRunner) Run(ctx context.Context, opts application.RunOptions) (stri
 	}
 
 	// Detect which tool to use
-	tool := r.detectCoverageTool()
+	tool := r.detectCoverageTool(ctx)
 	args := r.buildArgs(tool, opts, profile)
 
 	execFn := r.Exec
@@ -93,17 +93,23 @@ func (r *RustRunner) RunIntegration(ctx context.Context, opts application.Integr
 	})
 }
 
-// detectCoverageTool determines which Rust coverage tool is available.
-func (r *RustRunner) detectCoverageTool() string {
+// detectCoverageTool determines which Rust coverage tool is available. Each
+// probe subprocess runs under a short timeout derived from ctx so a hung cargo
+// invocation cannot stall detection indefinitely.
+func (r *RustRunner) detectCoverageTool(ctx context.Context) string {
 	// Check for cargo-llvm-cov first (recommended for accuracy)
-	cmd := exec.Command("cargo", "llvm-cov", "--version")
-	if cmd.Run() == nil {
+	llvmCtx, cancelLlvm := context.WithTimeout(ctx, probeTimeout)
+	llvmErr := exec.CommandContext(llvmCtx, "cargo", "llvm-cov", "--version").Run()
+	cancelLlvm()
+	if llvmErr == nil {
 		return "llvm-cov"
 	}
 
 	// Check for cargo-tarpaulin
-	cmd = exec.Command("cargo", "tarpaulin", "--version")
-	if cmd.Run() == nil {
+	tarpCtx, cancelTarp := context.WithTimeout(ctx, probeTimeout)
+	tarpErr := exec.CommandContext(tarpCtx, "cargo", "tarpaulin", "--version").Run()
+	cancelTarp()
+	if tarpErr == nil {
 		return "tarpaulin"
 	}
 

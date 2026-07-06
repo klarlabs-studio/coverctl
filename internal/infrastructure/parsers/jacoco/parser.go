@@ -9,12 +9,17 @@ package jacoco
 import (
 	"encoding/xml"
 	"fmt"
+	"io"
 	"os"
 
 	"go.klarlabs.de/coverctl/internal/application"
 	"go.klarlabs.de/coverctl/internal/domain"
 	"go.klarlabs.de/coverctl/internal/pathutil"
 )
+
+// maxCoverageBytes caps the total bytes read from a coverage file, bounding
+// memory use against a crafted or corrupt input (unbounded-memory DoS guard).
+const maxCoverageBytes = 256 << 20 // 256 MiB
 
 // report represents the root JaCoCo XML element.
 type report struct {
@@ -37,11 +42,11 @@ type sourceFile struct {
 }
 
 type line struct {
-	Nr int `xml:"nr,attr"` // Line number
-	Mi int `xml:"mi,attr"` // Missed instructions
-	Ci int `xml:"ci,attr"` // Covered instructions
-	Mb int `xml:"mb,attr"` // Missed branches
-	Cb int `xml:"cb,attr"` // Covered branches
+	Nr int   `xml:"nr,attr"` // Line number
+	Mi int64 `xml:"mi,attr"` // Missed instructions
+	Ci int64 `xml:"ci,attr"` // Covered instructions
+	Mb int64 `xml:"mb,attr"` // Missed branches
+	Cb int64 `xml:"cb,attr"` // Covered branches
 }
 
 type counter struct {
@@ -77,7 +82,7 @@ func (p *Parser) Parse(path string) (map[string]domain.CoverageStat, error) {
 	defer func() { _ = file.Close() }()
 
 	var rpt report
-	if err := xml.NewDecoder(file).Decode(&rpt); err != nil {
+	if err := xml.NewDecoder(io.LimitReader(file, maxCoverageBytes)).Decode(&rpt); err != nil {
 		return nil, fmt.Errorf("decode jacoco xml: %w", err)
 	}
 
@@ -89,6 +94,13 @@ func (p *Parser) Parse(path string) (map[string]domain.CoverageStat, error) {
 
 			var covered, total int
 			for _, ln := range sf.Lines {
+				// Reject negative counts (never emitted by JaCoCo). Using int64
+				// with a non-negative guard prevents Mi+Ci from wrapping
+				// negative on huge attribute values, which would silently drop
+				// an instrumented line and inflate the coverage ratio.
+				if ln.Mi < 0 || ln.Ci < 0 {
+					continue
+				}
 				// A line is instrumented if it has any instructions
 				if ln.Mi+ln.Ci > 0 {
 					total++

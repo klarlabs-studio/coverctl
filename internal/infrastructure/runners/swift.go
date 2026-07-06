@@ -172,13 +172,20 @@ func runSwiftCommand(ctx context.Context, dir string, tool string, args []string
 	return cmdrun.Runner{Stdout: os.Stdout, Stderr: os.Stderr}.Exec(ctx, dir, tool, args)
 }
 
-// runSwiftCommandOutput executes a Swift or Xcode toolchain command and returns stdout.
+// runSwiftCommandOutput executes a Swift or Xcode toolchain command and returns
+// stdout captured into a bounded buffer so a runaway child cannot exhaust
+// memory. The ceiling is generous enough that any real LCOV export fits.
 func runSwiftCommandOutput(ctx context.Context, dir string, tool string, args []string) ([]byte, error) {
 	// #nosec G204 -- Tool is validated by caller (swift, xcrun)
 	cmd := exec.CommandContext(ctx, tool, args...)
 	if dir != "" {
 		cmd.Dir = dir
 	}
+	out := &boundedBuffer{max: maxCmdOutputBytes}
+	cmd.Stdout = out
 	cmd.Stderr = os.Stderr
-	return cmd.Output()
+	if err := cmd.Run(); err != nil {
+		return nil, err
+	}
+	return out.Bytes(), nil
 }

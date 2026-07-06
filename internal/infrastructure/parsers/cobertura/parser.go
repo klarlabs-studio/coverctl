@@ -10,12 +10,17 @@ package cobertura
 import (
 	"encoding/xml"
 	"fmt"
+	"io"
 	"os"
 
 	"go.klarlabs.de/coverctl/internal/application"
 	"go.klarlabs.de/coverctl/internal/domain"
 	"go.klarlabs.de/coverctl/internal/pathutil"
 )
+
+// maxCoverageBytes caps the total bytes read from a coverage file, bounding
+// memory use against a crafted or corrupt input (unbounded-memory DoS guard).
+const maxCoverageBytes = 256 << 20 // 256 MiB
 
 // coverage represents the root Cobertura XML element.
 type coverage struct {
@@ -73,7 +78,7 @@ func (p *Parser) Parse(path string) (map[string]domain.CoverageStat, error) {
 	defer func() { _ = file.Close() }()
 
 	var cov coverage
-	if err := xml.NewDecoder(file).Decode(&cov); err != nil {
+	if err := xml.NewDecoder(io.LimitReader(file, maxCoverageBytes)).Decode(&cov); err != nil {
 		return nil, fmt.Errorf("decode cobertura xml: %w", err)
 	}
 

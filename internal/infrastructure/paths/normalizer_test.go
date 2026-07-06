@@ -310,6 +310,22 @@ func TestIsExcluded(t *testing.T) {
 			patterns: []string{"[abc].go"},
 			expected: true,
 		},
+		{
+			// Coverage keys always use "/". A directory-scoped glob must match
+			// a forward-slash key regardless of the host OS separator.
+			name:     "forward-slash key matched by dir glob",
+			file:     "vendor/foo.go",
+			patterns: []string{"vendor/*"},
+			expected: true,
+		},
+		{
+			// "*" must not cross "/": a nested key is not matched by a
+			// single-segment glob.
+			name:     "single-segment glob does not cross slash",
+			file:     "vendor/nested/foo.go",
+			patterns: []string{"vendor/*"},
+			expected: false,
+		},
 	}
 
 	for _, tc := range tests {
@@ -380,6 +396,21 @@ func TestMatchesDirectory(t *testing.T) {
 			file:     ".",
 			dir:      "",
 			expected: true,
+		},
+		{
+			// Coverage keys use "/" on every platform; directory attribution
+			// must work against a forward-slash key even where the runtime
+			// separator differs (Windows).
+			name:     "forward-slash key in forward-slash dir",
+			file:     "internal/pkg/file.go",
+			dir:      "internal/pkg",
+			expected: true,
+		},
+		{
+			name:     "forward-slash key not in unrelated dir",
+			file:     "cmd/main.go",
+			dir:      "internal/pkg",
+			expected: false,
 		},
 	}
 
