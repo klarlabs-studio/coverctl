@@ -223,6 +223,18 @@ func (s *Server) handleCheck(ctx context.Context, input CheckInput) (map[string]
 		return classified, nil
 	}
 
+	// Enforce the overall --fail-under floor and the --ratchet no-regression
+	// gate. CheckResult computes only the per-domain result.Passed, so without
+	// this an agent-supplied failUnder/ratchet is silently a no-op on the MCP
+	// surface (the CLI enforces them in Service.Check). Fold any violation into
+	// passed + warnings so the agent sees the regression it asked us to block.
+	if err == nil {
+		if gateErr := s.svc.EnforceExtraGates(result, opts); gateErr != nil {
+			result.Passed = false
+			result.Warnings = append(result.Warnings, gateErr.Error())
+		}
+	}
+
 	v := resolveVerbosity(input.Verbosity)
 	domains, domainCursor := applyDomainBudget(result.Domains, v)
 	files, fileCursor := applyFileBudget(result.Files, v)

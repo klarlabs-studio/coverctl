@@ -312,12 +312,16 @@ func Evaluate(policy Policy, coverage map[string]CoverageStat) Result {
 		if d.Min != nil {
 			required = *d.Min
 		}
-		percent := Round1(stat.Percent())
+		// Compare the raw percentage against the threshold so that a value just
+		// under the bound (e.g. 79.95%) cannot round up to 80.0 and pass an 80%
+		// gate. The rounded value is used only for display/reporting.
+		rawPercent := stat.Percent()
+		percent := Round1(rawPercent)
 		status := StatusPass
-		if percent < required {
+		if rawPercent < required {
 			status = StatusFail
 			passed = false
-		} else if d.Warn != nil && percent < *d.Warn {
+		} else if d.Warn != nil && rawPercent < *d.Warn {
 			// Above min but below warn threshold
 			status = StatusWarn
 		}

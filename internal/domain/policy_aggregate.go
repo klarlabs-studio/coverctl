@@ -134,10 +134,13 @@ func (p *PolicyAggregate) Evaluate(coverage map[string]CoverageStat) EvaluationR
 
 	for _, spec := range p.domains {
 		stat := coverage[spec.Name.String()]
-		percent := NewPercentage(stat.PercentRounded())
+		// Compare the raw percentage against thresholds; the rounded Percentage
+		// is retained only for display (see determineStatus).
+		rawPercent := stat.Percent()
+		percent := NewPercentage(rawPercent)
 		required := spec.MinValue
 
-		status := p.determineStatus(percent, spec)
+		status := p.determineStatus(rawPercent, spec)
 		if status == StatusFail {
 			passed = false
 			// Record threshold violation event
@@ -177,12 +180,14 @@ func (p *PolicyAggregate) Evaluate(coverage map[string]CoverageStat) EvaluationR
 	return result
 }
 
-// determineStatus determines the coverage status for a domain.
-func (p *PolicyAggregate) determineStatus(percent Percentage, spec DomainSpec) Status {
-	if !percent.MeetsThreshold(spec.MinValue) {
+// determineStatus determines the coverage status for a domain from the raw
+// (unrounded) percentage, so a value just below a threshold cannot round up
+// and pass.
+func (p *PolicyAggregate) determineStatus(rawPercent float64, spec DomainSpec) Status {
+	if !spec.MinValue.IsMet(rawPercent) {
 		return StatusFail
 	}
-	if spec.WarnValue != nil && !percent.MeetsThreshold(*spec.WarnValue) {
+	if spec.WarnValue != nil && !spec.WarnValue.IsMet(rawPercent) {
 		return StatusWarn
 	}
 	return StatusPass

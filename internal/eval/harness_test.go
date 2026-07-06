@@ -20,6 +20,9 @@ type stubService struct{}
 func (stubService) CheckResult(context.Context, application.CheckOptions) (domain.Result, error) {
 	return domain.Result{}, nil
 }
+func (stubService) EnforceExtraGates(domain.Result, application.CheckOptions) error {
+	return nil
+}
 func (stubService) ReportResult(context.Context, application.ReportOptions) (domain.Result, error) {
 	return domain.Result{}, nil
 }

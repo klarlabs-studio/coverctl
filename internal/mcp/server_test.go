@@ -18,31 +18,38 @@ var _ Service = (*application.Service)(nil)
 
 // mockService implements the Service interface for testing.
 type mockService struct {
-	checkResult   domain.Result
-	checkErr      error
-	checkOpts     application.CheckOptions // Captured options from last call
-	reportResult  domain.Result
-	reportErr     error
-	recordResult  application.RecordResult
-	recordErr     error
-	recordOpts    application.RecordOptions
-	debtResult    application.DebtResult
-	debtErr       error
-	trendResult   application.TrendResult
-	trendErr      error
-	suggestResult application.SuggestResult
-	suggestErr    error
-	badgeResult   application.BadgeResult
-	badgeErr      error
-	compareResult application.CompareResult
-	compareErr    error
-	detectResult  application.Config
-	detectErr     error
+	checkResult      domain.Result
+	checkErr         error
+	checkOpts        application.CheckOptions // Captured options from last call
+	enforceGatesErr  error                    // Returned by EnforceExtraGates
+	enforceGatesOpts application.CheckOptions // Captured options from last EnforceExtraGates call
+	reportResult     domain.Result
+	reportErr        error
+	recordResult     application.RecordResult
+	recordErr        error
+	recordOpts       application.RecordOptions
+	debtResult       application.DebtResult
+	debtErr          error
+	trendResult      application.TrendResult
+	trendErr         error
+	suggestResult    application.SuggestResult
+	suggestErr       error
+	badgeResult      application.BadgeResult
+	badgeErr         error
+	compareResult    application.CompareResult
+	compareErr       error
+	detectResult     application.Config
+	detectErr        error
 }
 
 func (m *mockService) CheckResult(ctx context.Context, opts application.CheckOptions) (domain.Result, error) {
 	m.checkOpts = opts // Capture the options for verification
 	return m.checkResult, m.checkErr
+}
+
+func (m *mockService) EnforceExtraGates(result domain.Result, opts application.CheckOptions) error {
+	m.enforceGatesOpts = opts
+	return m.enforceGatesErr
 }
 
 func (m *mockService) ReportResult(ctx context.Context, opts application.ReportOptions) (domain.Result, error) {
@@ -330,6 +337,45 @@ func TestHandleCheck(t *testing.T) {
 	}
 	if summary, ok := output["summary"].(string); !ok || summary == "" {
 		t.Error("expected non-empty summary")
+	}
+}
+
+// TestHandleCheck_EnforcesExtraGates verifies that a --fail-under/--ratchet
+// violation reported by EnforceExtraGates flips the MCP response to passed=false
+// and surfaces the reason, even when the per-domain result passed. Without this
+// wiring, failUnder/ratchet were silently a no-op on the agent surface.
+func TestHandleCheck_EnforcesExtraGates(t *testing.T) {
+	svc := &mockService{
+		checkResult: domain.Result{
+			Passed: true,
+			Domains: []domain.DomainResult{
+				{Domain: "core", Status: domain.StatusPass, Covered: 60, Total: 100},
+			},
+		},
+		enforceGatesErr: errors.New("coverage decreased from 95.0% to 60.0% (--ratchet prevents regression)"),
+	}
+	server := New(svc, DefaultConfig(), "test")
+
+	output, err := server.handleCheck(context.Background(), CheckInput{Ratchet: true})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if passed, ok := output["passed"].(bool); !ok || passed {
+		t.Fatalf("expected passed=false after a gate violation, got %v", output["passed"])
+	}
+	// The options must actually be forwarded to the enforcement call.
+	if !svc.enforceGatesOpts.Ratchet {
+		t.Error("expected EnforceExtraGates to receive Ratchet=true")
+	}
+	warnings, _ := output["warnings"].([]string)
+	found := false
+	for _, w := range warnings {
+		if w == "coverage decreased from 95.0% to 60.0% (--ratchet prevents regression)" {
+			found = true
+		}
+	}
+	if !found {
+		t.Errorf("expected the ratchet reason in warnings, got %v", warnings)
 	}
 }
 
