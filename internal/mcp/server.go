@@ -80,7 +80,7 @@ func New(svc Service, cfg Config, version string) *Server {
 
 // Run starts the MCP server and blocks until the context is canceled.
 func (s *Server) Run(ctx context.Context) error {
-	return mcp.ServeStdio(ctx, s.server)
+	return mcp.ServeStdio(ctx, s.server, mcp.WithMiddleware(recoveryMiddleware()...))
 }
 
 // registerTools adds tool handlers to the server, gated by s.config.Mode.
@@ -216,7 +216,15 @@ func (s *Server) handleCheck(ctx context.Context, input CheckInput) (map[string]
 		opts.HistoryStore = &history.FileStore{Path: s.config.HistoryPath}
 	}
 
-	result, err := s.svc.CheckResult(ctx, opts)
+	// Cap the runtime of the (potentially unbounded) test run. On the agent
+	// surface the timeout is an optional caller-supplied param; without a
+	// server-side default a hung or pathological runner would hold the MCP
+	// session open indefinitely. Mirrors the CLI's --max-runtime ceiling and
+	// stays overridable via input.Timeout.
+	runCtx, cancel := context.WithTimeout(ctx, checkRuntimeLimit(input.Timeout))
+	defer cancel()
+
+	result, err := s.svc.CheckResult(runCtx, opts)
 	s.telemetry.RecordToolCall("check", time.Since(start), err, false)
 
 	if classified, ok := classifyRuntimeError(err); ok {
@@ -594,6 +602,19 @@ func (s *Server) handleSuggest(ctx context.Context, input SuggestInput) (map[str
 		return output, nil
 	}
 
+	// Gate the config-MUTATING write path behind CI mode. In agent (default)
+	// mode a writeConfig request is honored read-only: applySuggestions can
+	// lower a domain's minimum, so a prompt-injected agent could otherwise
+	// silently relax the coverage gate here and let a later `check` pass. The
+	// gate-lowering write requires an explicit --mode=ci.
+	if input.WriteConfig && s.config.Mode != ModeCI {
+		output["writeConfig"] = false
+		output["summary"] = fmt.Sprintf(
+			"Generated %d threshold suggestions using %s strategy; config NOT written: writeConfig requires --mode=ci (agent mode is read-only so suggestions cannot silently lower the coverage gate)",
+			len(result.Suggestions), strategy)
+		return output, nil
+	}
+
 	// Write suggested config if requested
 	if input.WriteConfig {
 		// Apply suggested thresholds to the config
@@ -896,92 +917,4 @@ func detectPRContextMCP(provider application.PRProvider, owner, repo string, prN
 	}
 
 	return owner, repo, prNumber
-}
-
-// Helper functions for config management
-
-// resolveConfigPath returns the config path to use.
-// If inputPath is specified and exists, use it.
-// If inputPath is specified but doesn't exist, try auto-detection.
-// If inputPath is empty, use server default.
-func (s *Server) resolveConfigPath(inputPath string) string {
-	// Use input path if provided
-	if inputPath != "" {
-		// If input path exists, use it directly
-		if _, err := os.Stat(inputPath); err == nil {
-			return inputPath
-		}
-		// Input path doesn't exist, try auto-detection
-		if foundPath, findErr := config.FindConfigFrom(""); findErr == nil {
-			return foundPath
-		}
-		// Auto-detection failed, return input path (will produce clear error)
-		return inputPath
-	}
-
-	// No input path, use server default
-	return s.config.ConfigPath
-}
-
-// applySuggestions applies the suggested thresholds to the config.
-func applySuggestions(cfg application.Config, suggestions []application.Suggestion) application.Config {
-	// Create a map for quick lookup
-	suggestedMins := make(map[string]float64)
-	for _, s := range suggestions {
-		suggestedMins[s.Domain] = s.SuggestedMin
-	}
-
-	// Apply suggestions to domains
-	for i := range cfg.Policy.Domains {
-		if min, ok := suggestedMins[cfg.Policy.Domains[i].Name]; ok {
-			minVal := min
-			cfg.Policy.Domains[i].Min = &minVal
-		}
-	}
-
-	return cfg
-}
-
-// backupConfig creates a backup of the existing config file.
-// Returns the backup path and any error.
-func backupConfig(configPath string) (string, error) {
-	// Check if file exists
-	if _, err := os.Stat(configPath); os.IsNotExist(err) {
-		return "", err
-	}
-
-	// Read original content
-	content, err := os.ReadFile(configPath) // #nosec G304 - path from trusted config
-	if err != nil {
-		return "", fmt.Errorf("read config: %w", err)
-	}
-
-	// Create backup with timestamp
-	backupPath := configPath + ".backup"
-	if err := os.WriteFile(backupPath, content, 0o600); err != nil {
-		return "", fmt.Errorf("write backup: %w", err)
-	}
-
-	return backupPath, nil
-}
-
-// writeConfig writes the config to the specified path.
-func writeConfig(configPath string, cfg application.Config) error {
-	// Validate path
-	cleanPath, err := pathutil.ValidatePath(configPath)
-	if err != nil {
-		return fmt.Errorf("invalid config path: %w", err)
-	}
-
-	file, err := os.Create(cleanPath) // #nosec G304 - path is validated above
-	if err != nil {
-		return fmt.Errorf("create config: %w", err)
-	}
-	defer func() { _ = file.Close() }()
-
-	if err := config.Write(file, cfg); err != nil {
-		return fmt.Errorf("write config: %w", err)
-	}
-
-	return nil
 }

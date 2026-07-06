@@ -21,6 +21,7 @@ type mockService struct {
 	checkResult      domain.Result
 	checkErr         error
 	checkOpts        application.CheckOptions // Captured options from last call
+	checkCtx         context.Context          // Captured context from last CheckResult call
 	enforceGatesErr  error                    // Returned by EnforceExtraGates
 	enforceGatesOpts application.CheckOptions // Captured options from last EnforceExtraGates call
 	reportResult     domain.Result
@@ -44,6 +45,7 @@ type mockService struct {
 
 func (m *mockService) CheckResult(ctx context.Context, opts application.CheckOptions) (domain.Result, error) {
 	m.checkOpts = opts // Capture the options for verification
+	m.checkCtx = ctx   // Capture the context to assert the runtime cap
 	return m.checkResult, m.checkErr
 }
 
