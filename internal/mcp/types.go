@@ -23,6 +23,10 @@ import (
 type Service interface {
 	// Tools (actions that may have side effects)
 	CheckResult(ctx context.Context, opts application.CheckOptions) (domain.Result, error)
+	// EnforceExtraGates applies the overall --fail-under floor and --ratchet
+	// no-regression gate to a CheckResult (these are not part of per-domain
+	// result.Passed and must be applied on the MCP surface too).
+	EnforceExtraGates(result domain.Result, opts application.CheckOptions) error
 	ReportResult(ctx context.Context, opts application.ReportOptions) (domain.Result, error)
 	Record(ctx context.Context, opts application.RecordOptions, store application.HistoryStore) error
 	PRComment(ctx context.Context, opts application.PRCommentOptions) (application.PRCommentResult, error)

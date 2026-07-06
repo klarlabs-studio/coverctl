@@ -69,6 +69,36 @@ func TestParseLineInvalidNumber(t *testing.T) {
 	}
 }
 
+// TestParseLineRejectsNegativeCounts guards against a crafted/corrupt profile
+// with a negative statement count. Summed into a domain's Total, a negative
+// count shrinks the denominator below the covered count, inflating coverage
+// above 100% and passing the gate. The parser must fail closed instead.
+func TestParseLineRejectsNegativeCounts(t *testing.T) {
+	if _, _, _, _, err := parseLine("foo.go:1.1,2.2 -5 0"); err == nil {
+		t.Fatalf("expected error for negative statement count")
+	}
+	if _, _, _, _, err := parseLine("foo.go:1.1,2.2 5 -1"); err == nil {
+		t.Fatalf("expected error for negative execution count")
+	}
+}
+
+// TestParseRejectsNegativeCountProfile verifies the guard at the profile level:
+// a real file plus one negative-count line must error rather than silently
+// inflating the file's coverage.
+func TestParseRejectsNegativeCountProfile(t *testing.T) {
+	content := "mode: atomic\n" +
+		"internal/core/foo.go:1.2,3.4 80 80\n" +
+		"internal/core/foo.go:5.6,7.8 -30 0\n"
+	tmp := t.TempDir()
+	path := filepath.Join(tmp, "coverage.out")
+	if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
+		t.Fatalf("write: %v", err)
+	}
+	if _, err := (Parser{}).Parse(path); err == nil {
+		t.Fatalf("expected error for profile containing a negative statement count")
+	}
+}
+
 func TestParseRepeatedLineKeepsMax(t *testing.T) {
 	tmp := t.TempDir()
 	path := filepath.Join(tmp, "coverage.out")

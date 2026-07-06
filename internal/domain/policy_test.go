@@ -28,6 +28,53 @@ func TestEvaluatePolicy(t *testing.T) {
 	}
 }
 
+// TestEvaluateRoundingDoesNotPassSubThreshold ensures the threshold comparison
+// uses the raw percentage, not the display-rounded one: 79.95% rounds to 80.0
+// for display but must still FAIL an 80% gate.
+func TestEvaluateRoundingDoesNotPassSubThreshold(t *testing.T) {
+	policy := Policy{
+		DefaultMin: 80,
+		Domains:    []Domain{{Name: "core"}},
+	}
+	// 7995/10000 = 79.95% (raw) which Round1 rounds up to 80.0.
+	coverage := map[string]CoverageStat{"core": {Covered: 7995, Total: 10000}}
+
+	result := Evaluate(policy, coverage)
+	if result.Passed {
+		t.Fatalf("expected 79.95%% to fail an 80%% gate, but it passed")
+	}
+	if got := result.Domains[0].Status; got != StatusFail {
+		t.Fatalf("expected core to FAIL, got %s", got)
+	}
+	// Display value is still the rounded 80.0.
+	if got := result.Domains[0].Percent; got != 80.0 {
+		t.Fatalf("expected displayed percent 80.0, got %v", got)
+	}
+
+	// Exactly 80.0 must still pass.
+	pass := Evaluate(policy, map[string]CoverageStat{"core": {Covered: 8000, Total: 10000}})
+	if !pass.Passed {
+		t.Fatalf("expected exactly 80.0%% to pass an 80%% gate")
+	}
+}
+
+// TestPolicyAggregateRoundingDoesNotPassSubThreshold mirrors the above for the
+// aggregate evaluation path.
+func TestPolicyAggregateRoundingDoesNotPassSubThreshold(t *testing.T) {
+	policy := Policy{DefaultMin: 80, Domains: []Domain{{Name: "core"}}}
+	agg, err := NewPolicyAggregate(policy)
+	if err != nil {
+		t.Fatalf("new aggregate: %v", err)
+	}
+	res := agg.Evaluate(map[string]CoverageStat{"core": {Covered: 7995, Total: 10000}})
+	if res.Passed {
+		t.Fatalf("expected aggregate 79.95%% to fail an 80%% gate")
+	}
+	if res.DomainResults[0].Status != StatusFail {
+		t.Fatalf("expected core to FAIL, got %s", res.DomainResults[0].Status)
+	}
+}
+
 func TestCoveragePercent(t *testing.T) {
 	stat := CoverageStat{Covered: 1, Total: 3}
 	if got := stat.Percent(); got < 33.3 || got > 33.4 {

@@ -301,7 +301,29 @@ func (s *Service) Check(ctx context.Context, opts CheckOptions) error {
 		return err
 	}
 
-	// Check fail-under threshold if specified
+	// Enforce the overall --fail-under floor and the --ratchet no-regression
+	// gate. This is shared with the MCP surface (see EnforceExtraGates) so both
+	// entry points honor these flags identically.
+	if err := s.EnforceExtraGates(result, opts); err != nil {
+		return err
+	}
+
+	if !result.Passed {
+		return fmt.Errorf("policy violation")
+	}
+	return nil
+}
+
+// EnforceExtraGates checks the overall --fail-under floor and the --ratchet
+// no-regression gate against an already-computed result. It returns a
+// descriptive error if either gate is violated, or nil otherwise.
+//
+// These gates are NOT part of the per-domain result.Passed value, so every
+// caller (CLI and MCP alike) must run them explicitly. Under --ratchet a
+// failure to load the coverage history is treated as a violation (fail
+// closed) rather than being silently ignored — an unreadable baseline must
+// not let a regression through.
+func (s *Service) EnforceExtraGates(result domain.Result, opts CheckOptions) error {
 	if opts.FailUnder != nil {
 		overallPercent := result.OverallPercent()
 		if overallPercent < *opts.FailUnder {
@@ -309,20 +331,21 @@ func (s *Service) Check(ctx context.Context, opts CheckOptions) error {
 		}
 	}
 
-	// Check ratchet: coverage must not decrease from previous value
-	if opts.Ratchet && opts.HistoryStore != nil {
+	if opts.Ratchet {
+		if opts.HistoryStore == nil {
+			return fmt.Errorf("ratchet: no coverage history store configured")
+		}
 		hist, err := opts.HistoryStore.Load()
-		if err == nil && len(hist.Entries) > 0 {
+		if err != nil {
+			return fmt.Errorf("ratchet: cannot load coverage history: %w", err)
+		}
+		if len(hist.Entries) > 0 {
 			previousPercent := hist.Entries[len(hist.Entries)-1].Overall
 			currentPercent := result.OverallPercent()
 			if currentPercent < previousPercent {
 				return fmt.Errorf("coverage decreased from %.1f%% to %.1f%% (--ratchet prevents regression)", previousPercent, currentPercent)
 			}
 		}
-	}
-
-	if !result.Passed {
-		return fmt.Errorf("policy violation")
 	}
 	return nil
 }

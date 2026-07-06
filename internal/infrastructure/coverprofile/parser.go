@@ -130,9 +130,19 @@ func parseLine(line string) (string, string, int, int, error) {
 	if err != nil {
 		return "", "", 0, 0, fmt.Errorf("invalid statement count")
 	}
+	if stmtCount < 0 {
+		// A negative statement count is never emitted by `go tool cover` and,
+		// if summed into a domain's Total, shrinks the denominator below the
+		// covered count — inflating coverage above 100% and passing the gate.
+		// Reject it so a crafted/corrupt profile fails closed.
+		return "", "", 0, 0, fmt.Errorf("invalid statement count: negative value %d", stmtCount)
+	}
 	count, err := strconv.ParseInt(countPart, 10, 64)
 	if err != nil {
 		return "", "", 0, 0, fmt.Errorf("invalid count")
+	}
+	if count < 0 {
+		return "", "", 0, 0, fmt.Errorf("invalid count: negative value %d", count)
 	}
 
 	covered := 0
