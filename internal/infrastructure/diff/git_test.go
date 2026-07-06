@@ -13,7 +13,7 @@ func TestGitDiffChangedFiles(t *testing.T) {
 	diff := GitDiff{
 		Module: gotool.ModuleResolver{},
 		Exec: func(ctx context.Context, dir string, args []string) ([]byte, error) {
-			return []byte("internal/core/a.go\ninternal/api/b.go\n"), nil
+			return []byte("internal/core/a.go\x00internal/api/b.go\x00"), nil
 		},
 	}
 	files, err := diff.ChangedFiles(context.Background(), "main")
@@ -28,13 +28,44 @@ func TestGitDiffChangedFiles(t *testing.T) {
 	}
 }
 
+// TestGitDiffPreservesSpecialCharFilenames is the regression guard for the
+// diff-gate fail-open: with `git diff -z`, a non-ASCII filename is emitted
+// verbatim (not core.quotePath C-quoted), so it survives parsing and can match
+// a coverage key. Under the old newline parse it would have arrived as
+// `"caf\303\251.go"` and dropped out of the changed-file set.
+func TestGitDiffPreservesSpecialCharFilenames(t *testing.T) {
+	diff := GitDiff{
+		Module: gotool.ModuleResolver{},
+		Exec: func(ctx context.Context, dir string, args []string) ([]byte, error) {
+			// Verify -z was requested.
+			hasZ := false
+			for _, a := range args {
+				if a == "-z" {
+					hasZ = true
+				}
+			}
+			if !hasZ {
+				t.Errorf("expected git diff to use -z, args: %v", args)
+			}
+			return []byte("internal/café.go\x00internal/api/b.go\x00"), nil
+		},
+	}
+	files, err := diff.ChangedFiles(context.Background(), "main")
+	if err != nil {
+		t.Fatalf("changed files: %v", err)
+	}
+	if len(files) != 2 || files[0] != "internal/café.go" {
+		t.Fatalf("expected the special-char filename preserved, got %v", files)
+	}
+}
+
 func TestGitDiffDefaultBaseBranch(t *testing.T) {
 	var capturedArgs []string
 	diff := GitDiff{
 		Module: gotool.ModuleResolver{},
 		Exec: func(ctx context.Context, dir string, args []string) ([]byte, error) {
 			capturedArgs = args
-			return []byte("file.go\n"), nil
+			return []byte("file.go\x00"), nil
 		},
 	}
 	_, err := diff.ChangedFiles(context.Background(), "") // Empty base branch
@@ -77,28 +108,28 @@ func TestGitDiffOutputCleanup(t *testing.T) {
 		expected []string
 	}{
 		{
-			name:     "trailing whitespace",
-			output:   "file1.go  \n  file2.go\t\n",
+			name:     "nul separated",
+			output:   "file1.go\x00file2.go\x00",
 			expected: []string{"file1.go", "file2.go"},
 		},
 		{
-			name:     "empty lines",
-			output:   "file1.go\n\n\nfile2.go\n",
+			name:     "empty fields skipped",
+			output:   "file1.go\x00\x00\x00file2.go\x00",
 			expected: []string{"file1.go", "file2.go"},
 		},
 		{
-			name:     "mixed whitespace",
-			output:   "  file1.go  \n\n  \nfile2.go  \n  ",
+			name:     "no trailing nul",
+			output:   "file1.go\x00file2.go",
 			expected: []string{"file1.go", "file2.go"},
 		},
 		{
 			name:     "no output",
-			output:   "\n",
+			output:   "",
 			expected: []string{},
 		},
 		{
-			name:     "only whitespace",
-			output:   "  \n  \t\n  ",
+			name:     "single nul",
+			output:   "\x00",
 			expected: []string{},
 		},
 	}
@@ -132,7 +163,7 @@ func TestGitDiffPathCleaning(t *testing.T) {
 		Module: gotool.ModuleResolver{},
 		Exec: func(ctx context.Context, dir string, args []string) ([]byte, error) {
 			// Paths with redundant separators
-			return []byte("internal//core/a.go\ninternal/./api/b.go\n"), nil
+			return []byte("internal//core/a.go\x00internal/./api/b.go\x00"), nil
 		},
 	}
 	files, err := diff.ChangedFiles(context.Background(), "main")
@@ -184,17 +215,20 @@ func TestGitDiffArgsFormatting(t *testing.T) {
 		t.Fatalf("changed files: %v", err)
 	}
 	// Check args format
-	if len(capturedArgs) != 3 {
-		t.Fatalf("expected 3 args, got %d: %v", len(capturedArgs), capturedArgs)
+	if len(capturedArgs) != 4 {
+		t.Fatalf("expected 4 args, got %d: %v", len(capturedArgs), capturedArgs)
 	}
 	if capturedArgs[0] != "diff" {
 		t.Fatalf("expected 'diff', got %s", capturedArgs[0])
 	}
-	if capturedArgs[1] != "--name-only" {
-		t.Fatalf("expected '--name-only', got %s", capturedArgs[1])
+	if capturedArgs[1] != "-z" {
+		t.Fatalf("expected '-z', got %s", capturedArgs[1])
 	}
-	if capturedArgs[2] != "feature/test-branch...HEAD" {
-		t.Fatalf("expected 'feature/test-branch...HEAD', got %s", capturedArgs[2])
+	if capturedArgs[2] != "--name-only" {
+		t.Fatalf("expected '--name-only', got %s", capturedArgs[2])
+	}
+	if capturedArgs[3] != "feature/test-branch...HEAD" {
+		t.Fatalf("expected 'feature/test-branch...HEAD', got %s", capturedArgs[3])
 	}
 }
 
@@ -221,7 +255,7 @@ func TestGitDiffSingleFile(t *testing.T) {
 	diff := GitDiff{
 		Module: gotool.ModuleResolver{},
 		Exec: func(ctx context.Context, dir string, args []string) ([]byte, error) {
-			return []byte("single.go\n"), nil
+			return []byte("single.go\x00"), nil
 		},
 	}
 	files, err := diff.ChangedFiles(context.Background(), "main")

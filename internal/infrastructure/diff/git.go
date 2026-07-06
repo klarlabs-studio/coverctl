@@ -23,7 +23,13 @@ func (g GitDiff) ChangedFiles(ctx context.Context, base string) ([]string, error
 	if base == "" {
 		base = "origin/main"
 	}
-	args := []string{"diff", "--name-only", base + "...HEAD"}
+	// -z emits NUL-terminated, verbatim pathnames. Without it git honors
+	// core.quotePath (on by default) and C-quotes any non-ASCII/special
+	// filename (e.g. `café.go` -> `"caf\303\251.go"`); filepath.Clean then
+	// mangles that literal into a path that never matches a coverage key, so
+	// the changed file silently drops out of the diff-coverage gate. NUL
+	// framing also removes the need to trim/guess on whitespace.
+	args := []string{"diff", "-z", "--name-only", base + "...HEAD"}
 	execFn := g.Exec
 	if execFn == nil {
 		execFn = runGitOutput
@@ -32,14 +38,16 @@ func (g GitDiff) ChangedFiles(ctx context.Context, base string) ([]string, error
 	if err != nil {
 		return nil, err
 	}
-	lines := strings.Split(strings.TrimSpace(string(out)), "\n")
-	files := make([]string, 0, len(lines))
-	for _, line := range lines {
-		line = strings.TrimSpace(line)
-		if line == "" {
+	// Split on NUL only — with -z a pathname may legitimately contain a
+	// newline, so newline-splitting would corrupt it. The trailing NUL yields
+	// an empty final field, which we skip.
+	fields := strings.Split(string(out), "\x00")
+	files := make([]string, 0, len(fields))
+	for _, field := range fields {
+		if field == "" {
 			continue
 		}
-		files = append(files, filepath.Clean(line))
+		files = append(files, filepath.Clean(field))
 	}
 	return files, nil
 }
