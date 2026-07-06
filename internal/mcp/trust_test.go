@@ -41,8 +41,13 @@ func TestRecoveryMiddleware_RecoversPanic(t *testing.T) {
 	if resp != nil {
 		t.Errorf("expected nil response for a recovered panic, got %v", resp)
 	}
-	if !stringContains(err.Error(), "panic") {
-		t.Errorf("expected error to mention the panic, got %q", err.Error())
+	// As of mcp v1.21.0 the recovered panic surfaces as a generic error and the
+	// panic value ("handler boom") is deliberately NOT leaked to the client
+	// (previously the default handler embedded it). The recovery itself is
+	// asserted above (err != nil, resp == nil, panic did not escape); here we
+	// verify the internal detail is not disclosed.
+	if stringContains(err.Error(), "boom") {
+		t.Errorf("panic value leaked into the client error: %q", err.Error())
 	}
 }
 
