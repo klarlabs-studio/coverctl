@@ -522,6 +522,61 @@ policy:
 	}
 }
 
+func TestLoadRejectsAbsoluteExtends(t *testing.T) {
+	tmp := t.TempDir()
+	// A secret file the untrusted config tries to read via an absolute extends.
+	secret := filepath.Join(tmp, "secret.yaml")
+	if err := os.WriteFile(secret, []byte("version: 1\npolicy:\n  default:\n    min: 99\n"), 0o644); err != nil {
+		t.Fatalf("write secret: %v", err)
+	}
+	child := "version: 1\nextends: " + secret + "\npolicy:\n  default:\n    min: 50\n"
+	childPath := filepath.Join(tmp, ".coverctl.yaml")
+	if err := os.WriteFile(childPath, []byte(child), 0o644); err != nil {
+		t.Fatalf("write child: %v", err)
+	}
+	if _, err := (Loader{}).Load(childPath); err == nil {
+		t.Fatal("expected absolute extends to be rejected")
+	}
+}
+
+func TestLoadRejectsTildeExtends(t *testing.T) {
+	tmp := t.TempDir()
+	child := "version: 1\nextends: ~/secret.yaml\npolicy:\n  default:\n    min: 50\n"
+	childPath := filepath.Join(tmp, ".coverctl.yaml")
+	if err := os.WriteFile(childPath, []byte(child), 0o644); err != nil {
+		t.Fatalf("write child: %v", err)
+	}
+	if _, err := (Loader{}).Load(childPath); err == nil {
+		t.Fatal("expected ~-prefixed extends to be rejected")
+	}
+}
+
+func TestLoadRejectsExtendsEscapingAncestorScope(t *testing.T) {
+	tmp := t.TempDir()
+	// A sibling subtree outside the child's ancestor chain.
+	outsideDir := filepath.Join(tmp, "outside")
+	if err := os.MkdirAll(outsideDir, 0o755); err != nil {
+		t.Fatalf("mkdir outside: %v", err)
+	}
+	if err := os.WriteFile(filepath.Join(outsideDir, "secret.yaml"),
+		[]byte("version: 1\npolicy:\n  default:\n    min: 99\n"), 0o644); err != nil {
+		t.Fatalf("write secret: %v", err)
+	}
+	insideDir := filepath.Join(tmp, "inside")
+	if err := os.MkdirAll(insideDir, 0o755); err != nil {
+		t.Fatalf("mkdir inside: %v", err)
+	}
+	// `../outside/secret.yaml` walks up then sideways into a non-ancestor tree.
+	child := "version: 1\nextends: ../outside/secret.yaml\npolicy:\n  default:\n    min: 50\n"
+	childPath := filepath.Join(insideDir, ".coverctl.yaml")
+	if err := os.WriteFile(childPath, []byte(child), 0o644); err != nil {
+		t.Fatalf("write child: %v", err)
+	}
+	if _, err := (Loader{}).Load(childPath); err == nil {
+		t.Fatal("expected extends escaping the ancestor scope to be rejected")
+	}
+}
+
 func TestLoadWithCircularExtends(t *testing.T) {
 	tmp := t.TempDir()
 
