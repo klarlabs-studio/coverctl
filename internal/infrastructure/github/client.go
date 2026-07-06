@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"os"
 	"strings"
 	"time"
@@ -25,7 +26,25 @@ const (
 	DefaultAPIURL = "https://api.github.com"
 	// CommentMarker identifies coverctl comments for updates
 	CommentMarker = "<!-- coverctl-coverage-report -->"
+	// maxResponseBytes caps how much of an API response body we buffer, to
+	// avoid unbounded memory use if a server returns a huge (or malicious) body.
+	maxResponseBytes = 5 << 20 // 5 MiB
 )
+
+// checkRedirect refuses to follow a redirect that crosses to a different host.
+//
+// GitHub uses an Authorization header, which Go's http.Client already strips
+// on a cross-host redirect, but blocking cross-host redirects outright is a
+// consistent, defense-in-depth policy shared across all VCS clients.
+func checkRedirect(req *http.Request, via []*http.Request) error {
+	if len(via) == 0 {
+		return nil
+	}
+	if req.URL.Host != via[0].URL.Host {
+		return fmt.Errorf("refusing cross-host redirect to %q", req.URL.Host)
+	}
+	return nil
+}
 
 // Client implements the PRClient interface for GitHub API.
 type Client struct {
@@ -46,7 +65,7 @@ func NewClient(token string) *Client {
 		token = os.Getenv("GITHUB_TOKEN")
 	}
 	return &Client{
-		httpClient: &http.Client{Timeout: DefaultHTTPTimeout},
+		httpClient: &http.Client{Timeout: DefaultHTTPTimeout, CheckRedirect: checkRedirect},
 		apiURL:     DefaultAPIURL,
 		token:      token,
 	}
@@ -70,6 +89,11 @@ func NewClientWithHTTP(token string, httpClient *http.Client, apiURL string) *Cl
 	if apiURL == "" {
 		apiURL = DefaultAPIURL
 	}
+	// Apply the same cross-host redirect protection as NewClient. Guard against
+	// http.DefaultClient so we never mutate the process-wide shared client.
+	if httpClient != nil && httpClient != http.DefaultClient {
+		httpClient.CheckRedirect = checkRedirect
+	}
 	return &Client{
 		httpClient: httpClient,
 		apiURL:     apiURL,
@@ -87,9 +111,9 @@ type issueComment struct {
 // FindCoverageComment finds an existing coverage comment on a PR.
 // Returns 0 if no comment found.
 func (c *Client) FindCoverageComment(ctx context.Context, owner, repo string, prNumber int) (int64, error) {
-	url := fmt.Sprintf("%s/repos/%s/%s/issues/%d/comments", c.apiURL, owner, repo, prNumber)
+	apiURL := fmt.Sprintf("%s/repos/%s/%s/issues/%d/comments", c.apiURL, url.PathEscape(owner), url.PathEscape(repo), prNumber)
 
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, apiURL, nil)
 	if err != nil {
 		return 0, fmt.Errorf("create request: %w", err)
 	}
@@ -104,12 +128,12 @@ func (c *Client) FindCoverageComment(ctx context.Context, owner, repo string, pr
 	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusOK {
-		body, _ := io.ReadAll(resp.Body)
+		body, _ := io.ReadAll(io.LimitReader(resp.Body, maxResponseBytes))
 		return 0, fmt.Errorf("GitHub API error: %s - %s", resp.Status, string(body))
 	}
 
 	var comments []issueComment
-	if err := json.NewDecoder(resp.Body).Decode(&comments); err != nil {
+	if err := json.NewDecoder(io.LimitReader(resp.Body, maxResponseBytes)).Decode(&comments); err != nil {
 		return 0, fmt.Errorf("decode response: %w", err)
 	}
 
@@ -126,7 +150,7 @@ func (c *Client) FindCoverageComment(ctx context.Context, owner, repo string, pr
 // CreateComment creates a new comment on a PR.
 // Returns the comment ID and URL.
 func (c *Client) CreateComment(ctx context.Context, owner, repo string, prNumber int, body string) (int64, string, error) {
-	url := fmt.Sprintf("%s/repos/%s/%s/issues/%d/comments", c.apiURL, owner, repo, prNumber)
+	apiURL := fmt.Sprintf("%s/repos/%s/%s/issues/%d/comments", c.apiURL, url.PathEscape(owner), url.PathEscape(repo), prNumber)
 
 	payload := map[string]string{"body": body}
 	jsonBody, err := json.Marshal(payload)
@@ -134,7 +158,7 @@ func (c *Client) CreateComment(ctx context.Context, owner, repo string, prNumber
 		return 0, "", fmt.Errorf("marshal body: %w", err)
 	}
 
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, url, bytes.NewReader(jsonBody))
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, apiURL, bytes.NewReader(jsonBody))
 	if err != nil {
 		return 0, "", fmt.Errorf("create request: %w", err)
 	}
@@ -150,12 +174,12 @@ func (c *Client) CreateComment(ctx context.Context, owner, repo string, prNumber
 	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusCreated {
-		respBody, _ := io.ReadAll(resp.Body)
+		respBody, _ := io.ReadAll(io.LimitReader(resp.Body, maxResponseBytes))
 		return 0, "", fmt.Errorf("GitHub API error: %s - %s", resp.Status, string(respBody))
 	}
 
 	var comment issueComment
-	if err := json.NewDecoder(resp.Body).Decode(&comment); err != nil {
+	if err := json.NewDecoder(io.LimitReader(resp.Body, maxResponseBytes)).Decode(&comment); err != nil {
 		return 0, "", fmt.Errorf("decode response: %w", err)
 	}
 
@@ -164,7 +188,7 @@ func (c *Client) CreateComment(ctx context.Context, owner, repo string, prNumber
 
 // UpdateComment updates an existing comment.
 func (c *Client) UpdateComment(ctx context.Context, owner, repo string, commentID int64, body string) error {
-	url := fmt.Sprintf("%s/repos/%s/%s/issues/comments/%d", c.apiURL, owner, repo, commentID)
+	apiURL := fmt.Sprintf("%s/repos/%s/%s/issues/comments/%d", c.apiURL, url.PathEscape(owner), url.PathEscape(repo), commentID)
 
 	payload := map[string]string{"body": body}
 	jsonBody, err := json.Marshal(payload)
@@ -172,7 +196,7 @@ func (c *Client) UpdateComment(ctx context.Context, owner, repo string, commentI
 		return fmt.Errorf("marshal body: %w", err)
 	}
 
-	req, err := http.NewRequestWithContext(ctx, http.MethodPatch, url, bytes.NewReader(jsonBody))
+	req, err := http.NewRequestWithContext(ctx, http.MethodPatch, apiURL, bytes.NewReader(jsonBody))
 	if err != nil {
 		return fmt.Errorf("create request: %w", err)
 	}
@@ -188,7 +212,7 @@ func (c *Client) UpdateComment(ctx context.Context, owner, repo string, commentI
 	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusOK {
-		respBody, _ := io.ReadAll(resp.Body)
+		respBody, _ := io.ReadAll(io.LimitReader(resp.Body, maxResponseBytes))
 		return fmt.Errorf("GitHub API error: %s - %s", resp.Status, string(respBody))
 	}
 

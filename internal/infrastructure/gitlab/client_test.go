@@ -60,6 +60,49 @@ func TestAuthHeaderOmittedWhenEmpty(t *testing.T) {
 	assert.False(t, headerPresent, "PRIVATE-TOKEN header should not be set when token is empty")
 }
 
+func TestFindCoverageCommentRejectsCrossHostRedirect(t *testing.T) {
+	var attackerHit bool
+	var attackerToken string
+	attacker := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		attackerHit = true
+		attackerToken = r.Header.Get("PRIVATE-TOKEN")
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte("[]"))
+	}))
+	defer attacker.Close()
+
+	primary := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Redirect to a different host, as an open-redirect attacker would.
+		http.Redirect(w, r, attacker.URL+"/steal", http.StatusFound)
+	}))
+	defer primary.Close()
+
+	client := NewClientWithHTTP("super-secret-token", primary.Client(), primary.URL)
+	_, err := client.FindCoverageComment(context.Background(), "owner", "repo", 1)
+
+	require.Error(t, err)
+	assert.False(t, attackerHit, "client must not follow a redirect to a different host")
+	assert.Empty(t, attackerToken, "PRIVATE-TOKEN must not be forwarded to the attacker host")
+}
+
+func TestFindCoverageCommentBoundsResponseBody(t *testing.T) {
+	// A single JSON value larger than the cap is truncated by the LimitReader,
+	// producing a decode error rather than buffering an unbounded body.
+	oversized := bytes.Repeat([]byte("a"), maxResponseBytes+1024)
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte(`[{"id":1,"body":"`))
+		_, _ = w.Write(oversized)
+		// Intentionally never closed: the body exceeds maxResponseBytes.
+	}))
+	defer srv.Close()
+
+	client := NewClientWithHTTP("token", srv.Client(), srv.URL)
+	_, err := client.FindCoverageComment(context.Background(), "owner", "repo", 1)
+	require.Error(t, err)
+	assert.Contains(t, err.Error(), "decode response")
+}
+
 func TestFindCoverageComment(t *testing.T) {
 	tests := []struct {
 		name       string

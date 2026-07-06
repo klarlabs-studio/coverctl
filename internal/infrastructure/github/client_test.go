@@ -1,6 +1,7 @@
 package github
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"net/http"
@@ -61,6 +62,65 @@ func TestAuthHeader(t *testing.T) {
 		require.NoError(t, err)
 		assert.Empty(t, capturedAuthHeader)
 	})
+}
+
+func TestFindCoverageCommentRejectsCrossHostRedirect(t *testing.T) {
+	var attackerHit bool
+	var attackerAuth string
+	attacker := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		attackerHit = true
+		attackerAuth = r.Header.Get("Authorization")
+		w.WriteHeader(http.StatusOK)
+		_ = json.NewEncoder(w).Encode([]issueComment{})
+	}))
+	defer attacker.Close()
+
+	primary := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, attacker.URL+"/steal", http.StatusFound)
+	}))
+	defer primary.Close()
+
+	client := NewClientWithHTTP("super-secret-token", primary.Client(), primary.URL)
+	_, err := client.FindCoverageComment(context.Background(), "owner", "repo", 1)
+
+	require.Error(t, err)
+	assert.False(t, attackerHit, "client must not follow a redirect to a different host")
+	assert.Empty(t, attackerAuth, "Authorization must not be forwarded to the attacker host")
+}
+
+func TestFindCoverageCommentEscapesPathSegments(t *testing.T) {
+	var gotEscapedPath, gotRawQuery string
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		gotEscapedPath = r.URL.EscapedPath()
+		gotRawQuery = r.URL.RawQuery
+		w.WriteHeader(http.StatusOK)
+		_ = json.NewEncoder(w).Encode([]issueComment{})
+	}))
+	defer srv.Close()
+
+	client := NewClientWithHTTP("token", srv.Client(), srv.URL)
+	// A repo value carrying path-traversal and query characters must be
+	// percent-escaped into a single path segment, not break out of the path.
+	_, err := client.FindCoverageComment(context.Background(), "owner", "../evil?injected=1", 1)
+	require.NoError(t, err)
+	assert.Contains(t, gotEscapedPath, "..%2Fevil%3Finjected=1")
+	assert.Empty(t, gotRawQuery, "query characters must not leak into the request query")
+}
+
+func TestFindCoverageCommentBoundsResponseBody(t *testing.T) {
+	oversized := bytes.Repeat([]byte("a"), maxResponseBytes+1024)
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte(`[{"id":1,"body":"`))
+		_, _ = w.Write(oversized)
+		// Intentionally never closed: the body exceeds maxResponseBytes.
+	}))
+	defer srv.Close()
+
+	client := NewClientWithHTTP("token", srv.Client(), srv.URL)
+	_, err := client.FindCoverageComment(context.Background(), "owner", "repo", 1)
+	require.Error(t, err)
+	assert.Contains(t, err.Error(), "decode response")
 }
 
 func TestFindCoverageComment(t *testing.T) {
