@@ -26,7 +26,26 @@ const (
 	DefaultAPIURL = "https://gitlab.com/api/v4"
 	// CommentMarker identifies coverctl comments for updates
 	CommentMarker = "<!-- coverctl-coverage-report -->"
+	// maxResponseBytes caps how much of an API response body we buffer, to
+	// avoid unbounded memory use if a server returns a huge (or malicious) body.
+	maxResponseBytes = 5 << 20 // 5 MiB
 )
+
+// checkRedirect refuses to follow a redirect that crosses to a different host.
+//
+// Go's http.Client strips Authorization/Cookie on a cross-host redirect but
+// NOT custom headers such as GitLab's PRIVATE-TOKEN, so an open redirect to an
+// attacker-controlled host would otherwise forward the token. Same-host
+// redirects (path-only changes) remain allowed.
+func checkRedirect(req *http.Request, via []*http.Request) error {
+	if len(via) == 0 {
+		return nil
+	}
+	if req.URL.Host != via[0].URL.Host {
+		return fmt.Errorf("refusing cross-host redirect to %q", req.URL.Host)
+	}
+	return nil
+}
 
 // Client implements the PRClient interface for GitLab API.
 type Client struct {
@@ -50,7 +69,7 @@ func NewClient(token string) *Client {
 		}
 	}
 	return &Client{
-		httpClient: &http.Client{Timeout: DefaultHTTPTimeout},
+		httpClient: &http.Client{Timeout: DefaultHTTPTimeout, CheckRedirect: checkRedirect},
 		apiURL:     DefaultAPIURL,
 		token:      token,
 	}
@@ -76,6 +95,11 @@ func NewClientWithHTTP(token string, httpClient *http.Client, apiURL string) *Cl
 	}
 	if apiURL == "" {
 		apiURL = DefaultAPIURL
+	}
+	// Apply the same cross-host redirect protection as NewClient. Guard against
+	// http.DefaultClient so we never mutate the process-wide shared client.
+	if httpClient != nil && httpClient != http.DefaultClient {
+		httpClient.CheckRedirect = checkRedirect
 	}
 	return &Client{
 		httpClient: httpClient,
@@ -116,12 +140,12 @@ func (c *Client) FindCoverageComment(ctx context.Context, owner, repo string, mr
 	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusOK {
-		body, _ := io.ReadAll(resp.Body)
+		body, _ := io.ReadAll(io.LimitReader(resp.Body, maxResponseBytes))
 		return 0, fmt.Errorf("GitLab API error: %s - %s", resp.Status, string(body))
 	}
 
 	var notes []note
-	if err := json.NewDecoder(resp.Body).Decode(&notes); err != nil {
+	if err := json.NewDecoder(io.LimitReader(resp.Body, maxResponseBytes)).Decode(&notes); err != nil {
 		return 0, fmt.Errorf("decode response: %w", err)
 	}
 
@@ -162,12 +186,12 @@ func (c *Client) CreateComment(ctx context.Context, owner, repo string, mrNumber
 	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusCreated {
-		respBody, _ := io.ReadAll(resp.Body)
+		respBody, _ := io.ReadAll(io.LimitReader(resp.Body, maxResponseBytes))
 		return 0, "", fmt.Errorf("GitLab API error: %s - %s", resp.Status, string(respBody))
 	}
 
 	var n note
-	if err := json.NewDecoder(resp.Body).Decode(&n); err != nil {
+	if err := json.NewDecoder(io.LimitReader(resp.Body, maxResponseBytes)).Decode(&n); err != nil {
 		return 0, "", fmt.Errorf("decode response: %w", err)
 	}
 
@@ -211,7 +235,7 @@ func (c *Client) UpdateComment(ctx context.Context, owner, repo string, noteID i
 	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusOK {
-		respBody, _ := io.ReadAll(resp.Body)
+		respBody, _ := io.ReadAll(io.LimitReader(resp.Body, maxResponseBytes))
 		return fmt.Errorf("GitLab API error: %s - %s", resp.Status, string(respBody))
 	}
 

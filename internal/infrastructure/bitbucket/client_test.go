@@ -1,6 +1,7 @@
 package bitbucket
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"net/http"
@@ -11,6 +12,15 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.klarlabs.de/coverctl/internal/application"
 )
+
+// rawContent builds the anonymous content struct used by comment values.
+func rawContent(raw string) struct {
+	Raw string `json:"raw"`
+} {
+	return struct {
+		Raw string `json:"raw"`
+	}{Raw: raw}
+}
 
 // newTestServer creates an httptest.Server and returns a Client wired to it.
 // The server is registered for cleanup via t.Cleanup, so callers only need
@@ -67,6 +77,93 @@ func TestBasicAuthHeader(t *testing.T) {
 	require.True(t, authOK, "basic auth header must be present")
 	assert.Equal(t, "testuser", capturedUsername)
 	assert.Equal(t, "testpass", capturedPassword)
+}
+
+func TestFindCoverageCommentRejectsCrossHostRedirect(t *testing.T) {
+	var attackerHit bool
+	var attackerUser, attackerPass string
+	attacker := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		attackerHit = true
+		attackerUser, attackerPass, _ = r.BasicAuth()
+		w.WriteHeader(http.StatusOK)
+		_ = json.NewEncoder(w).Encode(commentList{})
+	}))
+	defer attacker.Close()
+
+	primary := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, attacker.URL+"/steal", http.StatusFound)
+	}))
+	defer primary.Close()
+
+	client := NewClientWithHTTP("secretuser", "secretpass", primary.Client(), primary.URL)
+	_, err := client.FindCoverageComment(context.Background(), "ws", "repo", 1)
+
+	require.Error(t, err)
+	assert.False(t, attackerHit, "client must not follow a redirect to a different host")
+	assert.Empty(t, attackerUser, "credentials must not be forwarded to the attacker host")
+	assert.Empty(t, attackerPass, "credentials must not be forwarded to the attacker host")
+}
+
+func TestFindCoverageCommentEscapesPathSegments(t *testing.T) {
+	var gotEscapedPath, gotRawQuery string
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		gotEscapedPath = r.URL.EscapedPath()
+		gotRawQuery = r.URL.RawQuery
+		w.WriteHeader(http.StatusOK)
+		_ = json.NewEncoder(w).Encode(commentList{})
+	})
+
+	client := newTestServer(t, handler)
+	_, err := client.FindCoverageComment(context.Background(), "ws", "../evil?injected=1", 1)
+	require.NoError(t, err)
+	assert.Contains(t, gotEscapedPath, "..%2Fevil%3Finjected=1")
+	assert.Empty(t, gotRawQuery, "query characters must not leak into the request query")
+}
+
+func TestFindCoverageCommentBoundsResponseBody(t *testing.T) {
+	oversized := bytes.Repeat([]byte("a"), maxResponseBytes+1024)
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte(`{"values":[{"id":1,"content":{"raw":"`))
+		_, _ = w.Write(oversized)
+		// Intentionally never closed: the body exceeds maxResponseBytes.
+	})
+
+	client := newTestServer(t, handler)
+	_, err := client.FindCoverageComment(context.Background(), "ws", "repo", 1)
+	require.Error(t, err)
+	assert.Contains(t, err.Error(), "decode response")
+}
+
+func TestFindCoverageCommentFollowsPagination(t *testing.T) {
+	var requestCount int
+	var baseURL string
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		requestCount++
+		w.WriteHeader(http.StatusOK)
+		if r.URL.Query().Get("page") == "2" {
+			// Page 2 carries the existing coverctl comment.
+			_ = json.NewEncoder(w).Encode(commentList{
+				Values: []comment{
+					{ID: 77, Content: rawContent("Coverage report\n" + CommentMarker)},
+				},
+			})
+			return
+		}
+		// Page 1: no marker, but points to page 2 on the same host.
+		_ = json.NewEncoder(w).Encode(commentList{
+			Values: []comment{{ID: 10, Content: rawContent("unrelated comment")}},
+			Next:   baseURL + "/repositories/ws/repo/pullrequests/5/comments?page=2",
+		})
+	}))
+	defer srv.Close()
+	baseURL = srv.URL
+
+	client := NewClientWithHTTP("testuser", "testpass", srv.Client(), srv.URL)
+	id, err := client.FindCoverageComment(context.Background(), "ws", "repo", 5)
+	require.NoError(t, err)
+	assert.Equal(t, int64(77), id, "must find the comment on page 2 via the next link")
+	assert.Equal(t, 2, requestCount, "must follow pagination to the second page")
 }
 
 func TestFindCoverageComment(t *testing.T) {
