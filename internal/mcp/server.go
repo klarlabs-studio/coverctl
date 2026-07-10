@@ -99,14 +99,17 @@ func (s *Server) registerTools() {
 
 	s.server.Tool("check").
 		Description("Run the project's test suite with coverage and enforce per-domain policy thresholds defined in .coverctl.yaml. Auto-detects the language and invokes the appropriate test runner (go test, pytest, npm test, mvn, gradle, cargo, dotnet, etc.). Returns per-domain pass/fail, file-level coverage, and warnings. Exit-equivalent: passed=true on success, passed=false on policy violation or runner error.").
+		OutputSchema(ToolOutput{}).
 		Handler(s.handleCheck)
 
 	s.server.Tool("suggest").
 		Description("Analyze current coverage and suggest threshold values for each domain. Strategies: 'current' (set thresholds slightly below current observed coverage to lock in the status quo), 'aggressive' (set targets above current to push improvement), 'conservative' (small incremental gains). Use writeConfig=true to apply suggestions; coverctl backs up the existing file first.").
+		OutputSchema(SuggestOutput{}).
 		Handler(s.handleSuggest)
 
 	s.server.Tool("debt").
 		Description("Compute coverage debt: the gap between current coverage and required thresholds, ranked per domain and per file. Returns a health score (0-100) and the items contributing the most debt. Use this to direct test-writing effort to the highest-impact gaps.").
+		OutputSchema(DebtOutput{}).
 		Handler(s.handleDebt)
 
 	if agent {
@@ -119,6 +122,7 @@ func (s *Server) registerTools() {
 
 	s.server.Tool("report").
 		Description("Analyze an existing coverage profile without re-running tests. Supports Go cover profiles, LCOV (info), Cobertura (XML), and JaCoCo (XML); format auto-detected from file content. Use when a profile is already on disk from a prior CI run or a separate test invocation.").
+		OutputSchema(ToolOutput{}).
 		Handler(s.handleReport)
 
 	s.server.Tool("record").
@@ -131,6 +135,7 @@ func (s *Server) registerTools() {
 
 	s.server.Tool("compare").
 		Description("Diff coverage between two profiles (base vs head). Returns overall delta, files whose coverage improved, files whose coverage regressed, and domain-level deltas. Use to evaluate whether a code change improved or worsened coverage before committing.").
+		OutputSchema(CompareOutput{}).
 		Handler(s.handleCompare)
 
 	s.server.Tool("pr-comment").
