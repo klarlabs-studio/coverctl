@@ -149,14 +149,74 @@ type InitInput struct {
 	Force      bool   `json:"force,omitempty" jsonschema:"description=Overwrite existing config file if it exists"`
 }
 
-// ToolOutput represents the common output structure for tools.
+// ToolOutput is the structured-output schema shared by the check and report
+// tools. It mirrors the response map their handlers emit — the coverage
+// summary plus, when the caller truncates output, the pagination cursors, and
+// the shared error-response envelope (error/error_code/remediation). Advertised
+// via ToolBuilder.OutputSchema so tools/call responses carry typed
+// structuredContent alongside the JSON text block.
 type ToolOutput struct {
-	Passed   bool                  `json:"passed"`
-	Summary  string                `json:"summary,omitempty"`
-	Domains  []domain.DomainResult `json:"domains,omitempty"`
-	Files    []domain.FileResult   `json:"files,omitempty"`
-	Warnings []string              `json:"warnings,omitempty"`
-	Error    string                `json:"error,omitempty"`
+	Passed            bool                  `json:"passed"`
+	Summary           string                `json:"summary,omitempty"`
+	Domains           []domain.DomainResult `json:"domains,omitempty"`
+	Files             []domain.FileResult   `json:"files,omitempty"`
+	Warnings          []string              `json:"warnings,omitempty"`
+	DomainsNextCursor string                `json:"domainsNextCursor,omitempty"`
+	FilesNextCursor   string                `json:"filesNextCursor,omitempty"`
+	Error             string                `json:"error,omitempty"`
+	ErrorCode         string                `json:"error_code,omitempty"`
+	Remediation       string                `json:"remediation,omitempty"`
+}
+
+// SuggestOutput is the structured-output schema for the suggest tool: the
+// generated threshold suggestions plus the write-config bookkeeping and shared
+// error envelope its handler can emit.
+type SuggestOutput struct {
+	Passed      bool                     `json:"passed"`
+	Suggestions []application.Suggestion `json:"suggestions,omitempty"`
+	Summary     string                   `json:"summary,omitempty"`
+	WriteConfig bool                     `json:"writeConfig,omitempty"`
+	ConfigPath  string                   `json:"configPath,omitempty"`
+	BackupPath  string                   `json:"backupPath,omitempty"`
+	Error       string                   `json:"error,omitempty"`
+	ErrorCode   string                   `json:"error_code,omitempty"`
+	Remediation string                   `json:"remediation,omitempty"`
+}
+
+// DebtOutput is the structured-output schema for the debt tool: the ranked
+// debt items, the health/debt totals, an optional pagination cursor, and the
+// shared error envelope.
+type DebtOutput struct {
+	Passed          bool                   `json:"passed"`
+	Items           []application.DebtItem `json:"items,omitempty"`
+	TotalDebt       float64                `json:"totalDebt"`
+	TotalLines      int                    `json:"totalLines"`
+	HealthScore     float64                `json:"healthScore"`
+	ItemsNextCursor string                 `json:"itemsNextCursor,omitempty"`
+	Summary         string                 `json:"summary,omitempty"`
+	Error           string                 `json:"error,omitempty"`
+	ErrorCode       string                 `json:"error_code,omitempty"`
+	Remediation     string                 `json:"remediation,omitempty"`
+}
+
+// CompareOutput is the structured-output schema for the compare tool: overall
+// and per-file/per-domain coverage deltas, optional pagination cursors, and the
+// shared error envelope.
+type CompareOutput struct {
+	Passed              bool                    `json:"passed"`
+	BaseOverall         float64                 `json:"baseOverall"`
+	HeadOverall         float64                 `json:"headOverall"`
+	Delta               float64                 `json:"delta"`
+	Improved            []application.FileDelta `json:"improved,omitempty"`
+	Regressed           []application.FileDelta `json:"regressed,omitempty"`
+	Unchanged           int                     `json:"unchanged"`
+	DomainDeltas        map[string]float64      `json:"domainDeltas,omitempty"`
+	ImprovedNextCursor  string                  `json:"improvedNextCursor,omitempty"`
+	RegressedNextCursor string                  `json:"regressedNextCursor,omitempty"`
+	Summary             string                  `json:"summary,omitempty"`
+	Error               string                  `json:"error,omitempty"`
+	ErrorCode           string                  `json:"error_code,omitempty"`
+	Remediation         string                  `json:"remediation,omitempty"`
 }
 
 // coalesce returns value if non-empty, otherwise fallback.
