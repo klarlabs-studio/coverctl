@@ -2,6 +2,7 @@ package mcp
 
 import (
 	"context"
+	"errors"
 	"os"
 	"path/filepath"
 	"testing"
@@ -41,8 +42,12 @@ func TestRecoveryMiddleware_RecoversPanic(t *testing.T) {
 	if resp != nil {
 		t.Errorf("expected nil response for a recovered panic, got %v", resp)
 	}
-	if !stringContains(err.Error(), "panic") {
-		t.Errorf("expected error to mention the panic, got %q", err.Error())
+	// mcp.Recover() sanitizes the panic detail out of the client-facing error
+	// (secure-by-default, mcp-go v1.22+): the panic is recovered and surfaced as
+	// a generic internal error (-32603) rather than leaking the panic message.
+	var mcpErr *protocol.Error
+	if !errors.As(err, &mcpErr) || mcpErr.Code != protocol.CodeInternalError {
+		t.Errorf("expected a sanitized internal error (-32603), got %q", err.Error())
 	}
 }
 
