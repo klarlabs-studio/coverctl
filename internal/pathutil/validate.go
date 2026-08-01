@@ -52,8 +52,15 @@ func ValidatePath(path string) (string, error) {
 //   - Null bytes anywhere → ErrNullBytes
 //   - Path starts with `~` → ErrPathEscapesBase (no shell expansion happens;
 //     literal `~` rarely intended and a common attempt at home-dir pivot)
-//   - Absolute path → ErrPathEscapesBase (callers must use root-relative paths)
+//   - Absolute path outside root → ErrPathEscapesBase
 //   - Cleaned path resolves outside root (via `..` or symlink) → ErrPathEscapesBase
+//
+// An absolute path INSIDE root is accepted. Being absolute is not itself an
+// escape: containment is what enforces scope, and that check applies to both
+// forms identically. Rejecting absolutes outright refused legitimate in-root
+// paths — passing a project's own `/…/repo/.coverctl.yaml` failed while the
+// relative form succeeded — and contradicted the remediation text callers are
+// given, which states that absolute paths under the project root are accepted.
 func ValidateScopedPath(path, root string) (string, error) {
 	if path == "" {
 		return "", ErrEmptyPath
@@ -62,9 +69,6 @@ func ValidateScopedPath(path, root string) (string, error) {
 		return "", ErrNullBytes
 	}
 	if strings.HasPrefix(path, "~") {
-		return "", ErrPathEscapesBase
-	}
-	if filepath.IsAbs(path) {
 		return "", ErrPathEscapesBase
 	}
 
@@ -78,20 +82,45 @@ func ValidateScopedPath(path, root string) (string, error) {
 		absRoot = resolved
 	}
 
-	joined := filepath.Join(absRoot, path)
-	cleaned := filepath.Clean(joined)
-
-	// Symlink resolution: if the path exists, resolve and re-check containment.
-	// If it doesn't exist (creating a new file), the textual prefix check below
-	// is sufficient since Clean has already collapsed any `..` segments.
-	if resolved, rErr := filepath.EvalSymlinks(cleaned); rErr == nil {
-		cleaned = resolved
+	cleaned := filepath.Clean(path)
+	if !filepath.IsAbs(cleaned) {
+		cleaned = filepath.Clean(filepath.Join(absRoot, path))
 	}
+
+	// Symlink resolution: resolve the deepest existing ancestor, then re-attach
+	// the not-yet-existing remainder. Resolving only the full path would leave a
+	// path that does not exist yet (creating a new file) unresolved, so a root
+	// reached through a symlink — macOS /tmp → /private/tmp is the common one —
+	// would fail the prefix check below despite being genuinely inside root.
+	cleaned = resolveExistingPrefix(cleaned)
 
 	if !pathHasPrefix(cleaned, absRoot) {
 		return "", ErrPathEscapesBase
 	}
 	return cleaned, nil
+}
+
+// resolveExistingPrefix resolves symlinks in the longest existing prefix of p
+// and re-joins the remaining (not yet existing) segments. `..` segments have
+// already been collapsed by Clean before this is called, so re-joining cannot
+// reintroduce traversal.
+func resolveExistingPrefix(p string) string {
+	remainder := ""
+	current := p
+	for {
+		if resolved, err := filepath.EvalSymlinks(current); err == nil {
+			if remainder == "" {
+				return resolved
+			}
+			return filepath.Join(resolved, remainder)
+		}
+		parent := filepath.Dir(current)
+		if parent == current {
+			return p // reached the volume root without finding anything that exists
+		}
+		remainder = filepath.Join(filepath.Base(current), remainder)
+		current = parent
+	}
 }
 
 // pathHasPrefix reports whether path is equal to root or lies strictly within

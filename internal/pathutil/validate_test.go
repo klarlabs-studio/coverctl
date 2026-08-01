@@ -361,3 +361,65 @@ func TestValidatePath_CleanedPath(t *testing.T) {
 		})
 	}
 }
+
+// An absolute path that resolves inside root must be accepted. It was rejected
+// outright, which refused a project's own `/…/repo/.coverctl.yaml` while the
+// relative form worked — and contradicted the remediation text callers get,
+// which says absolute paths under the project root are accepted.
+func TestValidateScopedPath_AcceptsAbsoluteInsideRoot(t *testing.T) {
+	root := t.TempDir()
+	if err := os.WriteFile(filepath.Join(root, "coverctl.yaml"), []byte("x"), 0o600); err != nil {
+		t.Fatalf("setup: %v", err)
+	}
+
+	abs := filepath.Join(root, "coverctl.yaml")
+	got, err := ValidateScopedPath(abs, root)
+	if err != nil {
+		t.Fatalf("ValidateScopedPath(%q, %q) = %v, want it accepted", abs, root, err)
+	}
+
+	rel, relErr := ValidateScopedPath("coverctl.yaml", root)
+	if relErr != nil {
+		t.Fatalf("relative form failed: %v", relErr)
+	}
+	if got != rel {
+		t.Errorf("absolute and relative forms disagree: %q vs %q", got, rel)
+	}
+}
+
+// The containment check, not the absolute/relative distinction, is what keeps
+// scope. An absolute path outside root must still be refused.
+func TestValidateScopedPath_StillRejectsAbsoluteOutsideRoot(t *testing.T) {
+	root := t.TempDir()
+	outside := t.TempDir()
+	target := filepath.Join(outside, "secret.txt")
+	if err := os.WriteFile(target, []byte("secret"), 0o600); err != nil {
+		t.Fatalf("setup: %v", err)
+	}
+
+	for _, p := range []string{target, "/etc/passwd", filepath.Join(outside, "does-not-exist")} {
+		if _, err := ValidateScopedPath(p, root); err != ErrPathEscapesBase {
+			t.Errorf("ValidateScopedPath(%q) = %v, want ErrPathEscapesBase", p, err)
+		}
+	}
+}
+
+// A file that does not exist yet, under a root reached through a symlink, must
+// still be recognized as inside root — the case that motivated resolving the
+// deepest existing ancestor rather than the whole path.
+func TestValidateScopedPath_NonexistentUnderSymlinkedRoot(t *testing.T) {
+	real := t.TempDir()
+	link := filepath.Join(t.TempDir(), "link")
+	if err := os.Symlink(real, link); err != nil {
+		t.Skipf("symlinks unavailable: %v", err)
+	}
+
+	for _, p := range []string{"new-file.out", "sub/dir/new-file.out"} {
+		if _, err := ValidateScopedPath(p, link); err != nil {
+			t.Errorf("ValidateScopedPath(%q, symlinked root) = %v, want accepted", p, err)
+		}
+		if _, err := ValidateScopedPath(filepath.Join(link, p), link); err != nil {
+			t.Errorf("absolute %q under symlinked root = %v, want accepted", p, err)
+		}
+	}
+}

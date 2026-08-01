@@ -199,6 +199,18 @@ exclude:
 
 Per-domain enforcement is the point: overall coverage hides regressions in critical paths. coverctl evaluates each domain against its own minimum and fails the build if any domain falls below.
 
+#### Why these numbers differ from `go test ./...`
+
+coverctl runs tests with `-coverpkg` spanning the configured domains, so a package is credited for the tests of *other* packages that exercise it. Plain `go test ./...` credits only a package's own test files. The same code therefore gets two legitimate numbers, and coverctl's is the higher, more accurate one:
+
+| package | `go test ./...` | coverctl |
+|---|---|---|
+| a package exercised only through its callers | 0.0% | 80% |
+
+If a package looks untested under `go test`, check it here before writing tests for it — a helper called from everywhere but tested nowhere directly will read as 0% and be fully covered in practice. The reverse case is real too: a package can look fine in aggregate while one file inside it has no tests at all, which is what `files:` rules exist for.
+
+Note that `--from-profile` reports whatever the supplied profile measured. If that profile came from a plain `go test ./...`, the numbers are per-package and the distinction above does not apply.
+
 ### Advanced
 
 ```yaml

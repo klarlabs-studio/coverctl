@@ -271,6 +271,8 @@ func (s *Service) CheckResult(ctx context.Context, opts CheckOptions) (domain.Re
 	}
 	result := domain.Evaluate(policy, domainCoverage)
 	result.Warnings = domainOverlapWarnings(domainDirs)
+	result.Warnings = append(result.Warnings,
+		unmatchedPackageWarnings(filteredCoverage, domainDirs, cfg.Exclude, moduleRoot, modulePath, annotations)...)
 	if len(fromProfileWarnings) > 0 {
 		result.Warnings = append(result.Warnings, fromProfileWarnings...)
 	}
@@ -452,6 +454,8 @@ func (s *Service) ReportResult(ctx context.Context, opts ReportOptions) (domain.
 	}
 	result := domain.Evaluate(policy, domainCoverage)
 	result.Warnings = domainOverlapWarnings(domainDirs)
+	result.Warnings = append(result.Warnings,
+		unmatchedPackageWarnings(filteredCoverage, domainDirs, cfg.Exclude, moduleRoot, modulePath, annotations)...)
 	fileResults, filesPassed := evaluateFileRules(filteredCoverage, cfg.Files, cfg.Exclude, annotations)
 	result.Files = fileResults
 	if !filesPassed {
@@ -799,26 +803,6 @@ func (s *Service) loadAnnotations(ctx context.Context, cfg Config, moduleRoot st
 		paths = append(paths, file)
 	}
 	return s.AnnotationScanner.Scan(ctx, moduleRoot, paths)
-}
-
-func domainOverlapWarnings(domainDirs map[string][]string) []string {
-	dirOwners := make(map[string][]string, len(domainDirs))
-	for name, dirs := range domainDirs {
-		for _, dir := range dirs {
-			cleanDir := filepath.Clean(dir)
-			dirOwners[cleanDir] = append(dirOwners[cleanDir], name)
-		}
-	}
-	var warnings []string
-	for dir, owners := range dirOwners {
-		if len(owners) <= 1 {
-			continue
-		}
-		sort.Strings(owners)
-		warnings = append(warnings, fmt.Sprintf("directory %s belongs to %s domains", dir, strings.Join(owners, ", ")))
-	}
-	sort.Strings(warnings)
-	return warnings
 }
 
 // buildDomainExcludes creates a map of domain name to exclude patterns from domain configs.
