@@ -1,6 +1,7 @@
 package application
 
 import (
+	"context"
 	"fmt"
 	"path/filepath"
 	"sort"
@@ -8,6 +9,26 @@ import (
 
 	"go.klarlabs.de/coverctl/internal/domain"
 )
+
+// enumeratePackageFiles asks the resolver to list every package in the project,
+// if it is able to. A resolver that cannot — a non-Go project, or a test double
+// — yields nil, and the unmatched warning falls back to what the coverage
+// profile alone can show.
+//
+// A failure is swallowed on purpose. This feeds a warning, not a gate: a
+// project that cannot be enumerated has a louder problem than an unmatched
+// package, and failing the coverage check over it would report the wrong thing.
+func enumeratePackageFiles(ctx context.Context, r DomainResolver) map[string][]string {
+	enum, ok := r.(PackageEnumerator)
+	if !ok {
+		return nil
+	}
+	files, err := enum.AllPackageFiles(ctx)
+	if err != nil {
+		return nil
+	}
+	return files
+}
 
 // Warnings surface configuration problems that are not policy failures: the
 // check still passes, but something about the domain layout means the result
@@ -51,7 +72,15 @@ const maxUnmatchedDirsReported = 5
 // there. Anything the aggregation skips outright — excluded paths, ignore
 // annotations — is skipped here too, because those are deliberate omissions
 // rather than gaps.
-func unmatchedPackageWarnings(files map[string]domain.CoverageStat, domainDirs map[string][]string, exclude []string, moduleRoot, modulePath string, annotations map[string]Annotation) []string {
+//
+// allPackageFiles, when non-nil, maps every package directory in the project to
+// its non-test Go files (see PackageEnumerator). It exists because the coverage
+// profile is not a complete list of the project's packages: a package with no
+// test files produces no profile lines under a plain `go test ./...`, so a
+// package that is BOTH unmatched and untested — the worst case, and the one
+// this warning is for — is invisible to the profile. When it is nil the warning
+// degrades to what the profile can see rather than reporting nothing.
+func unmatchedPackageWarnings(files map[string]domain.CoverageStat, domainDirs map[string][]string, exclude []string, moduleRoot, modulePath string, annotations map[string]Annotation, allPackageFiles map[string][]string) []string {
 	if len(domainDirs) == 0 {
 		return nil // no domains configured at all: not this warning's business
 	}
@@ -59,6 +88,12 @@ func unmatchedPackageWarnings(files map[string]domain.CoverageStat, domainDirs m
 	type dirStat struct {
 		files int
 		stmts int
+		// inProfile records whether any covered file was seen for this
+		// directory. A directory known only from enumeration reports
+		// differently: "no coverage data" is a stronger statement than
+		// "unmatched", and conflating them would misreport statement counts
+		// as zero when they are simply unknown.
+		inProfile bool
 	}
 	unmatched := make(map[string]*dirStat)
 
@@ -87,7 +122,39 @@ func unmatchedPackageWarnings(files map[string]domain.CoverageStat, domainDirs m
 		}
 		unmatched[dir].files++
 		unmatched[dir].stmts += stat.Total
+		unmatched[dir].inProfile = true
 	}
+
+	// Second pass over every package the project actually has. This catches the
+	// packages the profile could not: no test files, so no profile lines, so
+	// invisible to the loop above no matter how badly they are unmatched.
+	for pkgDir, pkgFiles := range allPackageFiles {
+		if matchedByAnyDomain(pkgDir, domainDirs, moduleRoot) {
+			continue
+		}
+		relDir := moduleRelativePath(pkgDir, moduleRoot)
+		// A package whose every file is excluded or ignored is a deliberate
+		// omission, not a gap — the same rule the coverage pass applies.
+		live := 0
+		for _, base := range pkgFiles {
+			relPath := filepath.Join(relDir, base)
+			if excluded(relPath, exclude) {
+				continue
+			}
+			if ann, ok := annotations[filepath.ToSlash(relPath)]; ok && (ann.Ignore || ann.Domain != "") {
+				continue
+			}
+			live++
+		}
+		if live == 0 {
+			continue
+		}
+		dir := filepath.ToSlash(relDir)
+		if unmatched[dir] == nil {
+			unmatched[dir] = &dirStat{files: live}
+		}
+	}
+
 	if len(unmatched) == 0 {
 		return nil
 	}
@@ -105,9 +172,28 @@ func unmatchedPackageWarnings(files map[string]domain.CoverageStat, domainDirs m
 			break
 		}
 		s := unmatched[dir]
+		if !s.inProfile {
+			warnings = append(warnings, fmt.Sprintf(
+				"%s matches no domain (%d file(s), no coverage data) — no minimum is enforced there",
+				dir, s.files))
+			continue
+		}
 		warnings = append(warnings, fmt.Sprintf(
 			"%s matches no domain (%d file(s), %d statements) — no minimum is enforced there",
 			dir, s.files, s.stmts))
 	}
 	return warnings
+}
+
+// matchedByAnyDomain reports whether a package directory is claimed by some
+// domain. It reuses matchesAnyDir — which already treats "equal to" and "under"
+// a domain directory as a match — so an enumerated package is judged by exactly
+// the rule a covered file in it would be.
+func matchedByAnyDomain(pkgDir string, domainDirs map[string][]string, moduleRoot string) bool {
+	for _, dirs := range domainDirs {
+		if matchesAnyDir(pkgDir, dirs, moduleRoot) {
+			return true
+		}
+	}
+	return false
 }

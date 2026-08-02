@@ -166,7 +166,7 @@ func (h *CheckHandler) CheckResult(ctx context.Context, opts CheckOptions) (doma
 	result := domain.Evaluate(policy, domainCoverage)
 	result.Warnings = domainOverlapWarnings(domainDirs)
 	result.Warnings = append(result.Warnings,
-		unmatchedPackageWarnings(filteredCoverage, domainDirs, cfg.Exclude, moduleRoot, modulePath, annotations)...)
+		unmatchedPackageWarnings(filteredCoverage, domainDirs, cfg.Exclude, moduleRoot, modulePath, annotations, enumeratePackageFiles(ctx, h.DomainResolver))...)
 	if len(fromProfileWarnings) > 0 {
 		result.Warnings = append(result.Warnings, fromProfileWarnings...)
 	}

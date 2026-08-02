@@ -342,6 +342,23 @@ type DomainResolver interface {
 	ModulePath(ctx context.Context) (string, error)
 }
 
+// PackageEnumerator is an optional capability a DomainResolver may also
+// implement: listing every package in the project, not only those some domain
+// pattern already matched.
+//
+// It is deliberately separate from DomainResolver rather than another method on
+// it. Only the Go resolver can enumerate packages this way, and the unmatched
+// warning degrades honestly without it — a resolver that cannot enumerate still
+// reports every unmatched directory the coverage profile knows about, just not
+// the ones absent from the profile entirely.
+// It returns each package directory mapped to the base names of its non-test Go
+// files. Files rather than bare directories, because a package whose every file
+// is excluded is not a gap and must not warn — the same exclusion predicate the
+// aggregation uses has to be applied per file.
+type PackageEnumerator interface {
+	AllPackageFiles(ctx context.Context) (map[string][]string, error)
+}
+
 // CoverageRunner executes tests with coverage instrumentation for a specific language.
 // Implementations exist for Go, Python, Node.js, Rust, and Java.
 type CoverageRunner interface {

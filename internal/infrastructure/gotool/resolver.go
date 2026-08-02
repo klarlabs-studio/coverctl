@@ -17,8 +17,10 @@ type DomainResolver struct {
 }
 
 type goPackage struct {
-	Dir        string `json:"Dir"`
-	ImportPath string `json:"ImportPath"`
+	Dir        string   `json:"Dir"`
+	ImportPath string   `json:"ImportPath"`
+	GoFiles    []string `json:"GoFiles"`
+	CgoFiles   []string `json:"CgoFiles"`
 }
 
 func (r DomainResolver) Resolve(ctx context.Context, domains []domain.Domain) (map[string][]string, error) {
@@ -110,6 +112,43 @@ func matchPattern(importPath, pattern, modulePath string) bool {
 
 	// Exact match
 	return importPath == absPattern
+}
+
+// AllPackageFiles lists every package in the module with the base names of its
+// non-test Go files, whether or not any domain pattern matches the package and
+// whether or not it appears in a coverage profile.
+//
+// The unmatched-package warning cannot be derived from the coverage profile
+// alone. A package with no test files contributes no profile lines under a
+// plain `go test ./...`, so the very packages most likely to be both unmatched
+// AND untested are exactly the ones the profile cannot report. Enumerating the
+// module directly is the only way to see them.
+//
+// Test files are omitted: they carry no coverage obligation of their own, and a
+// package consisting only of them is not a hole in the policy.
+func (r DomainResolver) AllPackageFiles(ctx context.Context) (map[string][]string, error) {
+	moduleRoot, err := r.Module.ModuleRoot(ctx)
+	if err != nil {
+		return nil, err
+	}
+	pkgs, err := goList(ctx, moduleRoot, "./...")
+	if err != nil {
+		return nil, fmt.Errorf("go list ./...: %w", err)
+	}
+	out := make(map[string][]string, len(pkgs))
+	for _, pkg := range pkgs {
+		if pkg.Dir == "" {
+			continue
+		}
+		files := make([]string, 0, len(pkg.GoFiles)+len(pkg.CgoFiles))
+		files = append(files, pkg.GoFiles...)
+		files = append(files, pkg.CgoFiles...)
+		if len(files) == 0 {
+			continue
+		}
+		out[pkg.Dir] = append(out[pkg.Dir], files...)
+	}
+	return out, nil
 }
 
 func (r DomainResolver) ModuleRoot(ctx context.Context) (string, error) {

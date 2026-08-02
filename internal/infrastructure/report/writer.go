@@ -89,6 +89,15 @@ func writeText(w io.Writer, result domain.Result) error {
 			statusText = fmt.Sprintf("%s (%+.1f%%)", statusText, d.Percent-d.Required)
 		}
 
+		// A domain that inherits its threshold is marked as such. Configs where
+		// every domain reads `min: null` look like a disabled gate; printing a
+		// bare "80.0%" does not say whether that number is enforced or a
+		// placeholder, and "(default)" answers it in the table itself.
+		requiredStr := fmt.Sprintf("%.1f%%", d.Required)
+		if d.RequiredInherited {
+			requiredStr += " (default)"
+		}
+
 		if hasDeltas {
 			deltaStr := "-"
 			if d.Delta != nil {
@@ -101,9 +110,9 @@ func writeText(w io.Writer, result domain.Result) error {
 					}
 				}
 			}
-			_, _ = fmt.Fprintf(tw, "%s\t%.1f%%\t%s\t%.1f%%\t%s\n", d.Domain, d.Percent, deltaStr, d.Required, statusText)
+			_, _ = fmt.Fprintf(tw, "%s\t%.1f%%\t%s\t%s\t%s\n", d.Domain, d.Percent, deltaStr, requiredStr, statusText)
 		} else {
-			_, _ = fmt.Fprintf(tw, "%s\t%.1f%%\t%.1f%%\t%s\n", d.Domain, d.Percent, d.Required, statusText)
+			_, _ = fmt.Fprintf(tw, "%s\t%.1f%%\t%s\t%s\n", d.Domain, d.Percent, requiredStr, statusText)
 		}
 	}
 	if err := tw.Flush(); err != nil {

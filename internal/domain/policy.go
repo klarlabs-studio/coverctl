@@ -69,13 +69,19 @@ const (
 )
 
 type DomainResult struct {
-	Domain   string   `json:"domain"`
-	Covered  int      `json:"covered"`
-	Total    int      `json:"total"`
-	Percent  float64  `json:"percent"`
-	Required float64  `json:"required"`
-	Status   Status   `json:"status"`
-	Delta    *float64 `json:"delta,omitempty"` // Change from previous run
+	Domain   string  `json:"domain"`
+	Covered  int     `json:"covered"`
+	Total    int     `json:"total"`
+	Percent  float64 `json:"percent"`
+	Required float64 `json:"required"`
+	// RequiredInherited records that Required came from the policy default
+	// rather than the domain's own `min`. A config where every domain reads
+	// `min: null` looks like a disabled gate; showing the threshold without
+	// showing where it came from does not dispel that. Reported so the table
+	// can mark the value as inherited.
+	RequiredInherited bool     `json:"required_inherited,omitempty"`
+	Status            Status   `json:"status"`
+	Delta             *float64 `json:"delta,omitempty"` // Change from previous run
 }
 
 // IsPassing returns true if this domain meets its coverage requirement.
@@ -309,8 +315,10 @@ func Evaluate(policy Policy, coverage map[string]CoverageStat) Result {
 	for _, d := range policy.Domains {
 		stat := coverage[d.Name]
 		required := policy.DefaultMin
+		inherited := true
 		if d.Min != nil {
 			required = *d.Min
+			inherited = false
 		}
 		// Compare the raw percentage against the threshold so that a value just
 		// under the bound (e.g. 79.95%) cannot round up to 80.0 and pass an 80%
@@ -326,12 +334,13 @@ func Evaluate(policy Policy, coverage map[string]CoverageStat) Result {
 			status = StatusWarn
 		}
 		results = append(results, DomainResult{
-			Domain:   d.Name,
-			Covered:  stat.Covered,
-			Total:    stat.Total,
-			Percent:  percent,
-			Required: required,
-			Status:   status,
+			Domain:            d.Name,
+			Covered:           stat.Covered,
+			Total:             stat.Total,
+			Percent:           percent,
+			Required:          required,
+			RequiredInherited: inherited,
+			Status:            status,
 		})
 	}
 

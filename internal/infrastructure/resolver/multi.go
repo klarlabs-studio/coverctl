@@ -44,6 +44,23 @@ func (r *MultiResolver) ModulePath(ctx context.Context) (string, error) {
 	return resolver.ModulePath(ctx)
 }
 
+// AllPackageFiles forwards the package-enumeration capability to whichever
+// resolver is selected, when that resolver has it.
+//
+// Without this the capability is lost at the wrapper: the CLI wires a
+// MultiResolver, the unmatched-package warning type-asserts for
+// application.PackageEnumerator, the assertion fails against the wrapper even
+// though the Go resolver underneath implements it, and the warning silently
+// degrades to profile-only. It reported nothing, and looked like it had nothing
+// to report.
+func (r *MultiResolver) AllPackageFiles(ctx context.Context) (map[string][]string, error) {
+	enum, ok := r.selectResolver().(application.PackageEnumerator)
+	if !ok {
+		return nil, nil
+	}
+	return enum.AllPackageFiles(ctx)
+}
+
 // selectResolver determines which resolver to use based on project language.
 func (r *MultiResolver) selectResolver() application.DomainResolver {
 	if r.registry == nil {

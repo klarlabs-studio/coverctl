@@ -455,3 +455,40 @@ func TestWriteBriefEmpty(t *testing.T) {
 		t.Fatalf("expected 0/0 domains, got: %q", output)
 	}
 }
+
+// A config where every domain reads `min: null` looks like a disabled gate. The
+// threshold IS enforced — it is inherited from the policy default — but a bare
+// "80.0%" in the table does not say whether that number is real or a
+// placeholder. Marking the inherited ones answers it where the reader is
+// already looking.
+func TestWriteText_MarksInheritedThresholds(t *testing.T) {
+	result := domain.Result{
+		Passed: true,
+		Domains: []domain.DomainResult{
+			{Domain: "inherits", Percent: 91.0, Required: 80.0, RequiredInherited: true, Status: domain.StatusPass},
+			{Domain: "explicit", Percent: 96.0, Required: 95.0, Status: domain.StatusPass},
+		},
+	}
+
+	buf := new(bytes.Buffer)
+	if err := (Writer{}).Write(buf, result, application.OutputText); err != nil {
+		t.Fatalf("write: %v", err)
+	}
+	out := buf.String()
+
+	for _, line := range strings.Split(out, "\n") {
+		switch {
+		case strings.HasPrefix(line, "inherits"):
+			if !strings.Contains(line, "80.0% (default)") {
+				t.Errorf("inherited threshold should be marked, got: %q", line)
+			}
+		case strings.HasPrefix(line, "explicit"):
+			if strings.Contains(line, "(default)") {
+				t.Errorf("an explicit min must NOT be marked inherited, got: %q", line)
+			}
+			if !strings.Contains(line, "95.0%") {
+				t.Errorf("explicit threshold missing, got: %q", line)
+			}
+		}
+	}
+}
