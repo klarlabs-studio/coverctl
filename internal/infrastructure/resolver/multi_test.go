@@ -161,3 +161,57 @@ func TestMultiResolverFallsBackToGo(t *testing.T) {
 		t.Errorf("expected Go resolver fallback, got %v", dirs)
 	}
 }
+
+// enumeratingResolver is a Go resolver that also implements the optional
+// package-enumeration capability.
+type enumeratingResolver struct {
+	fakeGoResolver
+	packages map[string][]string
+}
+
+func (e *enumeratingResolver) AllPackageFiles(context.Context) (map[string][]string, error) {
+	return e.packages, nil
+}
+
+// The capability must survive the wrapper. MultiResolver is what the CLI
+// actually wires, so a capability it fails to forward is a capability the
+// product does not have — the unmatched-package warning type-asserts for
+// PackageEnumerator, and against a non-forwarding wrapper the assertion fails
+// even though the Go resolver underneath implements it. That degraded silently:
+// the warning reported nothing and looked like it had nothing to report.
+func TestMultiResolver_ForwardsPackageEnumeration(t *testing.T) {
+	inner := &enumeratingResolver{
+		fakeGoResolver: fakeGoResolver{moduleRoot: "/repo", modulePath: "example.com/m"},
+		packages:       map[string][]string{"/repo/orphan": {"orphan.go"}},
+	}
+	// A nil registry makes selectResolver fall back to the Go resolver.
+	r := NewMultiResolver(inner, "/repo", nil)
+
+	// The assertion the warning code performs, made explicitly: a wrapper that
+	// stops satisfying this interface disables the warning without failing.
+	enum, ok := application.DomainResolver(r).(application.PackageEnumerator)
+	if !ok {
+		t.Fatal("MultiResolver must satisfy application.PackageEnumerator")
+	}
+
+	got, err := enum.AllPackageFiles(t.Context())
+	if err != nil {
+		t.Fatalf("AllPackageFiles: %v", err)
+	}
+	if len(got["/repo/orphan"]) != 1 || got["/repo/orphan"][0] != "orphan.go" {
+		t.Errorf("wrapper did not forward the inner resolver's packages: %v", got)
+	}
+}
+
+// A resolver without the capability (a non-Go project) must yield nothing
+// rather than panicking — the warning then degrades to profile-only.
+func TestMultiResolver_EnumerationAbsentWhenInnerCannot(t *testing.T) {
+	r := NewMultiResolver(&fakeGoResolver{moduleRoot: "/repo"}, "/repo", nil)
+	got, err := r.AllPackageFiles(t.Context())
+	if err != nil {
+		t.Fatalf("AllPackageFiles: %v", err)
+	}
+	if got != nil {
+		t.Errorf("expected nil when the inner resolver cannot enumerate, got %v", got)
+	}
+}

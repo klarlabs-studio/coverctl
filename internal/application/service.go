@@ -272,7 +272,7 @@ func (s *Service) CheckResult(ctx context.Context, opts CheckOptions) (domain.Re
 	result := domain.Evaluate(policy, domainCoverage)
 	result.Warnings = domainOverlapWarnings(domainDirs)
 	result.Warnings = append(result.Warnings,
-		unmatchedPackageWarnings(filteredCoverage, domainDirs, cfg.Exclude, moduleRoot, modulePath, annotations)...)
+		unmatchedPackageWarnings(filteredCoverage, domainDirs, cfg.Exclude, moduleRoot, modulePath, annotations, enumeratePackageFiles(ctx, s.DomainResolver))...)
 	if len(fromProfileWarnings) > 0 {
 		result.Warnings = append(result.Warnings, fromProfileWarnings...)
 	}
@@ -455,7 +455,7 @@ func (s *Service) ReportResult(ctx context.Context, opts ReportOptions) (domain.
 	result := domain.Evaluate(policy, domainCoverage)
 	result.Warnings = domainOverlapWarnings(domainDirs)
 	result.Warnings = append(result.Warnings,
-		unmatchedPackageWarnings(filteredCoverage, domainDirs, cfg.Exclude, moduleRoot, modulePath, annotations)...)
+		unmatchedPackageWarnings(filteredCoverage, domainDirs, cfg.Exclude, moduleRoot, modulePath, annotations, enumeratePackageFiles(ctx, s.DomainResolver))...)
 	fileResults, filesPassed := evaluateFileRules(filteredCoverage, cfg.Files, cfg.Exclude, annotations)
 	result.Files = fileResults
 	if !filesPassed {

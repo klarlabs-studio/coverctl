@@ -101,7 +101,7 @@ func (h *ReportHandler) ReportResult(ctx context.Context, opts ReportOptions) (d
 	result := domain.Evaluate(policy, domainCoverage)
 	result.Warnings = domainOverlapWarnings(domainDirs)
 	result.Warnings = append(result.Warnings,
-		unmatchedPackageWarnings(filteredCoverage, domainDirs, cfg.Exclude, moduleRoot, modulePath, annotations)...)
+		unmatchedPackageWarnings(filteredCoverage, domainDirs, cfg.Exclude, moduleRoot, modulePath, annotations, enumeratePackageFiles(ctx, h.DomainResolver))...)
 
 	fileResults, filesPassed := evaluateFileRules(filteredCoverage, cfg.Files, cfg.Exclude, annotations)
 	result.Files = fileResults

@@ -2,6 +2,28 @@
 
 All notable changes to `coverctl` will be documented here. Relicta manages this file automatically.
 
+## [Unreleased]
+
+### Fixed
+- **The unmatched-package warning could not see the packages that matter most.**
+  It was derived from the coverage profile, but a package with no test files
+  contributes no profile lines under a plain `go test ./...` — so a package that
+  was *both* unmatched and untested, the exact case the warning exists for, was
+  invisible to it. Package enumeration (`go list ./...`) now runs alongside the
+  profile pass. (#126)
+- **The capability was lost at the wrapper.** The CLI wires a `MultiResolver`
+  around the Go resolver; the warning type-asserts for the enumeration
+  capability, and the assertion failed against the wrapper even though the
+  resolver underneath implemented it. The warning degraded silently — it
+  reported nothing and looked like it had nothing to report. `MultiResolver`
+  now forwards enumeration to the selected resolver. (#126)
+
+### Changed
+- Domain thresholds inherited from `policy.default.min` are now marked
+  `80.0% (default)` in the table. A config where every domain reads `min: null`
+  reads as a disabled gate; the threshold *is* enforced, and printing a bare
+  number did not say so. (#126)
+
 ## [1.18.0] - 2026-07-06
 
 Security & correctness hardening from a full deep review. The headline theme is
