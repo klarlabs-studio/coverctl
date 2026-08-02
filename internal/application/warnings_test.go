@@ -194,7 +194,7 @@ func TestUnmatchedPackageWarnings_EnumerationRespectsExcludesAndAnnotations(t *t
 }
 
 // A resolver that cannot enumerate (non-Go project, or a test double) must
-// degrade to the profile-only behaviour rather than panicking or reporting
+// degrade to the profile-only behavior rather than panicking or reporting
 // nothing at all.
 func TestEnumeratePackageFiles_NilWhenResolverCannotEnumerate(t *testing.T) {
 	if got := enumeratePackageFiles(t.Context(), nonEnumeratingResolver{}); got != nil {
