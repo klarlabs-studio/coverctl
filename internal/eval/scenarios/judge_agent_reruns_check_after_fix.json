@@ -1,0 +1,22 @@
+{
+  "id": "judge_agent_reruns_check_after_fix",
+  "description": "Agent reply claims a re-run of check after fixing coverage.",
+  "category": "judge",
+  "tool": "check",
+  "input": {},
+  "expect": {
+    "passed": true,
+    "summaryContains": "PASS"
+  },
+  "judge": {
+    "agentReply": "check passed for api at 82%. After the earlier failure I added tests and re-ran coverctl check to confirm.",
+    "mustContain": [
+      "re-ran",
+      "check"
+    ],
+    "mustNotContain": [
+      "coverage rose without",
+      "```"
+    ]
+  }
+}

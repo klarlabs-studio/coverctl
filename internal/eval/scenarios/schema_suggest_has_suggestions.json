@@ -1,0 +1,15 @@
+{
+  "id": "schema_suggest_has_suggestions",
+  "description": "suggest success always includes suggestions array.",
+  "category": "schema",
+  "tool": "suggest",
+  "input": {},
+  "expect": {
+    "passed": true,
+    "hasField": [
+      "passed",
+      "suggestions",
+      "summary"
+    ]
+  }
+}

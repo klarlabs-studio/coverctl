@@ -103,21 +103,17 @@ exclude:
   - "**/mocks/**"
 ```
 
-## Related Commands
+## Exit Codes
 
-### detect
+| Code | Meaning |
+| --- | --- |
+| `0` | Config written (or validated) successfully |
+| `1` | Detection / write failure |
+| `2` | Usage / flag error (e.g. config exists without `--force`) |
 
-For non-interactive domain detection:
+## Related
 
-```bash
-# Preview detected domains
-coverctl detect --dry-run
-
-# Write config directly
-coverctl detect
-```
-
-## See Also
-
-- [Configuration](/coverctl/configuration/) - Configuration reference
-- [Domains](/coverctl/configuration/domains/) - Domain configuration
+- [detect](/coverctl/cli/other/) — non-interactive domain detection (`coverctl detect --dry-run`)
+- [Configuration](/coverctl/configuration/) — `.coverctl.yaml` reference
+- [Domains](/coverctl/configuration/domains/) — match patterns and mins
+- [Quick start (terminal)](/coverctl/quick-start/) — golden path after init

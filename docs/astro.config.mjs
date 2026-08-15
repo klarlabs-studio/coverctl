@@ -138,6 +138,7 @@ export default defineConfig({
             { label: 'Other commands', slug: 'cli/other' },
             { label: 'Build flags', slug: 'guides/build-flags' },
             { label: 'Pricing & roadmap', slug: 'pricing' },
+            { label: 'Changelog', slug: 'changelog' },
           ],
         },
       ],

@@ -18,7 +18,7 @@ policy:
     - name: application
       match:
         - "./internal/application/..."
-      min: 35
+      min: 45
     - name: domain
       match:
         - "./internal/domain/..."

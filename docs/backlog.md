@@ -7,12 +7,11 @@ Status as of 2026-08-15 health-improvements pass. Items below marked
 ## Still open (prioritized)
 
 1. **5-user polyglot usability test** — protocol ready (`docs/research/usability-test-protocol.md`); no findings report yet (needs human participants).
-2. **Site content infra** — blog/changelog/RSS, Diataxis splits for oversized pages, CLI page template standardization, universal Next links.
-3. **CI product metrics dogfooding** — structured artifacts partially exist in `coverage.yml`; trend analysis pipeline not yet productized.
-4. **AI/Agent success metrics baseline** — telemetry flag exists; retained-value analysis of which 3 MCP tools drive usage is not yet instrumented end-to-end.
-5. **Activation funnel / GTM metrics** — specs exist; no live funnel dashboards.
-6. **Real polyglot toolchain smoke** — runners unit workflow + mocked buildArgs exist; optional CI with pytest-cov/nyc/cargo-llvm-cov still open.
-7. **Live-agent tool-selection evals** — happy_path stub scenarios shipped; LLM-driven tool selection still deferred.
+2. **Site content infra** — blog/RSS; remaining Diataxis polish on CLI `other.mdx`; universal Next component across all pages.
+3. **AI/Agent success metrics baseline** — telemetry flag exists; retained-value analysis of which 3 MCP tools drive usage is not yet instrumented end-to-end.
+4. **Activation funnel / GTM metrics** — specs exist; no live funnel dashboards.
+5. **Real polyglot toolchain smoke** — runners unit workflow + mocked buildArgs exist; optional CI with pytest-cov/nyc/cargo-llvm-cov still open.
+6. **Live-agent tool-selection evals** — happy_path + anti-pattern judge scenarios shipped; LLM-driven tool selection still deferred.
 
 ## SHIPPED (do not re-open)
 
@@ -32,6 +31,10 @@ Status as of 2026-08-15 health-improvements pass. Items below marked
 - Docs site journey sidebar + compare pages + community page + print.css + 404
 - Runners unit CI workflow (mocked Detect/buildArgs; no language toolchains)
 - Happy-path MCP eval scenarios (check/report/badge/debt/suggest/compare/record)
+- CI dogfood record+trend artifacts in coverage.yml
+- Docs Diataxis trim (architecture pointer, CI other-systems compact, config example cut)
+- Changelog docs page + CLI exit-codes polish (watch/init)
+- Application Service tests for Record/Trend/Debt/Compare/detectProvider (~50% coverage)
 - Golden path UX / CLI next-action hints / failure-mode docs (prior iterations)
 - Rust LCOV parsing + quick-start coverage (prior iterations)
 

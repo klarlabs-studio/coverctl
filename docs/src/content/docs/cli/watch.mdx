@@ -105,37 +105,18 @@ Running coverage check...
 ─────────────────────────────────────
 ```
 
-## Tips
+## Exit Codes
 
-### Filter to Specific Domain
-
-For faster feedback during development, watch only the domain you're working on:
-
-```bash
-coverctl watch -d core
-```
-
-### Use Short Flag
-
-Skip slow tests for rapid iteration:
-
-```bash
-coverctl watch --short
-```
-
-### Combine with Verbose
-
-See detailed test output:
-
-```bash
-coverctl watch -v -d core
-```
-
-## Exit
+| Code | Meaning |
+| --- | --- |
+| `0` | Watcher stopped cleanly (Ctrl+C after a successful last run) |
+| `1` | Last coverage check failed policy |
+| `2` | Usage / flag error |
 
 Press `Ctrl+C` to stop watching.
 
-## See Also
+## Related
 
-- [check](/coverctl/cli/check/) - Single coverage check
-- [run](/coverctl/cli/run/) - Generate coverage profile only
+- [check](/coverctl/cli/check/) — single coverage check
+- [run](/coverctl/cli/run/) — generate coverage profile only
+- [Agent-loop tutorial](/coverctl/agent-loop-tutorial/) — continuous feedback with an AI agent

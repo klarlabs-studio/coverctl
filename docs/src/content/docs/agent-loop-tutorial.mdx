@@ -3,7 +3,7 @@ title: The agent loop, end to end
 description: Walk through one full agent-loop cycle with coverctl. Install + wire MCP, ask agent to add a feature, watch the agent call check / suggest / debt, see structured failure and recovery, commit before CI sees the regression.
 ---
 
-import { Steps, Aside, Tabs, TabItem } from '@astrojs/starlight/components';
+import { Steps, Aside, Tabs, TabItem, LinkCard, CardGrid } from '@astrojs/starlight/components';
 import AgentLoop from '../../components/AgentLoop.astro';
 
 This is the tutorial that builds the mental model. By the end of it
@@ -201,11 +201,9 @@ mail when there's a phone in your pocket.
 
 ## Where next
 
-- [MCP server reference](/coverctl/mcp/) — every tool, every
-  resource, every input/output schema.
-- [Configure your policy](/coverctl/configuration/) — what threshold
-  to set on which domain, and why.
-- [coverctl vs Codecov](/coverctl/compare/coverctl-vs-codecov/) —
-  honest comparison; both tools serve real needs.
-- [For platform & devex teams](/coverctl/for-platform-teams/) —
-  procurement-ready summary if you're evaluating coverctl org-wide.
+<CardGrid>
+  <LinkCard title="MCP server reference" href="/coverctl/mcp/" description="Every tool, resource, and rejection code." />
+  <LinkCard title="Configure your policy" href="/coverctl/configuration/" description="Thresholds per domain." />
+  <LinkCard title="coverctl vs Codecov" href="/coverctl/compare/coverctl-vs-codecov/" description="Honest category comparison." />
+  <LinkCard title="For platform teams" href="/coverctl/for-platform-teams/" description="Procurement-ready artifacts." />
+</CardGrid>
