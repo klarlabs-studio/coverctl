@@ -36,7 +36,7 @@ func TestMetricsTelemetry_RecordActivationStep(t *testing.T) {
 
 func TestMetricsTelemetry_RecordToolCall(t *testing.T) {
 	var buf bytes.Buffer
-	tel := &MetricsTelemetry{logger: log.New(&buf, "", 0)}
+	tel := NewMetricsTelemetry(&buf)
 
 	tel.RecordToolCall("check", 42*time.Millisecond, nil, false)
 
@@ -46,6 +46,26 @@ func TestMetricsTelemetry_RecordToolCall(t *testing.T) {
 	}
 	if !strings.Contains(out, `"outcome":"success"`) {
 		t.Errorf("missing outcome: %s", out)
+	}
+}
+
+func TestMetricsTelemetry_RecordToolCall_PolicyFail(t *testing.T) {
+	var buf bytes.Buffer
+	tel := NewMetricsTelemetry(&buf)
+	tel.RecordToolCall("check", time.Millisecond, ErrPolicyFail, false)
+	out := buf.String()
+	if !strings.Contains(out, `"outcome":"policy_fail"`) {
+		t.Fatalf("want policy_fail, got %s", out)
+	}
+}
+
+func TestMetricsTelemetry_RecordRegressionCaught(t *testing.T) {
+	var buf bytes.Buffer
+	tel := NewMetricsTelemetry(&buf)
+	tel.RecordRegressionCaught("check", "api", 5.5)
+	out := buf.String()
+	if !strings.Contains(out, `"event":"regression_caught"`) || !strings.Contains(out, `"domain":"api"`) {
+		t.Fatalf("unexpected: %s", out)
 	}
 }
 

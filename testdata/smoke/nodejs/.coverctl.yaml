@@ -1,0 +1,8 @@
+version: 1
+policy:
+  default:
+    min: 50
+  domains:
+    - name: calc
+      match: ["src/**"]
+      min: 50

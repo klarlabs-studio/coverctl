@@ -1,6 +1,7 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
+import starlightBlog from 'starlight-blog';
 
 // https://astro.build/config
 export default defineConfig({
@@ -31,6 +32,18 @@ export default defineConfig({
     starlight({
       title: 'coverctl',
       description: 'Agent-loop coverage governance — coverage your AI coding agent calls before commit, not a dashboard you read after CI. MCP-native, polyglot, local-first.',
+      plugins: [
+        starlightBlog({
+          title: 'Blog',
+          authors: {
+            coverctl: {
+              name: 'coverctl',
+              title: 'Klar Labs',
+              url: 'https://github.com/klarlabs-studio/coverctl',
+            },
+          },
+        }),
+      ],
       social: [
         {
           icon: 'github',
@@ -48,6 +61,15 @@ export default defineConfig({
           attrs: {
             property: 'og:image',
             content: 'https://klarlabs-studio.github.io/coverctl/og-image.png',
+          },
+        },
+        {
+          tag: 'link',
+          attrs: {
+            rel: 'alternate',
+            type: 'application/rss+xml',
+            title: 'coverctl blog',
+            href: '/coverctl/blog/rss.xml',
           },
         },
         {

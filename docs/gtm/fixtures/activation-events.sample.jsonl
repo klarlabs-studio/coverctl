@@ -1,0 +1,8 @@
+{"event":"activation_step","step":"init_completed","repo":"aaa111bbb222"}
+{"event":"activation_step","step":"first_passing_check","repo":"aaa111bbb222"}
+{"tool":"check","duration_ms":1200,"outcome":"success","rejected":false}
+{"tool":"check","duration_ms":900,"outcome":"policy_fail","rejected":false}
+{"event":"regression_caught","tool":"check","domain":"auth","shortfall":5.0}
+{"tool":"suggest","duration_ms":80,"outcome":"success","rejected":false}
+{"tool":"debt","duration_ms":60,"outcome":"success","rejected":false}
+{"tool":"check","duration_ms":40,"outcome":"rejected","rejected":true}

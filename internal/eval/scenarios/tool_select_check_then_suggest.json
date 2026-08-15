@@ -1,0 +1,12 @@
+{
+  "id": "tool_select_check_then_suggest",
+  "description": "Full fix loop: verify policy then propose thresholds",
+  "category": "tool_selection",
+  "prompt": "Walk me through the agent golden path after editing code: enforce policy, then tighten thresholds from current coverage.",
+  "expectedTools": ["check", "suggest"],
+  "allowedTools": ["check", "suggest", "debt"],
+  "selectedTools": ["check", "suggest"],
+  "tool": "check",
+  "input": { "fromProfile": true },
+  "expect": { "passed": true, "hasField": ["summary"] }
+}

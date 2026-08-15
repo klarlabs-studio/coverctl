@@ -1,0 +1,12 @@
+{
+  "id": "tool_select_what_to_fix_suggest",
+  "description": "Asking what thresholds to set should prefer suggest",
+  "category": "tool_selection",
+  "prompt": "Coverage is healthy but my .coverctl.yaml mins feel arbitrary. Which tool proposes better per-domain thresholds?",
+  "expectedTools": ["suggest"],
+  "allowedTools": ["check", "suggest", "debt"],
+  "selectedTools": ["suggest"],
+  "tool": "suggest",
+  "input": {},
+  "expect": { "passed": true, "hasField": ["suggestions"] }
+}

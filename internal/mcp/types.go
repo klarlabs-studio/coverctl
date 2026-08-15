@@ -79,6 +79,9 @@ type Config struct {
 	HistoryPath string // Path to history file (default: ".cover/history.json")
 	ProfilePath string // Path to coverage profile (default: ".cover/coverage.out")
 	Mode        Mode   // Tool-surface mode (default: ModeAgent).
+	// Telemetry, when non-nil, replaces the default NoopTelemetry.
+	// Opt-in via `coverctl mcp serve --mcp-telemetry`.
+	Telemetry Telemetry
 }
 
 // DefaultConfig returns configuration with default values.

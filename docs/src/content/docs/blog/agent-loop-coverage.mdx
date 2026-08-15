@@ -1,0 +1,18 @@
+---
+title: Coverage feedback belongs in the agent loop
+description: Dashboards after CI are too late. coverctl is agent-loop coverage governance — policy your coding agent can call before commit.
+date: 2026-08-15
+authors:
+  - coverctl
+tags:
+  - category
+  - agents
+---
+
+Most coverage tools answer a dashboard question: *what was coverage after CI ran?* That is useful for humans reading reports. It is the wrong loop for AI coding agents.
+
+Agents edit, run tools, and decide whether to keep or revert a change **before** push. coverctl is built for that loop: per-domain policy in `.coverctl.yaml`, an MCP tool surface (`check` / `suggest` / `debt`), and local-first execution over native runners (pytest, nyc, cargo-llvm-cov, `go test`, …).
+
+If your coverage system cannot be called mid-edit with a structured pass/fail the agent can act on, it is not agent-loop coverage governance — it is reporting.
+
+See also: [Quick start (AI agent)](/coverctl/quick-start-agent/) and [MCP server](/coverctl/mcp/).

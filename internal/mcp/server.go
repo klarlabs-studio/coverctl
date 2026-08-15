@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"go.klarlabs.de/coverctl/internal/application"
+	"go.klarlabs.de/coverctl/internal/domain"
 	"go.klarlabs.de/coverctl/internal/infrastructure/config"
 	"go.klarlabs.de/coverctl/internal/infrastructure/history"
 	"go.klarlabs.de/coverctl/internal/pathutil"
@@ -54,11 +55,15 @@ func New(svc Service, cfg Config, version string) *Server {
 		}
 	}
 
+	tel := Telemetry(NoopTelemetry{})
+	if cfg.Telemetry != nil {
+		tel = cfg.Telemetry
+	}
 	s := &Server{
 		svc:            svc,
 		config:         cfg,
 		prCommentLimit: newRateLimiter(),
-		telemetry:      NoopTelemetry{},
+		telemetry:      tel,
 	}
 
 	// Create MCP server with capabilities
@@ -230,9 +235,9 @@ func (s *Server) handleCheck(ctx context.Context, input CheckInput) (map[string]
 	defer cancel()
 
 	result, err := s.svc.CheckResult(runCtx, opts)
-	s.telemetry.RecordToolCall("check", time.Since(start), err, false)
 
 	if classified, ok := classifyRuntimeError(err); ok {
+		s.telemetry.RecordToolCall("check", time.Since(start), err, false)
 		return classified, nil
 	}
 
@@ -246,6 +251,24 @@ func (s *Server) handleCheck(ctx context.Context, input CheckInput) (map[string]
 			result.Passed = false
 			result.Warnings = append(result.Warnings, gateErr.Error())
 		}
+	}
+
+	// Record after gates so policy_fail is distinct from runtime error.
+	if err != nil {
+		s.telemetry.RecordToolCall("check", time.Since(start), err, false)
+	} else if !result.Passed {
+		s.telemetry.RecordToolCall("check", time.Since(start), ErrPolicyFail, false)
+		for _, d := range result.Domains {
+			if d.Status == domain.StatusFail {
+				shortfall := d.Required - d.Percent
+				if shortfall < 0 {
+					shortfall = 0
+				}
+				s.telemetry.RecordRegressionCaught("check", d.Domain, shortfall)
+			}
+		}
+	} else {
+		s.telemetry.RecordToolCall("check", time.Since(start), nil, false)
 	}
 
 	v := resolveVerbosity(input.Verbosity)
@@ -271,7 +294,7 @@ func (s *Server) handleCheck(ctx context.Context, input CheckInput) (map[string]
 	}
 
 	if err == nil && result.Passed {
-		s.telemetry.RecordActivationStep("check_passed", repoFingerprint())
+		s.telemetry.RecordActivationStep("first_passing_check", repoFingerprint())
 	}
 
 	return output, nil
@@ -564,10 +587,12 @@ func (s *Server) handleConfigResource(ctx context.Context, uri string, params ma
 
 func (s *Server) handleSuggest(ctx context.Context, input SuggestInput) (map[string]any, error) {
 	defer traceTool("suggest")()
+	start := time.Now()
 	if err := validateScopedInputs(
 		namedPath{"configPath", input.ConfigPath},
 		namedPath{"profile", input.Profile},
 	); err != nil {
+		s.telemetry.RecordToolCall("suggest", time.Since(start), err, true)
 		return rejectionResponse(err), nil
 	}
 
@@ -592,6 +617,7 @@ func (s *Server) handleSuggest(ctx context.Context, input SuggestInput) (map[str
 	result, err := s.svc.Suggest(ctx, opts)
 
 	if classified, ok := classifyRuntimeError(err); ok {
+		s.telemetry.RecordToolCall("suggest", time.Since(start), err, false)
 		return classified, nil
 	}
 
@@ -602,6 +628,7 @@ func (s *Server) handleSuggest(ctx context.Context, input SuggestInput) (map[str
 	}
 
 	if err != nil {
+		s.telemetry.RecordToolCall("suggest", time.Since(start), err, false)
 		output["passed"] = false
 		output["error"] = sanitizeOutputString(err.Error())
 		output["summary"] = "Failed to generate suggestions"
@@ -614,6 +641,7 @@ func (s *Server) handleSuggest(ctx context.Context, input SuggestInput) (map[str
 	// silently relax the coverage gate here and let a later `check` pass. The
 	// gate-lowering write requires an explicit --mode=ci.
 	if input.WriteConfig && s.config.Mode != ModeCI {
+		s.telemetry.RecordToolCall("suggest", time.Since(start), nil, false)
 		output["writeConfig"] = false
 		output["summary"] = sanitizeOutputString(fmt.Sprintf(
 			"Generated %d threshold suggestions using %s strategy; config NOT written: writeConfig requires --mode=ci (agent mode is read-only so suggestions cannot silently lower the coverage gate)",
@@ -629,6 +657,7 @@ func (s *Server) handleSuggest(ctx context.Context, input SuggestInput) (map[str
 		// Backup existing config if it exists
 		backupPath, backupErr := backupConfig(configPath)
 		if backupErr != nil && !os.IsNotExist(backupErr) {
+			s.telemetry.RecordToolCall("suggest", time.Since(start), backupErr, false)
 			output["error"] = sanitizeOutputString(fmt.Sprintf("failed to backup config: %v", backupErr))
 			output["summary"] = "Failed to backup existing config"
 			return output, nil
@@ -636,6 +665,7 @@ func (s *Server) handleSuggest(ctx context.Context, input SuggestInput) (map[str
 
 		// Write new config
 		if err := writeConfig(configPath, suggestedConfig); err != nil {
+			s.telemetry.RecordToolCall("suggest", time.Since(start), err, false)
 			output["error"] = sanitizeOutputString(err.Error())
 			output["summary"] = "Failed to write config"
 			return output, nil
@@ -650,15 +680,18 @@ func (s *Server) handleSuggest(ctx context.Context, input SuggestInput) (map[str
 		output["summary"] = sanitizeOutputString(fmt.Sprintf("Generated %d threshold suggestions using %s strategy", len(safeSuggestions), strategy))
 	}
 
+	s.telemetry.RecordToolCall("suggest", time.Since(start), nil, false)
 	return output, nil
 }
 
 func (s *Server) handleDebt(ctx context.Context, input DebtInput) (map[string]any, error) {
 	defer traceTool("debt")()
+	start := time.Now()
 	if err := validateScopedInputs(
 		namedPath{"configPath", input.ConfigPath},
 		namedPath{"profile", input.Profile},
 	); err != nil {
+		s.telemetry.RecordToolCall("debt", time.Since(start), err, true)
 		return rejectionResponse(err), nil
 	}
 
@@ -671,6 +704,7 @@ func (s *Server) handleDebt(ctx context.Context, input DebtInput) (map[string]an
 	result, err := s.svc.Debt(ctx, opts)
 
 	if classified, ok := classifyRuntimeError(err); ok {
+		s.telemetry.RecordToolCall("debt", time.Since(start), err, false)
 		return classified, nil
 	}
 
@@ -688,10 +722,12 @@ func (s *Server) handleDebt(ctx context.Context, input DebtInput) (map[string]an
 	}
 
 	if err != nil {
+		s.telemetry.RecordToolCall("debt", time.Since(start), err, false)
 		output["passed"] = false
 		output["error"] = sanitizeOutputString(err.Error())
 		output["summary"] = "Failed to calculate coverage debt"
 	} else {
+		s.telemetry.RecordToolCall("debt", time.Since(start), nil, false)
 		if result.TotalDebt > 0 {
 			output["summary"] = fmt.Sprintf("Coverage debt: %.1f%% gap across %d items (health score: %.0f/100)", result.TotalDebt, len(result.Items), result.HealthScore)
 		} else {
