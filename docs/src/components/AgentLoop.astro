@@ -21,7 +21,7 @@
     <desc>
       Four nodes arranged on a circle, connected by clockwise arrows.
       You ask the agent to make a change. The agent edits source files
-      such as email.go. The agent calls coverctl check via MCP. The
+      such as email.ts under src/api. The agent calls coverctl check via MCP. The
       verdict in the centre reads: api 78.2 percent, fail. Tests run
       across 15 languages. The agent then calls suggest, fixes the
       gap, and re-runs check until the verdict passes.
@@ -116,7 +116,7 @@
       <text y="-2" class="al-node-line" text-anchor="middle"
             fill="var(--al-node-line, currentColor)">edits</text>
       <text y="14" class="al-node-line" text-anchor="middle"
-            fill="var(--al-node-line, currentColor)">email.go</text>
+            fill="var(--al-node-line, currentColor)">email.ts</text>
       <text y="32" class="al-node-meta" text-anchor="middle"
             fill="var(--al-node-meta, currentColor)">claude code</text>
     </g>

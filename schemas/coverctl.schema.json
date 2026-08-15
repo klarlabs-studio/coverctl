@@ -67,7 +67,7 @@
               "match": {
                 "type": "array",
                 "items": {"type": "string"},
-                "description": "Patterns to match source files or packages (e.g., './internal/...', 'src/**', './pkg/auth')"
+                "description": "Path patterns for this domain — not language packages. Use globs for most languages (src/api/**, lib/**) or Go package paths when applicable (./internal/..., ./pkg/auth)."
               },
               "min": {
                 "type": "number",
@@ -181,22 +181,23 @@
   "examples": [
     {
       "version": 1,
-      "policy": {
-        "default": {"min": 70},
-        "domains": [
-          {"name": "core", "match": ["./internal/core/..."], "min": 85},
-          {"name": "api", "match": ["./internal/api/..."], "min": 75}
-        ]
-      }
-    },
-    {
-      "version": 1,
       "language": "python",
       "profile": {"format": "cobertura", "path": "coverage.xml"},
       "policy": {
         "default": {"min": 80},
         "domains": [
-          {"name": "core", "match": ["src/core/**"], "min": 90}
+          {"name": "core", "match": ["src/core/**"], "min": 90},
+          {"name": "api", "match": ["src/api/**"], "min": 80}
+        ]
+      }
+    },
+    {
+      "version": 1,
+      "policy": {
+        "default": {"min": 70},
+        "domains": [
+          {"name": "core", "match": ["./internal/core/..."], "min": 85},
+          {"name": "api", "match": ["./internal/api/..."], "min": 75}
         ]
       }
     },

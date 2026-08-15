@@ -117,7 +117,7 @@ func (s *Server) registerTools() {
 	}
 
 	s.server.Tool("init").
-		Description("Initialize coverctl in the current project. Auto-detects the project's language (Go, Python, TypeScript/JavaScript, Java, Rust, C#, C/C++, PHP, Ruby, Swift, Dart, Scala, Elixir, or Shell), proposes domain boundaries from the directory layout, and writes .coverctl.yaml with default thresholds. Call once per project.").
+		Description("Initialize coverctl in the current project. Auto-detects the project's language (Go, Python, TypeScript/JavaScript, Java, Rust, C#, C/C++, PHP, Ruby, Swift, Dart, Scala, Elixir, or Shell), proposes named path-group domains from the directory layout (globs like src/api/**, or Go package paths like ./internal/... when applicable), and writes .coverctl.yaml with default thresholds. Call once per project.").
 		Handler(s.handleInit)
 
 	s.server.Tool("report").

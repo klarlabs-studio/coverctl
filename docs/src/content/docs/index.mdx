@@ -51,18 +51,18 @@ After `coverctl mcp serve` is wired into Claude Code. *Rendered for clarity — 
 ```text
 You:    Add the email-validation feature to the api domain.
 
-Claude: I'll add EmailValidator + tests in internal/api/email.
+Claude: I'll add EmailValidator + tests under src/api/.
 
-  [edits: internal/api/email.go, internal/api/email_test.go]
+  [edits: src/api/email.ts, src/api/email.test.ts]
 
   Tool call → coverctl check
   Result   → passed: false; failing: api (78.2%, required 80%)
-             uncovered: internal/api/email.go:42-58 (error paths)
+             uncovered: src/api/email.ts:42-58 (error paths)
 
   Tool call → coverctl suggest api
-  Result   → uncovered files: email.go (16 lines), retry.go (4 lines)
+  Result   → uncovered files: email.ts (16 lines), retry.ts (4 lines)
 
-  Two error branches in EmailValidator.Validate are uncovered.
+  Two error branches in EmailValidator.validate are uncovered.
   I'll add cases for empty-input and malformed-domain so api meets
   the 80% threshold before we commit.
 ```

@@ -3,7 +3,7 @@ title: Configure policies
 description: Per-domain coverage thresholds in .coverctl.yaml. The policy file your AI coding agent reads when it calls coverctl check via MCP.
 ---
 
-Policies define the minimum coverage requirements for your project. coverctl supports domain-level and file-level policies.
+Policies define the minimum coverage requirements for your project. coverctl supports domain-level and file-level policies. Domains group **source paths** (globs or Go package paths) — they are not wrappers around language packages. See [Domains](/coverctl/configuration/domains/) for both match dialects.
 
 ## Policy Structure
 
@@ -13,7 +13,7 @@ policy:
     min: 75
   domains:
     - name: core
-      match: ["./internal/core/..."]
+      match: ["src/core/**"]   # or "./internal/core/..." in Go
       min: 85
 ```
 
@@ -37,19 +37,19 @@ Each domain can have its own coverage requirement:
 policy:
   domains:
     - name: core
-      match: ["./internal/core/..."]
+      match: ["src/core/**"]
       min: 85
     - name: api
-      match: ["./internal/api/..."]
+      match: ["src/api/**"]
       min: 80
     - name: utils
-      match: ["./pkg/utils/..."]
+      match: ["src/utils/**"]
       min: 60
 ```
 
 ### Policy Evaluation
 
-1. Files are matched to domains based on `match` patterns
+1. Files are matched to domains based on `match` patterns (path globs or Go package paths)
 2. Coverage is calculated per domain
 3. Each domain is compared against its `min` threshold
 4. If any domain fails, the overall check fails
@@ -60,9 +60,9 @@ For granular control, define per-file rules:
 
 ```yaml
 files:
-  - match: ["internal/core/critical/*.go"]
+  - match: ["src/core/critical/*"]
     min: 95
-  - match: ["internal/api/handlers/*.go"]
+  - match: ["src/api/handlers/*"]
     min: 85
 ```
 
@@ -156,7 +156,7 @@ policy:
     min: 70
   domains:
     - name: core
-      match: ["./internal/core/..."]
+      match: ["src/core/**"]
       min: 80
 
 # Week 4: Increase after adding tests
@@ -165,7 +165,7 @@ policy:
     min: 75
   domains:
     - name: core
-      match: ["./internal/core/..."]
+      match: ["src/core/**"]
       min: 85
 ```
 

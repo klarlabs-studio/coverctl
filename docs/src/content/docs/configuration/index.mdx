@@ -37,7 +37,7 @@ policy:
     min: 75
   domains:
     - name: core
-      match: ["./internal/core/..."]
+      match: ["src/core/**"]   # path glob; Go often uses "./internal/core/..."
       min: 85
 
 exclude:
@@ -81,9 +81,11 @@ policy:
     min: 75
   domains:
     - name: core
-      match: ["./internal/core/..."]
+      match: ["src/core/**"]
       min: 85
 ```
+
+Domains match source paths (globs like `src/api/**`, or Go package paths like `./internal/api/...`). Details: [Domains](/coverctl/configuration/domains/).
 
 ### exclude
 
@@ -102,7 +104,7 @@ Per-file coverage rules. See [Policies](/coverctl/configuration/policies/).
 
 ```yaml
 files:
-  - match: ["internal/core/*.go"]
+  - match: ["src/core/*"]
     min: 90
 ```
 

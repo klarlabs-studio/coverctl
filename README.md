@@ -46,18 +46,18 @@ coverctl mcp doctor   # PASS/FAIL per step with remediation
 ```text
 You:    Add the email-validation feature to the api domain.
 
-Claude: I'll add EmailValidator + tests in internal/api/email.
+Claude: I'll add EmailValidator + tests under src/api/.
 
-  [edits: internal/api/email.go, internal/api/email_test.go]
+  [edits: src/api/email.ts, src/api/email.test.ts]
 
   Tool call → coverctl check
   Result   → passed: false; failing: api (78.2%, required 80%)
-             uncovered: internal/api/email.go:42-58 (error paths)
+             uncovered: src/api/email.ts:42-58 (error paths)
 
   Tool call → coverctl suggest api
-  Result   → uncovered files: email.go (16 lines), retry.go (4 lines)
+  Result   → uncovered files: email.ts (16 lines), retry.ts (4 lines)
 
-  Two error branches in EmailValidator.Validate are uncovered.
+  Two error branches in EmailValidator.validate are uncovered.
   I'll add cases for empty-input and malformed-domain so api meets
   the 80% threshold before we commit.
 ```
@@ -178,6 +178,8 @@ If a step fails: `coverctl detect --dry-run` previews `init` output; `coverctl c
 
 `.coverctl.yaml` (schema: [`schemas/coverctl.schema.json`](schemas/coverctl.schema.json)):
 
+Domains are **named path groups**, not language packages. `match` uses path globs for most languages (`src/auth/**`) or Go package paths when the project is Go (`./internal/auth/...`):
+
 ```yaml
 version: 1
 policy:
@@ -185,23 +187,23 @@ policy:
     min: 75
   domains:
     - name: auth
-      match: ["./internal/auth/..."]
-      min: 90       # critical path — stricter
+      match: ["src/auth/**"]   # Go equivalent: ["./internal/auth/..."]
+      min: 90                   # critical path — stricter
     - name: api
-      match: ["./internal/api/..."]
+      match: ["src/api/**"]
       min: 80
     - name: utils
-      match: ["./internal/utils/..."]
+      match: ["src/utils/**"]
       # falls back to default min: 75
 exclude:
-  - internal/generated/*
+  - "**/generated/**"
 ```
 
-Per-domain enforcement is the point: overall coverage hides regressions in critical paths. coverctl evaluates each domain against its own minimum and fails the build if any domain falls below.
+Per-domain enforcement is the point: overall coverage hides regressions in critical paths. coverctl evaluates each domain against its own minimum and fails the build if any domain falls below. Per-language starters: [docs quick start](docs/src/content/docs/quick-start.mdx).
 
-#### Why these numbers differ from `go test ./...`
+#### Why Go numbers can differ from `go test ./...`
 
-coverctl runs tests with `-coverpkg` spanning the configured domains, so a package is credited for the tests of *other* packages that exercise it. Plain `go test ./...` credits only a package's own test files. The same code therefore gets two legitimate numbers, and coverctl's is the higher, more accurate one:
+On Go projects, coverctl runs tests with `-coverpkg` spanning the configured domains, so a package is credited for the tests of *other* packages that exercise it. Plain `go test ./...` credits only a package's own test files. The same code therefore gets two legitimate numbers, and coverctl's is the higher, more accurate one:
 
 | package | `go test ./...` | coverctl |
 |---|---|---|

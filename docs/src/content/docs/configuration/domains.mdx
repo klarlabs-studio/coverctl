@@ -1,13 +1,38 @@
 ---
 title: Configure domains
-description: Group source files into governance domains. Auth at 90%, utilities at 60% — coverctl evaluates each domain against its own threshold for agent-loop coverage governance.
+description: Group source paths into governance domains. Auth at 90%, utilities at 60% — coverctl evaluates each domain against its own threshold for agent-loop coverage governance.
 ---
 
-Domains are logical groupings of packages with shared coverage requirements. They allow you to enforce different coverage thresholds for different parts of your codebase.
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
+
+Domains are **named groups of source paths** with their own coverage minimums. They are not language constructs and do not wrap packages, modules, or crates — they match directories and files in your repo so auth can require 90% while utilities stay at 60%.
+
+<Aside type="note" title="Not a Go-package wrapper">
+
+`match` entries are path patterns. Go projects often use `./internal/...` because that is how Go tools name packages; Python, TypeScript, Rust, and others use ordinary globs such as `src/api/**`. Same concept, two dialects.
+
+</Aside>
 
 ## Domain Configuration
 
 Each domain has a name, match patterns, and a minimum coverage threshold:
+
+<Tabs>
+<TabItem label="Path globs (most languages)">
+
+```yaml
+policy:
+  domains:
+    - name: core
+      match: ["src/core/**"]
+      min: 85
+    - name: api
+      match: ["src/api/**"]
+      min: 80
+```
+
+</TabItem>
+<TabItem label="Go package paths">
 
 ```yaml
 policy:
@@ -20,9 +45,28 @@ policy:
       min: 80
 ```
 
+</TabItem>
+</Tabs>
+
 ## Match Patterns
 
-Match patterns use Go's package path syntax:
+`match` accepts either dialect. coverctl picks the resolver from the pattern shape and the project's language:
+
+| Dialect | When to use | Examples |
+|---------|-------------|----------|
+| **Path globs** | Python, JavaScript/TypeScript, Rust, Java, C#, and most non-Go trees | `src/api/**`, `lib/**`, `app/services/**` |
+| **Go package paths** | Go modules (`go.mod` present) | `./internal/auth/...`, `./pkg/utils`, `./cmd/...` |
+
+### Path globs
+
+| Pattern | Matches |
+|---------|---------|
+| `src/core/**` | Everything under `src/core/` |
+| `src/api/**` | Everything under `src/api/` |
+| `lib/**` | Everything under `lib/` |
+| `src/*/service/**` | `service` trees one level under `src/` |
+
+### Go package paths
 
 | Pattern | Matches |
 |---------|---------|
@@ -33,27 +77,52 @@ Match patterns use Go's package path syntax:
 
 ### Examples
 
+<Tabs>
+<TabItem label="TypeScript / Python / Rust">
+
 ```yaml
 domains:
-  # Match all subpackages
+  - name: core
+    match: ["src/core/**"]
+    min: 85
+
+  - name: api
+    match:
+      - "src/api/**"
+      - "src/handlers/**"
+    min: 80
+
+  - name: utils
+    match: ["src/utils/**"]
+    min: 70
+```
+
+</TabItem>
+<TabItem label="Go">
+
+```yaml
+domains:
   - name: core
     match: ["./internal/core/..."]
     min: 85
 
-  # Match multiple paths
   - name: api
     match:
       - "./internal/api/..."
       - "./internal/handlers/..."
     min: 80
 
-  # Match specific packages
   - name: utils
     match:
       - "./pkg/utils"
       - "./pkg/helpers"
     min: 70
 ```
+
+</TabItem>
+</Tabs>
+
+Language-specific starter configs (including `language:` and `profile:`) are in [Quick start](/coverctl/quick-start/#after-init-example-configs).
 
 ## Excluding Files
 
@@ -65,6 +134,7 @@ exclude:
   - "**/mocks/**"
   - "**/*_test.go"
   - "**/testdata/**"
+  - "**/migrations/**"
 ```
 
 ### Glob Patterns
@@ -73,7 +143,7 @@ exclude:
 |---------|---------|
 | `**/generated/**` | Any file under a `generated` directory |
 | `**/*_mock.go` | Any file ending in `_mock.go` |
-| `internal/legacy/*` | Files directly in `internal/legacy/` |
+| `src/legacy/*` | Files directly in `src/legacy/` |
 
 ## Auto-Detection
 
@@ -87,7 +157,14 @@ coverctl detect --dry-run
 coverctl detect
 ```
 
-### Detection Rules
+Detection follows the **layout of the detected language**, not a single package model:
+
+| Language family | Typical detected `match` shapes |
+|-----------------|----------------------------------|
+| Go | `./internal/...`, `./cmd/...`, `./pkg/...` |
+| Python / JS / TS / Rust / … | `src/**`, `src/api/**`, `lib/**`, crate/layout-specific globs |
+
+### Go layout heuristics (when `go.mod` is present)
 
 | Directory | Detected Domain |
 |-----------|-----------------|
@@ -99,28 +176,46 @@ coverctl detect
 | `internal/api/` | API layer |
 | `pkg/` | Public packages |
 
-Directories named `generated`, `mocks`, `testdata`, or `vendor` are automatically excluded.
+Directories named `generated`, `mocks`, `testdata`, or `vendor` are automatically excluded. For other languages, run `coverctl detect --dry-run` to see the proposed globs for your tree.
 
 ## Domain Overlap
 
 When a file matches multiple domains, it's assigned to the first matching domain. Order your domains from most specific to least specific:
 
+<Tabs>
+<TabItem label="Path globs">
+
 ```yaml
 domains:
-  # More specific first
+  - name: core-critical
+    match: ["src/core/critical/**"]
+    min: 95
+
+  - name: core
+    match: ["src/core/**"]
+    min: 85
+```
+
+</TabItem>
+<TabItem label="Go">
+
+```yaml
+domains:
   - name: core-critical
     match: ["./internal/core/critical/..."]
     min: 95
 
-  # Less specific second
   - name: core
     match: ["./internal/core/..."]
     min: 85
 ```
 
+</TabItem>
+</Tabs>
+
 ## Code Annotations
 
-With `annotations.enabled: true`, you can override domain assignment in code:
+With `annotations.enabled: true`, you can override domain assignment in source comments (language comment syntax varies; Go shown):
 
 ```go
 // coverctl:domain=critical
@@ -142,13 +237,14 @@ package generated
 
 ## Best Practices
 
-1. **Start with auto-detection**: Use `coverctl detect --dry-run` to see suggested domains
-2. **Group by criticality**: Higher thresholds for core business logic
-3. **Use meaningful names**: Domain names appear in reports
+1. **Start with auto-detection**: Use `coverctl detect --dry-run` to see suggested domains for *your* language
+2. **Group by criticality**: Higher thresholds for core business logic — names are labels, not package wrappers
+3. **Use meaningful names**: Domain names appear in reports and agent tool output
 4. **Keep excludes minimal**: Only exclude truly non-testable code
 5. **Review overlaps**: Check for unintended domain assignments
 
 ## See Also
 
 - [Policies](/coverctl/configuration/policies/) - Set coverage thresholds
+- [Quick start](/coverctl/quick-start/) - Per-language example configs
 - [Advanced](/coverctl/configuration/advanced/) - Annotations and more
