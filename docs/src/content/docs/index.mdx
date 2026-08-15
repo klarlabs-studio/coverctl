@@ -31,7 +31,9 @@ import AgentLoop from '../../components/AgentLoop.astro';
 
 </div>
 
-Works best on standard Go/Python/JavaScript/Java/Rust projects with conventional layouts. Mock-heavy code or exotic monorepos may need an explicit `domains:` block — see [trust calibration](/coverctl/quick-start/#where-coverctl-works-best-and-where-it-may-need-adjustments).
+Works best on standard Python/TypeScript/JavaScript/Java/Rust/Go projects with conventional layouts. Mock-heavy code or exotic monorepos may need an explicit `domains:` block — see [trust calibration](/coverctl/quick-start/#where-coverctl-works-best-and-where-it-may-need-adjustments).
+
+coverctl is **not** `go tool cover` or a Go-only cover CLI — it is policy + MCP over each language's native runner. See [coverctl vs native commands](/coverctl/compare/coverctl-vs-native/).
 
 ---
 
@@ -89,7 +91,7 @@ coverctl returns deterministic structured signals; the agent's *fix* still needs
 |---|---|
 | **Red-CI agent loop** (status quo) | Agent edits → tests fail in CI 8 minutes later → context lost. coverctl: feedback in seconds, in the same turn. |
 | **Codecov / Coveralls dashboards** | Post-merge visibility for humans. coverctl: pre-commit signal for agents. |
-| **Native `go test -cover` / `pytest --cov`** | Per-language only, no domain policy, no agent-callable interface. coverctl: uniform across 15 languages, MCP-native. |
+| **Native runners** (`go test -cover`, `pytest --cov`, `nyc`, …) | Substrate only — one language, no domain policy, no MCP. coverctl **uses** them; it does not replace Go cover or become a Go-cover wrapper. [Comparison →](/coverctl/compare/coverctl-vs-native/) |
 
 ---
 

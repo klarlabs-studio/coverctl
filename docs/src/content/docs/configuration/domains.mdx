@@ -7,9 +7,14 @@ import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
 
 Domains are **named groups of source paths** with their own coverage minimums. They are not language constructs and do not wrap packages, modules, or crates — they match directories and files in your repo so auth can require 90% while utilities stay at 60%.
 
-<Aside type="note" title="Not a Go-package wrapper">
+<Aside type="note" title="Not Go cover, not a Go-package wrapper">
 
-`match` entries are path patterns. Go projects often use `./internal/...` because that is how Go tools name packages; Python, TypeScript, Rust, and others use ordinary globs such as `src/api/**`. Same concept, two dialects.
+coverctl is **agent-loop coverage governance**. It is separate from
+`go tool cover` / `go test -cover` (those remain the Go substrate when
+the project is Go). Domains are path patterns: most languages use
+globs such as `src/api/**`; Go projects may use `./internal/...`
+because that is how Go tools name packages. Same product concept, two
+match dialects — [vs native coverage commands](/coverctl/compare/coverctl-vs-native/).
 
 </Aside>
 

@@ -7,8 +7,12 @@ import { Tabs, TabItem, Steps, Aside } from '@astrojs/starlight/components';
 
 This is the recommended path if you use **Claude Code, Cursor, Cline**, or any
 other MCP-capable AI coding client. It sets coverctl up so the agent can call
-coverage tools directly from inside the edit loop — catching regressions
-before commit, not after CI.
+coverage **governance** tools directly from inside the edit loop — catching
+regressions before commit, not after CI.
+
+coverctl is not a Go cover wrapper: the agent calls `check` / `suggest` /
+`debt` against `.coverctl.yaml` while coverctl drives whatever native runner
+the project uses ([vs native commands](/coverctl/compare/coverctl-vs-native/)).
 
 If you mostly run from a terminal, follow the [Quick Start (Terminal)](/coverctl/quick-start/)
 instead. Both paths share the same `.coverctl.yaml` configuration; switching

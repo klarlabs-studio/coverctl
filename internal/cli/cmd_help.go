@@ -6,7 +6,11 @@ import (
 )
 
 var commandHelpText = map[string]string{
-	"check": `coverctl check - Run coverage and enforce policy
+	"check": `coverctl check - Enforce coverage policy (governance over the native runner)
+
+Runs the project's language-native coverage command, then evaluates
+per-domain thresholds from .coverctl.yaml. Not a Go cover replacement —
+on Go repos it may invoke go test; on others, pytest / npm / cargo / etc.
 
 Usage:
   coverctl check [flags]
@@ -35,7 +39,7 @@ Build/Test Flags:
       --run string       Run only tests matching pattern
       --timeout string   Test timeout forwarded to runner (e.g., 10m, 1h)
       --max-runtime string  Hard ceiling on total runtime (default "15m"; 0 disables)
-      --test-arg string  Additional argument passed to go test (repeatable)
+      --test-arg string  Additional argument passed to the test runner (repeatable)
 
 Examples:
   coverctl check
@@ -69,7 +73,7 @@ Build/Test Flags:
       --run string       Run only tests matching pattern
       --timeout string   Test timeout forwarded to runner (e.g., 10m, 1h)
       --max-runtime string  Hard ceiling on total runtime (default "15m"; 0 disables)
-      --test-arg string  Additional argument passed to go test (repeatable)
+      --test-arg string  Additional argument passed to the test runner (repeatable)
 
 Examples:
   coverctl run

@@ -8,7 +8,9 @@
 
 > *"Our AI agents ship code fast, but they're blind to coverage policy while editing. We only see breakage in CI, after context is gone, and the same agent then guesses its way to a fix."*
 
-Works best on standard Go/Python/JavaScript/Java/Rust projects with conventional layouts. Mock-heavy code or exotic monorepos may need an explicit `domains:` block in `.coverctl.yaml`.
+Works best on standard Python/TypeScript/JavaScript/Java/Rust/Go projects with conventional layouts. Mock-heavy code or exotic monorepos may need an explicit `domains:` block in `.coverctl.yaml`.
+
+coverctl is **not** a Go cover CLI: it is policy + MCP over each language's native coverage runner ([vs `go test -cover` / `pytest --cov`](docs/src/content/docs/compare/coverctl-vs-native.mdx)).
 
 ## Get started
 
@@ -72,13 +74,13 @@ coverctl returns deterministic structured signals; the agent's *fix* still needs
 
 ## Why this exists
 
-AI coding agents write code blind to coverage. They edit, you commit, the regression surfaces in CI minutes or hours later — too late to course-correct in the same session. Existing coverage tools (Codecov, Coveralls, native `go test -cover`) target humans reading dashboards or PR comments, not agents reasoning inline.
+AI coding agents write code blind to coverage. They edit, you commit, the regression surfaces in CI minutes or hours later — too late to course-correct in the same session. Dashboards (Codecov, Coveralls) and raw language runners (`go test -cover`, `pytest --cov`, `nyc`) target humans reading numbers after the fact — not agents enforcing policy mid-edit.
 
-coverctl is built for the agent loop:
+coverctl is built for the agent loop (and is **not** a replacement for Go's cover tooling):
 
 - **Catches regressions before commit.** Coverage feedback in the agent's edit turn — not minutes after CI fails. The wedge metric is regressions caught pre-commit.
 - **Agent-callable via MCP.** Speaks MCP — the multi-vendor agent-tool standard now governed by Anthropic, OpenAI, Google, Microsoft, AWS. Works with every MCP-capable client today; works with whatever ships next without modification.
-- **Polyglot governance, one config.** One `.coverctl.yaml` enforces per-domain thresholds across 15 languages. Agents touch any language; coverage tooling must too.
+- **Polyglot governance, one config.** One `.coverctl.yaml` enforces per-domain thresholds across 15 languages. On Go repos it may *invoke* `go test` the way it invokes `pytest` elsewhere — then applies the same domain policy. Agents touch any language; coverage governance must too.
 - **Local-first.** Your source never leaves the machine. Agent calls coverctl over stdio, not over a SaaS API. No account, no upload, no third-party dependency in the agent's reach.
 - **Hardened MCP surface.** Input + output sanitization defends against prompt-injection through test-runner flags and hostile filenames in coverage profiles (Lethal Trifecta).
 
@@ -199,19 +201,14 @@ exclude:
   - "**/generated/**"
 ```
 
-Per-domain enforcement is the point: overall coverage hides regressions in critical paths. coverctl evaluates each domain against its own minimum and fails the build if any domain falls below. Per-language starters: [docs quick start](docs/src/content/docs/quick-start.mdx).
+Per-domain enforcement is the point: overall coverage hides regressions in critical paths. coverctl evaluates each domain against its own minimum and fails the build if any domain falls below. Per-language starters: [docs quick start](docs/src/content/docs/quick-start.mdx). How this differs from raw runners: [vs native coverage](docs/src/content/docs/compare/coverctl-vs-native.mdx).
 
-#### Why Go numbers can differ from `go test ./...`
+<details>
+<summary>Go-only footnote: why numbers can differ from plain <code>go test ./...</code></summary>
 
-On Go projects, coverctl runs tests with `-coverpkg` spanning the configured domains, so a package is credited for the tests of *other* packages that exercise it. Plain `go test ./...` credits only a package's own test files. The same code therefore gets two legitimate numbers, and coverctl's is the higher, more accurate one:
+On Go projects coverctl may pass `-coverpkg` spanning configured domains so a package is credited for tests of *other* packages that exercise it. Plain `go test ./...` credits only a package's own tests — two legitimate numbers; coverctl's is usually higher. This is Go runner behavior, not the product model. Prefer `coverctl check` profiles when comparing history. `--from-profile` reports whatever the supplied profile measured.
 
-| package | `go test ./...` | coverctl |
-|---|---|---|
-| a package exercised only through its callers | 0.0% | 80% |
-
-If a package looks untested under `go test`, check it here before writing tests for it — a helper called from everywhere but tested nowhere directly will read as 0% and be fully covered in practice. The reverse case is real too: a package can look fine in aggregate while one file inside it has no tests at all, which is what `files:` rules exist for.
-
-Note that `--from-profile` reports whatever the supplied profile measured. If that profile came from a plain `go test ./...`, the numbers are per-package and the distinction above does not apply.
+</details>
 
 ### Advanced
 
@@ -296,7 +293,7 @@ Built by Felix Geelhaar with contributions from the polyglot AI-coding community
 ## Contributing
 
 - TDD: tests before behavior changes.
-- Meet each domain's `min` in `.coverctl.yaml` (default 80% when unset). Prefer `go run ./cmd/coverctl check` over raw `go test -cover`.
+- Meet each domain's `min` in `.coverctl.yaml` (default 80% when unset). This repo is Go, so dogfood with `go run ./cmd/coverctl check` (policy over the runner — not a substitute for reading `go test` failures).
 - Conventional Commits (`feat:`, `fix:`, `chore:`, ...) for Relicta version-bump logic.
 - `main` is protected; merge via PR after CI green (`.github/workflows/go.yml` + `.github/workflows/eval.yml`).
 - Run `gofmt -w` and `golangci-lint v2` before pushing.

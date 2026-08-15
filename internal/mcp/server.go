@@ -98,7 +98,7 @@ func (s *Server) registerTools() {
 	agent := s.config.Mode == ModeAgent
 
 	s.server.Tool("check").
-		Description("Run the project's test suite with coverage and enforce per-domain policy thresholds defined in .coverctl.yaml. Auto-detects the language and invokes the appropriate test runner (go test, pytest, npm test, mvn, gradle, cargo, dotnet, etc.). Returns per-domain pass/fail, file-level coverage, and warnings. Exit-equivalent: passed=true on success, passed=false on policy violation or runner error.").
+		Description("Enforce per-domain coverage policy from .coverctl.yaml (agent-loop governance — not a Go cover wrapper). Auto-detects the language and invokes the project's native test runner (go test, pytest, npm test, mvn, gradle, cargo, dotnet, etc.), then returns per-domain pass/fail, file-level coverage, and warnings. Exit-equivalent: passed=true on success, passed=false on policy violation or runner error.").
 		OutputSchema(ToolOutput{}).
 		Handler(s.handleCheck)
 
@@ -121,7 +121,7 @@ func (s *Server) registerTools() {
 		Handler(s.handleInit)
 
 	s.server.Tool("report").
-		Description("Analyze an existing coverage profile without re-running tests. Supports Go cover profiles, LCOV (info), Cobertura (XML), and JaCoCo (XML); format auto-detected from file content. Use when a profile is already on disk from a prior CI run or a separate test invocation.").
+		Description("Analyze an existing coverage profile without re-running tests. Reads whatever format the profile uses (Go coverprofile, LCOV, Cobertura, JaCoCo — auto-detected). This is policy analysis over a profile, not go tool cover. Use when a profile is already on disk from a prior CI run or a separate test invocation.").
 		OutputSchema(ToolOutput{}).
 		Handler(s.handleReport)
 
