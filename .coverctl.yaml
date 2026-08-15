@@ -18,7 +18,7 @@ policy:
     - name: application
       match:
         - "./internal/application/..."
-      min: 30
+      min: 35
     - name: domain
       match:
         - "./internal/domain/..."
@@ -86,3 +86,17 @@ policy:
       match:
         - "./internal/infrastructure/badge/..."
       min: 90
+    - name: providers
+      match:
+        - "./internal/infrastructure/github/..."
+        - "./internal/infrastructure/gitlab/..."
+        - "./internal/infrastructure/bitbucket/..."
+      min: 85
+    - name: cmdrun
+      match:
+        - "./internal/infrastructure/cmdrun/..."
+      min: 80
+    - name: watcher
+      match:
+        - "./internal/infrastructure/watcher/..."
+      min: 80

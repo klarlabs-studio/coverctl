@@ -1,0 +1,18 @@
+{
+  "id": "happy_debt_ranked_items",
+  "description": "debt returns ranked gap items and health score.",
+  "category": "happy_path",
+  "tool": "debt",
+  "input": {},
+  "expect": {
+    "passed": true,
+    "summaryContains": "Coverage debt",
+    "hasField": [
+      "passed",
+      "items",
+      "totalDebt",
+      "healthScore",
+      "summary"
+    ]
+  }
+}

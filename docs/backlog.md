@@ -6,13 +6,13 @@ Status as of 2026-08-15 health-improvements pass. Items below marked
 
 ## Still open (prioritized)
 
-1. **MCP agent-loop eval harness expansion** — corpus now 70+ adversarial/schema/judge scenarios; still missing happy-path polyglot runner scenarios and live-agent tool-selection evals.
-2. **5-user polyglot usability test** — protocol ready (`docs/research/usability-test-protocol.md`); no findings report yet.
-3. **Site / docs-site IA work** — sidebar re-architecture, Diataxis splits, comparison pages, blog/changelog, pricing page, social-proof (docs Astro site).
-4. **CI product metrics dogfooding** — structured artifacts partially exist in `coverage.yml`; trend analysis pipeline not yet productized.
-5. **AI/Agent success metrics baseline** — telemetry flag exists; retained-value analysis of which 3 MCP tools drive usage is not yet instrumented end-to-end.
-6. **Activation funnel / GTM metrics** — specs exist; no live funnel dashboards.
-7. **Runner CI matrix** — mocked buildArgs tests exist; real toolchain smoke for Python/Node/Rust still optional.
+1. **5-user polyglot usability test** — protocol ready (`docs/research/usability-test-protocol.md`); no findings report yet (needs human participants).
+2. **Site content infra** — blog/changelog/RSS, Diataxis splits for oversized pages, CLI page template standardization, universal Next links.
+3. **CI product metrics dogfooding** — structured artifacts partially exist in `coverage.yml`; trend analysis pipeline not yet productized.
+4. **AI/Agent success metrics baseline** — telemetry flag exists; retained-value analysis of which 3 MCP tools drive usage is not yet instrumented end-to-end.
+5. **Activation funnel / GTM metrics** — specs exist; no live funnel dashboards.
+6. **Real polyglot toolchain smoke** — runners unit workflow + mocked buildArgs exist; optional CI with pytest-cov/nyc/cargo-llvm-cov still open.
+7. **Live-agent tool-selection evals** — happy_path stub scenarios shipped; LLM-driven tool selection still deferred.
 
 ## SHIPPED (do not re-open)
 
@@ -26,9 +26,12 @@ Status as of 2026-08-15 health-improvements pass. Items below marked
 - Transparency-moment artifact (agent transcript in README)
 - Security and privacy public posture (input+output boundaries in README)
 - Community and platform-teams surface area (README sections)
-- Eval harness skeleton + RuleJudge CI gate (corpus grown to 70+)
+- Eval harness skeleton + RuleJudge CI gate (corpus grown to 80+ with happy_path)
 - Architecture drift guardrails (ceiling tests; god-file extraction below ceilings)
-- Coverage quality hotspot uplift (mcp/cli/runners/parsers/eval domains gated)
+- Coverage quality hotspot uplift (mcp/cli/runners/parsers/eval/providers domains gated)
+- Docs site journey sidebar + compare pages + community page + print.css + 404
+- Runners unit CI workflow (mocked Detect/buildArgs; no language toolchains)
+- Happy-path MCP eval scenarios (check/report/badge/debt/suggest/compare/record)
 - Golden path UX / CLI next-action hints / failure-mode docs (prior iterations)
 - Rust LCOV parsing + quick-start coverage (prior iterations)
 

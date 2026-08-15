@@ -1,0 +1,16 @@
+{
+  "id": "happy_report_pass_shape",
+  "description": "report returns passed=true with domains and PASS summary.",
+  "category": "happy_path",
+  "tool": "report",
+  "input": {},
+  "expect": {
+    "passed": true,
+    "summaryContains": "PASS",
+    "hasField": [
+      "passed",
+      "summary",
+      "domains"
+    ]
+  }
+}

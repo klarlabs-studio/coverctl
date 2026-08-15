@@ -41,7 +41,7 @@ export default defineConfig({
       editLink: {
         baseUrl: 'https://github.com/klarlabs-studio/coverctl/edit/main/docs/',
       },
-      customCss: ['./src/styles/custom.css'],
+      customCss: ['./src/styles/custom.css', './src/styles/print.css'],
       head: [
         {
           tag: 'meta',
@@ -95,6 +95,7 @@ export default defineConfig({
           items: [
             { label: 'The agent loop, end to end', slug: 'agent-loop-tutorial' },
             { label: 'MCP server reference', slug: 'mcp' },
+            { label: 'Rejection schema', slug: 'security/rejection-schema' },
           ],
         },
         {
@@ -103,6 +104,7 @@ export default defineConfig({
             { label: 'Overview', slug: 'for-platform-teams' },
             { label: 'Threat model', slug: 'security/threat-model' },
             { label: 'Rejection schema', slug: 'security/rejection-schema' },
+            { label: 'Community', slug: 'community' },
           ],
         },
         {
