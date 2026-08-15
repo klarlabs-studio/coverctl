@@ -254,9 +254,10 @@ func (s *Server) handleCheck(ctx context.Context, input CheckInput) (map[string]
 	}
 
 	// Record after gates so policy_fail is distinct from runtime error.
-	if err != nil {
+	switch {
+	case err != nil:
 		s.telemetry.RecordToolCall("check", time.Since(start), err, false)
-	} else if !result.Passed {
+	case !result.Passed:
 		s.telemetry.RecordToolCall("check", time.Since(start), ErrPolicyFail, false)
 		for _, d := range result.Domains {
 			if d.Status == domain.StatusFail {
@@ -267,7 +268,7 @@ func (s *Server) handleCheck(ctx context.Context, input CheckInput) (map[string]
 				s.telemetry.RecordRegressionCaught("check", d.Domain, shortfall)
 			}
 		}
-	} else {
+	default:
 		s.telemetry.RecordToolCall("check", time.Since(start), nil, false)
 	}
 
