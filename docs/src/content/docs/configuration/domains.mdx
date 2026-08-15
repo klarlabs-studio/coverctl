@@ -5,16 +5,17 @@ description: Group source paths into governance domains. Auth at 90%, utilities 
 
 import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
 
-Domains are **named groups of source paths** with their own coverage minimums. They are not language constructs and do not wrap packages, modules, or crates — they match directories and files in your repo so auth can require 90% while utilities stay at 60%.
+Domains are **named groups of source paths** with their own coverage minimums. They work the same way for **all sorts of languages** — Python, TypeScript, Java, Rust, Go, and the rest. They are not language constructs and do not wrap packages, modules, or crates — they match directories and files in your repo so auth can require 90% while utilities stay at 60%.
 
 <Aside type="note" title="Not Go cover, not a Go-package wrapper">
 
-coverctl is **agent-loop coverage governance**. It is separate from
-`go tool cover` / `go test -cover` (those remain the Go substrate when
-the project is Go). Domains are path patterns: most languages use
-globs such as `src/api/**`; Go projects may use `./internal/...`
-because that is how Go tools name packages. Same product concept, two
-match dialects — [vs native coverage commands](/coverctl/compare/coverctl-vs-native/).
+coverctl is **agent-loop coverage governance for all sorts of languages**.
+It is separate from `go tool cover` / `go test -cover` (those remain the
+Go substrate when the project is Go). Domains are path patterns: most
+languages use globs such as `src/api/**`; Go projects may use
+`./internal/...` because that is how Go tools name packages. Same product
+concept, two match dialects —
+[vs native coverage commands](/coverctl/compare/coverctl-vs-native/).
 
 </Aside>
 

@@ -144,7 +144,7 @@ _coverctl() {
                         '--test-run[Run tests matching pattern]:pattern:' \
                         '--timeout[Test timeout]:duration:' \
                         '--test-arg[Additional test argument]:arg:' \
-                        '--language[Override language detection]:lang:(go python nodejs rust java)'
+                        '--language[Override language detection]:lang:(python javascript typescript java rust go csharp cpp php ruby swift dart scala elixir shell)'
                     ;;
                 completion)
                     _arguments '1:shell:(bash zsh fish)'
@@ -213,7 +213,7 @@ complete -c coverctl -l run -d "Run tests matching pattern" -r
 complete -c coverctl -l test-run -d "Run tests matching pattern" -r
 complete -c coverctl -l timeout -d "Test timeout (e.g., 10m, 1h)" -r
 complete -c coverctl -l test-arg -d "Additional argument passed to go test" -r
-complete -c coverctl -l language -d "Override language detection" -r -a "go python nodejs rust java"
+complete -c coverctl -l language -d "Override language detection" -r -a "python javascript typescript java rust go csharp cpp php ruby swift dart scala elixir shell"
 
 # Completion subcommand
 complete -c coverctl -n "__fish_seen_subcommand_from completion" -a "bash zsh fish"

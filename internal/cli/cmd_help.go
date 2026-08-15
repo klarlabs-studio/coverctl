@@ -6,11 +6,12 @@ import (
 )
 
 var commandHelpText = map[string]string{
-	"check": `coverctl check - Enforce coverage policy (governance over the native runner)
+	"check": `coverctl check - Enforce coverage policy across any language
 
-Runs the project's language-native coverage command, then evaluates
-per-domain thresholds from .coverctl.yaml. Not a Go cover replacement —
-on Go repos it may invoke go test; on others, pytest / npm / cargo / etc.
+Runs the project's language-native coverage command (pytest, npm test,
+go test, cargo, mvn, … — 15 languages), then evaluates per-domain
+thresholds from .coverctl.yaml. Governance layer, not a Go cover
+replacement.
 
 Usage:
   coverctl check [flags]
@@ -209,7 +210,7 @@ Flags:
       --commit string    Git commit SHA (optional)
       --branch string    Git branch name (optional)
       --run              Run coverage before recording history
-  -l, --language string  Override language detection (go, python, nodejs, rust, java)
+  -l, --language string  Override language detection (python, javascript, typescript, java, rust, go, csharp, cpp, php, ruby, swift, dart, scala, elixir, shell)
   -d, --domain string    Filter to specific domain (repeatable)
       --tags string      Build tags (e.g., integration,e2e)
       --race             Enable race detector

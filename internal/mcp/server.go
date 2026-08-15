@@ -98,7 +98,7 @@ func (s *Server) registerTools() {
 	agent := s.config.Mode == ModeAgent
 
 	s.server.Tool("check").
-		Description("Enforce per-domain coverage policy from .coverctl.yaml (agent-loop governance — not a Go cover wrapper). Auto-detects the language and invokes the project's native test runner (go test, pytest, npm test, mvn, gradle, cargo, dotnet, etc.), then returns per-domain pass/fail, file-level coverage, and warnings. Exit-equivalent: passed=true on success, passed=false on policy violation or runner error.").
+		Description("Enforce per-domain coverage policy from .coverctl.yaml across any supported language (Python, TypeScript/JavaScript, Java, Rust, Go, C#, C/C++, PHP, Ruby, Swift, Dart, Scala, Elixir, Shell). Agent-loop governance — not a Go cover wrapper. Auto-detects the language, invokes the native test runner (pytest, npm test, go test, mvn, gradle, cargo, dotnet, …), then returns per-domain pass/fail, file-level coverage, and warnings. Exit-equivalent: passed=true on success, passed=false on policy violation or runner error.").
 		OutputSchema(ToolOutput{}).
 		Handler(s.handleCheck)
 
@@ -117,7 +117,7 @@ func (s *Server) registerTools() {
 	}
 
 	s.server.Tool("init").
-		Description("Initialize coverctl in the current project. Auto-detects the project's language (Go, Python, TypeScript/JavaScript, Java, Rust, C#, C/C++, PHP, Ruby, Swift, Dart, Scala, Elixir, or Shell), proposes named path-group domains from the directory layout (globs like src/api/**, or Go package paths like ./internal/... when applicable), and writes .coverctl.yaml with default thresholds. Call once per project.").
+		Description("Initialize coverctl for any supported language (Python, TypeScript/JavaScript, Java, Rust, Go, C#, C/C++, PHP, Ruby, Swift, Dart, Scala, Elixir, or Shell). Auto-detects the project, proposes named path-group domains from the directory layout (globs like src/api/**; Go may use ./internal/... ), and writes .coverctl.yaml with default thresholds. Call once per project.").
 		Handler(s.handleInit)
 
 	s.server.Tool("report").

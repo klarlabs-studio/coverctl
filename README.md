@@ -1,14 +1,16 @@
 # coverctl
 
-**Agent-loop coverage governance — coverage your AI coding agent calls before commit, not a dashboard you read after CI.**
+**Agent-loop coverage governance for all sorts of languages** — coverage your AI coding agent calls before commit, not a dashboard you read after CI.
 
-[Get started ↓](#get-started) · [What it looks like ↓](#what-it-looks-like-in-the-agent-loop) · [MCP tools ↓](#mcp-tools) · [CLI reference ↓](#cli-reference) · [Why this exists ↓](#why-this-exists) · [Community ↓](#community)
+Works with **Python, TypeScript/JavaScript, Java, Rust, Go, C#, C/C++, PHP, Ruby, Swift, Dart, Scala, Elixir, and Shell** — one `.coverctl.yaml`, one MCP surface. Not a Go cover tool.
 
-![MCP](https://img.shields.io/badge/MCP-server-blueviolet) ![Releases](https://img.shields.io/github/v/release/klarlabs-studio/coverctl?label=release)
+[Get started ↓](#get-started) · [Languages ↓](#supported-languages) · [What it looks like ↓](#what-it-looks-like-in-the-agent-loop) · [MCP tools ↓](#mcp-tools) · [CLI reference ↓](#cli-reference) · [Why this exists ↓](#why-this-exists) · [Community ↓](#community)
+
+![MCP](https://img.shields.io/badge/MCP-server-blueviolet) ![15 languages](https://img.shields.io/badge/languages-15-teal) ![Releases](https://img.shields.io/github/v/release/klarlabs-studio/coverctl?label=release)
 
 > *"Our AI agents ship code fast, but they're blind to coverage policy while editing. We only see breakage in CI, after context is gone, and the same agent then guesses its way to a fix."*
 
-Works best on standard Python/TypeScript/JavaScript/Java/Rust/Go projects with conventional layouts. Mock-heavy code or exotic monorepos may need an explicit `domains:` block in `.coverctl.yaml`.
+Same policy model on every language: auto-detect the runner, group paths into domains, enforce mins before commit. Mock-heavy or exotic layouts may need an explicit `domains:` block in `.coverctl.yaml`.
 
 coverctl is **not** a Go cover CLI: it is policy + MCP over each language's native coverage runner ([vs `go test -cover` / `pytest --cov`](docs/src/content/docs/compare/coverctl-vs-native.mdx)).
 
@@ -161,7 +163,7 @@ Global flags: `-q/--quiet`, `--no-color`, `--ci` (combines quiet + GitHub Action
 | `--run` | `--run TestFoo` |
 | `--timeout` | `--timeout 30m` |
 | `--test-arg` | Repeatable: `--test-arg=-count=1 --test-arg=-parallel=4` |
-| `--language` / `-l` | Override autodetection: `go`, `python`, `nodejs`, `rust`, `java`, ... |
+| `--language` / `-l` | Override autodetection: `python`, `javascript`, `typescript`, `java`, `rust`, `go`, `csharp`, `cpp`, `php`, `ruby`, `swift`, `dart`, `scala`, `elixir`, `shell` |
 
 ### Terminal flow (without an agent)
 
@@ -234,13 +236,15 @@ Multi-package monorepo? Use `extends:` for inherited policies. Starting point: c
 
 ## Supported languages
 
+One product across **15** languages. coverctl auto-detects which runner to call; you write path domains once.
+
 | Language | Format | Detection markers |
 | --- | --- | --- |
-| Go | Native cover profile | `go.mod`, `go.sum` |
 | Python | Cobertura, LCOV | `pyproject.toml`, `setup.py`, `requirements.txt` |
 | TypeScript / JavaScript | LCOV | `tsconfig.json`, `package.json` |
-| Java | JaCoCo, Cobertura | `pom.xml`, `build.gradle` |
+| Java / Kotlin | JaCoCo, Cobertura | `pom.xml`, `build.gradle` |
 | Rust | LCOV (cargo-llvm-cov) | `Cargo.toml` |
+| Go | Native cover profile | `go.mod`, `go.sum` |
 | C# / .NET | Cobertura (coverlet) | `*.csproj`, `*.sln` |
 | C / C++ | LCOV (gcov/lcov) | `CMakeLists.txt`, `meson.build` |
 | PHP | Cobertura (PHPUnit) | `composer.json`, `phpunit.xml` |
@@ -250,6 +254,8 @@ Multi-package monorepo? Use `extends:` for inherited policies. Starting point: c
 | Scala | Cobertura (scoverage) | `build.sbt` |
 | Elixir | LCOV (mix test) | `mix.exs` |
 | Shell | Cobertura (kcov) | `*.bats` |
+
+Per-language config examples: [docs quick start](docs/src/content/docs/quick-start.mdx).
 
 ## GitHub Action
 

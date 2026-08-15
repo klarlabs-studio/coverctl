@@ -601,7 +601,7 @@ func TestHelpFlag(t *testing.T) {
 	if code != 0 {
 		t.Fatalf("expected exit 0, got %d", code)
 	}
-	if !strings.Contains(out.String(), "coverctl - Agent-loop coverage governance (not a Go cover wrapper)") {
+	if !strings.Contains(out.String(), "coverctl - Agent-loop coverage governance for all sorts of languages") {
 		t.Fatalf("expected help output, got: %s", out.String())
 	}
 }
@@ -612,7 +612,7 @@ func TestHelpCommand(t *testing.T) {
 	if code != 0 {
 		t.Fatalf("expected exit 0, got %d", code)
 	}
-	if !strings.Contains(out.String(), "coverctl check - Enforce coverage policy") {
+	if !strings.Contains(out.String(), "coverctl check - Enforce coverage policy across any language") {
 		t.Fatalf("expected check help, got: %s", out.String())
 	}
 }

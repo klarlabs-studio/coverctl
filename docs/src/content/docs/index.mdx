@@ -3,7 +3,7 @@ title: coverctl
 description: Agent-loop coverage governance. Coverage your AI coding agent calls before commit — not a dashboard you read after CI.
 template: splash
 hero:
-  tagline: Agent-loop coverage governance — coverage your AI coding agent calls before commit, not a dashboard you read after CI. Domain-aware policy across 15 languages, MCP-native, local-first.
+  tagline: Agent-loop coverage governance for all sorts of languages — Python, TypeScript, Java, Rust, Go, and 10 more. Coverage your AI coding agent calls before commit, not a dashboard you read after CI. MCP-native, local-first.
   image:
     file: ../../assets/logo.svg
   actions:
@@ -31,7 +31,7 @@ import AgentLoop from '../../components/AgentLoop.astro';
 
 </div>
 
-Works best on standard Python/TypeScript/JavaScript/Java/Rust/Go projects with conventional layouts. Mock-heavy code or exotic monorepos may need an explicit `domains:` block — see [trust calibration](/coverctl/quick-start/#where-coverctl-works-best-and-where-it-may-need-adjustments).
+Works with **all sorts of languages** — Python, TypeScript/JavaScript, Java, Rust, Go, C#, C/C++, PHP, Ruby, Swift, Dart, Scala, Elixir, Shell — same domains and MCP tools. Mock-heavy or exotic layouts may need an explicit `domains:` block — see [trust calibration](/coverctl/quick-start/#where-coverctl-works-best-and-where-it-may-need-adjustments).
 
 coverctl is **not** `go tool cover` or a Go-only cover CLI — it is policy + MCP over each language's native runner. See [coverctl vs native commands](/coverctl/compare/coverctl-vs-native/).
 

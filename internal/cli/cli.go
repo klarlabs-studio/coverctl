@@ -389,11 +389,12 @@ func (t *testArgsList) Set(value string) error {
 }
 
 func usage(w io.Writer) {
-	fmt.Fprintf(w, `coverctl - Agent-loop coverage governance (not a Go cover wrapper)
+	fmt.Fprintf(w, `coverctl - Agent-loop coverage governance for all sorts of languages
 
-Enforces per-domain policy across 15 languages. Invokes each project's
-native test runner (go test, pytest, npm test, cargo, …) then evaluates
-.coverctl.yaml — it does not replace go tool cover / go test -cover.
+Not a Go cover wrapper. One .coverctl.yaml + MCP surface across 15 languages:
+Python, TypeScript/JavaScript, Java, Rust, Go, C#, C/C++, PHP, Ruby, Swift,
+Dart, Scala, Elixir, Shell. Invokes each project's native runner (pytest,
+npm test, go test, cargo, mvn, …) then enforces per-domain policy.
 
 Usage:
   coverctl [global-flags] <command> [flags]
