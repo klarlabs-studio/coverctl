@@ -1,0 +1,54 @@
+# Compatibility shim for Code Scanning.
+#
+# Before 2026-06 the CI caller lived at `.github/workflows/go.yml` and the
+# nox SARIF upload registered analysis key `.github/workflows/go.yml:security`.
+# The caller was renamed to ci.yml; GHAS still expects the historical key on
+# every PR ("1 configuration not found") even though the real scan now uploads
+# under ci.yml:security. This workflow only re-asserts the legacy key with an
+# empty SARIF so the PR check is complete — it does not re-run nox.
+name: go
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+    paths-ignore: ["**.md", "docs/**", "LICENSE"]
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  security:
+    name: security
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Write empty legacy-key SARIF
+        run: |
+          python3 - <<'PY'
+          import json, os
+          path = os.path.join(os.environ["RUNNER_TEMP"], "legacy-go-security.sarif")
+          sarif = {
+              "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+              "version": "2.1.0",
+              "runs": [{
+                  "tool": {
+                      "driver": {
+                          "name": "nox",
+                          "informationUri": "https://github.com/klarlabs-studio/nox",
+                          "rules": [],
+                      }
+                  },
+                  "results": [],
+              }],
+          }
+          with open(path, "w", encoding="utf-8") as f:
+              json.dump(sarif, f)
+          print("wrote", path)
+          PY
+      - uses: github/codeql-action/upload-sarif@7211b7c8077ea37d8641b6271f6a365a22a5fbfa # v4
+        with:
+          sarif_file: ${{ runner.temp }}/legacy-go-security.sarif
+          category: nox
