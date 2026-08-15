@@ -292,13 +292,6 @@ func TestLanguageRegistryIsCompleteAndConsistent(t *testing.T) {
 	}
 }
 
-func capitalize(s string) string {
-	if s == "" {
-		return s
-	}
-	return strings.ToUpper(s[:1]) + s[1:]
-}
-
 // TestNoProductionCodeUsesTestOnlyHTTPConstructors prevents reintroduction
 // of the SSRF / token-exfiltration sink that NewClientWithHTTP would open
 // if reached from production code.
