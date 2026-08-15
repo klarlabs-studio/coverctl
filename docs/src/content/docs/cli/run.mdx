@@ -3,6 +3,8 @@ title: coverctl run
 description: Produce coverage artifacts without policy evaluation. Agent-loop coverage governance separates running coverage from enforcing policy; this is the run half.
 ---
 
+import DocsNext from '../../../components/DocsNext.astro';
+
 The `run` command runs tests with coverage instrumentation and generates a coverage profile, but does not evaluate policies. Use this when you only need the coverage data.
 
 ## Usage
@@ -109,8 +111,10 @@ coverctl report -p artifacts/coverage.out
 | `2` | Invalid configuration or arguments |
 | `3` | Test execution failed |
 
-## See Also
-
-- [check](/coverctl/cli/check/) - Run coverage with policy enforcement
-- [report](/coverctl/cli/report/) - Analyze existing coverage profile
-- [watch](/coverctl/cli/watch/) - Continuous coverage during development
+<DocsNext
+  links={[
+    { title: 'check', href: '/coverctl/cli/check/', description: 'Same run, plus policy enforcement.' },
+    { title: 'report', href: '/coverctl/cli/report/', description: 'Analyze an existing profile.' },
+    { title: 'watch', href: '/coverctl/cli/watch/', description: 'Re-run on file changes.' },
+  ]}
+/>

@@ -3,6 +3,8 @@ title: coverctl watch
 description: Re-run coverage on file change during development. Continuous agent-loop coverage feedback for humans editing alongside AI agents.
 ---
 
+import DocsNext from '../../../components/DocsNext.astro';
+
 The `watch` command monitors your project for file changes and automatically re-runs coverage checks. Ideal for development workflows where you want continuous feedback.
 
 ## Usage
@@ -115,8 +117,11 @@ Running coverage check...
 
 Press `Ctrl+C` to stop watching.
 
-## Related
-
-- [check](/coverctl/cli/check/) — single coverage check
-- [run](/coverctl/cli/run/) — generate coverage profile only
-- [Agent-loop tutorial](/coverctl/agent-loop-tutorial/) — continuous feedback with an AI agent
+<DocsNext
+  heading="Related"
+  links={[
+    { title: 'check', href: '/coverctl/cli/check/', description: 'Single coverage check' },
+    { title: 'run', href: '/coverctl/cli/run/', description: 'Generate coverage profile only' },
+    { title: 'Agent-loop tutorial', href: '/coverctl/agent-loop-tutorial/', description: 'Continuous feedback with an AI agent' },
+  ]}
+/>

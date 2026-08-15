@@ -3,6 +3,8 @@ title: coverctl check
 description: Run tests with coverage and enforce per-domain policy. The wedge command of agent-loop coverage governance — agents call it inline before commit.
 ---
 
+import DocsNext from '../../../components/DocsNext.astro';
+
 The `check` command runs the project's **native** coverage runner, evaluates coverage per domain, and enforces policy thresholds from `.coverctl.yaml`. It is governance over `go test` / `pytest` / `npm test` / … — not a replacement for `go tool cover`.
 
 ## Usage
@@ -171,8 +173,10 @@ If `coverctl check` disagrees with previously recorded history, make sure the hi
 | `2` | Invalid configuration or arguments |
 | `3` | Test execution failed |
 
-## See Also
-
-- [run](/coverctl/cli/run/) - Run coverage without policy enforcement
-- [report](/coverctl/cli/report/) - Analyze existing coverage profile
-- [Configuration](/coverctl/configuration/) - Configure coverage policies
+<DocsNext
+  links={[
+    { title: 'suggest', href: '/coverctl/cli/other/#suggest', description: 'Propose thresholds after a check.' },
+    { title: 'run', href: '/coverctl/cli/run/', description: 'Produce a profile without enforcing policy.' },
+    { title: 'MCP check tool', href: '/coverctl/mcp/', description: 'Same gate, agent-callable.' },
+  ]}
+/>

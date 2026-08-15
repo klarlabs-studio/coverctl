@@ -1,0 +1,52 @@
+---
+/**
+ * DocsNext — end-of-page wayfinding for Starlight MDX pages.
+ *
+ * Tutorial pages: pass one primary link (forward arrow feel).
+ * Reference / how-to: pass 2–3 links.
+ *
+ * Usage in MDX:
+ *   import DocsNext from '../../../components/DocsNext.astro';
+ *   <DocsNext links={[
+ *     { title: 'Configure domains', href: '/coverctl/configuration/domains/', description: 'Path groups and mins.' },
+ *   ]} />
+ */
+import { LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+interface Link {
+  title: string;
+  href: string;
+  description?: string;
+}
+
+interface Props {
+  heading?: string;
+  links: Link[];
+}
+
+const { heading = 'Next', links } = Astro.props;
+---
+
+<section class="docs-next" aria-label={heading}>
+  <h2 id="next">{heading}</h2>
+  {links.length === 1 ? (
+    <LinkCard title={links[0].title} href={links[0].href} description={links[0].description} />
+  ) : (
+    <CardGrid>
+      {links.map((link) => (
+        <LinkCard title={link.title} href={link.href} description={link.description} />
+      ))}
+    </CardGrid>
+  )}
+</section>
+
+<style>
+  .docs-next {
+    margin-top: 2.5rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--sl-color-hairline);
+  }
+  .docs-next h2 {
+    margin-top: 0;
+  }
+</style>

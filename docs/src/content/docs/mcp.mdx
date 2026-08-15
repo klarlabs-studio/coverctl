@@ -5,6 +5,7 @@ description: Connect coverctl to Claude Code, Cursor, Cline, Aider and other Mod
 
 import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
 import AgentLoop from '../../components/AgentLoop.astro';
+import DocsNext from '../../components/DocsNext.astro';
 
 coverctl ships an [MCP](https://modelcontextprotocol.io) server so AI coding agents can ask for coverage feedback inline — domain-aware policy results, debt rankings, threshold suggestions, and per-file deltas — without leaving the edit loop.
 
@@ -245,3 +246,11 @@ Find the path with `which coverctl`.
 **Path errors.** All path inputs must be relative to the working directory. Absolute paths are rejected. Pass `Profile=".cover/coverage.out"` not `Profile="/abs/path/coverage.out"`.
 
 **Rate-limit error on `pr-comment`.** The PR was already updated five times in the last five minutes. Wait it out, or use `dryRun=true` to generate the comment body without posting.
+
+<DocsNext
+  links={[
+    { title: 'check', href: '/coverctl/cli/check/', description: 'CLI wedge command agents call via MCP' },
+    { title: 'Other commands', href: '/coverctl/cli/other/', description: 'suggest, debt, compare, pr-comment' },
+    { title: 'Agent-loop tutorial', href: '/coverctl/agent-loop-tutorial/', description: 'End-to-end agent workflow' },
+  ]}
+/>

@@ -3,6 +3,8 @@ title: Policy basics
 description: What your AI coding agent sees in .coverctl.yaml. Per-domain coverage thresholds — the policy file at the heart of agent-loop coverage governance.
 ---
 
+import DocsNext from '../../../components/DocsNext.astro';
+
 `.coverctl.yaml` is what your AI coding agent reads when it calls `coverctl check`. It defines which directories belong to which **domain** (auth, payments, utilities, ...) and what coverage threshold each domain must meet. The agent reads the same file you do — there is no separate agent-mode configuration.
 
 This page is the file-format reference. For deeper patterns — diff-based enforcement, profile merging, integration tests — see [Advanced configuration](/coverctl/configuration/advanced/).
@@ -162,9 +164,12 @@ For a full worked `.coverctl.yaml`, see [Domains](/coverctl/configuration/domain
 and [Policies](/coverctl/configuration/policies/), or copy
 [`templates/coverctl.yaml`](https://github.com/klarlabs-studio/coverctl/blob/main/templates/coverctl.yaml).
 
-## Next Steps
-
-- [Domains](/coverctl/configuration/domains/) — match patterns and per-domain mins
-- [Policies](/coverctl/configuration/policies/) — defaults, warn thresholds, ratchet
-- [Advanced](/coverctl/configuration/advanced/) — files, diff, merge, annotations
-- [Monorepo Support](/coverctl/guides/monorepo/) — config inheritance and workspace support
+<DocsNext
+  heading="Next Steps"
+  links={[
+    { title: 'Domains', href: '/coverctl/configuration/domains/', description: 'Match patterns and per-domain mins' },
+    { title: 'Policies', href: '/coverctl/configuration/policies/', description: 'Defaults, warn thresholds, ratchet' },
+    { title: 'Advanced', href: '/coverctl/configuration/advanced/', description: 'Files, diff, merge, annotations' },
+    { title: 'Monorepo', href: '/coverctl/guides/monorepo/', description: 'Config inheritance and workspace support' },
+  ]}
+/>
