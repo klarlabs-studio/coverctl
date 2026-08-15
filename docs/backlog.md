@@ -7,7 +7,7 @@ Status as of 2026-08-15 health-improvements pass. Items below marked
 ## Still open (prioritized)
 
 1. **5-user polyglot usability test** — protocol ready (`docs/research/usability-test-protocol.md`); no findings report yet (needs human participants).
-2. **Site content infra** — blog/RSS; remaining Diataxis polish on CLI `other.mdx`; universal Next component across all pages.
+2. **Site content infra** — blog/RSS still open. **SHIPPED:** Diataxis polish on CLI `other.mdx`; universal `DocsNext` component on CLI, configuration, installation, community, and MCP pages.
 3. **AI/Agent success metrics baseline** — telemetry flag exists; retained-value analysis of which 3 MCP tools drive usage is not yet instrumented end-to-end.
 4. **Activation funnel / GTM metrics** — specs exist; no live funnel dashboards.
 5. **Real polyglot toolchain smoke** — runners unit workflow + mocked buildArgs exist; optional CI with pytest-cov/nyc/cargo-llvm-cov still open.

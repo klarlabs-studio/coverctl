@@ -4,6 +4,7 @@ description: Install coverctl — agent-loop coverage governance for polyglot co
 ---
 
 import { Tabs, TabItem } from '@astrojs/starlight/components';
+import DocsNext from '../../components/DocsNext.astro';
 
 coverctl is a single self-contained binary. It runs locally — no SaaS account, no source upload. After install, run `coverctl mcp doctor` to validate setup.
 
@@ -76,7 +77,11 @@ coverctl supports shell completions for bash, zsh, and fish.
   </TabItem>
 </Tabs>
 
-## Next Steps
-
-- [Quick Start](/coverctl/quick-start/) - Create your first configuration
-- [CLI Reference](/coverctl/cli/) - Learn about all available commands
+<DocsNext
+  heading="Next Steps"
+  links={[
+    { title: 'Quick Start', href: '/coverctl/quick-start/', description: 'Create your first configuration' },
+    { title: 'CLI Reference', href: '/coverctl/cli/', description: 'Learn about all available commands' },
+    { title: 'MCP Server', href: '/coverctl/mcp/', description: 'Wire coverctl into your AI coding agent' },
+  ]}
+/>

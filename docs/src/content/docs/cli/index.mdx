@@ -3,6 +3,8 @@ title: CLI overview
 description: coverctl CLI reference. The CLI is the substrate behind the MCP coverage server; humans use the same agent-loop coverage governance that AI agents do.
 ---
 
+import DocsNext from '../../../components/DocsNext.astro';
+
 The CLI is the substrate behind the MCP coverage server. Every tool the agent calls — `check`, `suggest`, `debt` — is also a CLI command. Humans use the same surface AI agents do; the policy file (`.coverctl.yaml`) is shared.
 
 The MCP server (`coverctl mcp serve`) is the canonical way to use coverctl inside an AI coding agent. The CLI is what you use from a terminal — and what powers everything underneath the agent.
@@ -103,3 +105,11 @@ coverctl report -o html > coverage.html
 # Watch mode during development
 coverctl watch -d core
 ```
+
+<DocsNext
+  links={[
+    { title: 'check', href: '/coverctl/cli/check/', description: 'Run tests and enforce domain policy.' },
+    { title: 'Other commands', href: '/coverctl/cli/other/', description: 'record, suggest, debt, compare, pr-comment, …' },
+    { title: 'Quick start (terminal)', href: '/coverctl/quick-start/', description: 'init → check golden path.' },
+  ]}
+/>

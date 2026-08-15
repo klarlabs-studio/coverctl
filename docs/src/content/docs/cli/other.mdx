@@ -1,432 +1,223 @@
 ---
 title: Other commands
-description: badge, trend, record, suggest, debt, compare, pr-comment, ignore, mcp, doctor, survey. The remaining surface of the agent-loop coverage governance CLI.
+description: Compact reference for badge, trend, record, suggest, debt, compare, pr-comment, ignore, detect, mcp, and related CLI commands.
 ---
 
-This page covers additional coverctl commands for badges, trends, and coverage analysis.
+import DocsNext from '../../../components/DocsNext.astro';
+
+Analysis and ops commands that are not the golden path (`init` → `check` → `suggest` → `record`). Each section is synopsis + flags + one example — scan, don't scroll a tutorial.
+
+## Command index
+
+| Command | One-liner |
+|---------|-----------|
+| [`pr-comment`](#pr-comment) | Post coverage as a PR/MR comment |
+| [`compare`](#compare) | Diff two coverage profiles |
+| [`badge`](#badge) | Write an SVG coverage badge |
+| [`trend`](#trend) | Show history trend |
+| [`record`](#record) | Append a history snapshot |
+| [`suggest`](#suggest) | Propose domain thresholds |
+| [`debt`](#debt) | Rank coverage gaps |
+| [`ignore`](#ignore) | List exclude patterns |
+| [`detect`](#detect) | Autodetect domains / write config |
+| [`mcp`](#mcp) | MCP server / doctor |
+| [`version`](#version) / [`help`](#help) | Meta |
+
+---
 
 ## pr-comment
-
-Post coverage reports as comments on GitHub, GitLab, or Bitbucket pull requests/merge requests.
 
 ```bash
 coverctl pr-comment [flags]
 ```
 
-### Flags
+Posts a coverage report on GitHub, GitLab, or Bitbucket. Prefer CI after `coverctl check`.
 
 | Flag | Description | Default |
 |------|-------------|---------|
-| `-c, --config` | Config file path | `.coverctl.yaml` |
-| `-p, --profile` | Coverage profile path | `.cover/coverage.out` |
-| `--base-profile` | Base coverage profile for comparison | |
-| `--provider` | Git provider: `github`, `gitlab`, `bitbucket`, `auto` | `auto` |
+| `-c, --config` | Config path | `.coverctl.yaml` |
+| `-p, --profile` | Coverage profile | `.cover/coverage.out` |
+| `--base-profile` | Base profile for deltas | |
+| `--provider` | `github` / `gitlab` / `bitbucket` / `auto` | `auto` |
 | `--pr` | PR/MR number | auto-detected |
-| `--owner` | Repository owner/namespace | auto-detected |
-| `--repo` | Repository name | auto-detected |
-| `--update` | Update existing comment instead of creating new | `true` |
-| `--dry-run` | Generate comment without posting | `false` |
-
-### Provider Auto-Detection
-
-The provider is automatically detected from environment variables:
-
-| Provider | Environment Variables |
-|----------|----------------------|
-| GitHub | `GITHUB_TOKEN`, `GITHUB_REPOSITORY` |
-| GitLab | `GITLAB_TOKEN`, `CI_JOB_TOKEN`, `CI_MERGE_REQUEST_IID` |
-| Bitbucket | `BITBUCKET_TOKEN`, `BITBUCKET_WORKSPACE`, `BITBUCKET_REPO_SLUG` |
-
-### Examples
+| `--owner` / `--repo` | Repository identity | auto-detected |
+| `--update` | Update existing coverctl comment | `true` |
+| `--dry-run` | Print body without posting | `false` |
 
 ```bash
-# GitHub Actions (auto-detects everything)
-coverctl pr-comment --pr ${{ github.event.pull_request.number }}
-
-# GitLab CI (MR number auto-detected from CI_MERGE_REQUEST_IID)
-coverctl pr-comment
-
-# Bitbucket Pipelines (PR number auto-detected from BITBUCKET_PR_ID)
-coverctl pr-comment
-
-# With coverage comparison to base branch
-coverctl pr-comment --pr 123 --base-profile main-coverage.out
-
-# Explicit provider
-coverctl pr-comment --provider gitlab --pr 42
-
-# Preview comment without posting
 coverctl pr-comment --pr 123 --dry-run
 ```
 
-### Comment Format
-
-The generated comment includes:
-
-- Overall coverage percentage and change
-- Domain-level coverage breakdown with status indicators
-- List of changed files with coverage deltas (when base profile provided)
-- Pass/fail status based on configured thresholds
+Provider tokens: `GITHUB_TOKEN`, `GITLAB_TOKEN` / `CI_JOB_TOKEN`, or `BITBUCKET_TOKEN` (+ workspace/repo vars).
 
 ---
 
 ## compare
 
-Compare coverage between two profiles to show improvements and regressions.
-
 ```bash
-coverctl compare [flags]
+coverctl compare --base <profile> [--head <profile>]
 ```
-
-### Flags
 
 | Flag | Description | Default |
 |------|-------------|---------|
-| `-c, --config` | Config file path | `.coverctl.yaml` |
-| `--base` | Base coverage profile (required) | |
-| `--head` | Head coverage profile | `.cover/coverage.out` |
-| `-o, --output` | Output format: `text`, `json` | `text` |
-
-### Examples
+| `--base` | Base profile (required) | |
+| `--head` | Head profile | `.cover/coverage.out` |
+| `-o, --output` | `text` / `json` | `text` |
 
 ```bash
-# Compare main branch to current
-coverctl compare --base main-coverage.out --head coverage.out
-
-# Compare two saved profiles
-coverctl compare --base v1.0.out --head v2.0.out
-
-# JSON output for CI parsing
-coverctl compare --base main.out -o json
-```
-
-### Output
-
-```
-Coverage Comparison
-───────────────────
-Base:  78.5%
-Head:  82.1%
-Delta: +3.6%
-
-Improved Files (5):
-  internal/core/validator.go   65.2% → 85.4%  (+20.2%)
-  internal/api/handler.go      72.1% → 78.3%  (+6.2%)
-  ...
-
-Regressed Files (1):
-  internal/cli/format.go       90.0% → 87.5%  (-2.5%)
+coverctl compare --base main.out --head .cover/coverage.out -o json
 ```
 
 ---
 
 ## badge
 
-Generate an SVG coverage badge for your README.
-
 ```bash
 coverctl badge [flags]
 ```
 
-### Flags
-
 | Flag | Description | Default |
 |------|-------------|---------|
-| `-c, --config` | Config file path | `.coverctl.yaml` |
-| `-p, --profile` | Coverage profile path | `.cover/coverage.out` |
-| `-o, --output` | Output file path | `coverage.svg` |
-| `--label` | Badge label text | `coverage` |
-| `--style` | Badge style: `flat`, `flat-square` | `flat` |
-
-### Examples
+| `-p, --profile` | Coverage profile | `.cover/coverage.out` |
+| `-o, --output` | SVG path | `coverage.svg` |
+| `--label` | Badge label | `coverage` |
+| `--style` | `flat` / `flat-square` | `flat` |
 
 ```bash
-# Generate default badge
-coverctl badge
-
-# Custom style and label
-coverctl badge --style flat-square --label "test coverage"
-
-# Custom output path
-coverctl badge -o docs/badge.svg
+coverctl badge -o docs/badge.svg --style flat-square
 ```
 
 ---
 
 ## trend
 
-Show coverage trends over time using recorded history.
-
 ```bash
 coverctl trend [flags]
 ```
 
-### Flags
-
 | Flag | Description | Default |
 |------|-------------|---------|
-| `-c, --config` | Config file path | `.coverctl.yaml` |
-| `-p, --profile` | Coverage profile path | `.cover/coverage.out` |
-| `--history` | History file path | `.cover/history.json` |
-| `-o, --output` | Output format: `text`, `json` | `text` |
-
-### Example
+| `--history` | History file | `.cover/history.json` |
+| `-o, --output` | `text` / `json` | `text` |
 
 ```bash
-# Show coverage trend
-coverctl trend
-
-# JSON output
 coverctl trend -o json
-```
-
-### Output
-
-```
-Coverage Trend (last 10 entries)
-────────────────────────────────
-Date         Commit    Coverage  Change
-2024-12-23   abc1234     82.1%   +0.5%
-2024-12-22   def5678     81.6%   +1.2%
-2024-12-21   ghi9012     80.4%   -0.3%
-...
 ```
 
 ---
 
 ## record
 
-Record current coverage to history for trend analysis.
-
 ```bash
 coverctl record [flags]
 ```
 
-Note: Prefer profiles produced by `coverctl run` or `coverctl check` so the history reflects the same `-coverpkg` instrumentation that policy checks use.
-When using `--run`, pass test selection via `--test-run` (or `--test-arg=-run=...`) since `--run` is reserved to trigger coverage execution.
-
-### Flags
+Prefer profiles from `coverctl check` / `coverctl run` so history matches policy instrumentation.
 
 | Flag | Description | Default |
 |------|-------------|---------|
-| `-c, --config` | Config file path | `.coverctl.yaml` |
-| `-p, --profile` | Coverage profile path | `.cover/coverage.out` |
-| `--history` | History file path | `.cover/history.json` |
-| `--commit` | Git commit SHA | auto-detected |
-| `--branch` | Git branch name | auto-detected |
-| `--run` | Run coverage before recording history | `false` |
+| `-p, --profile` | Coverage profile | `.cover/coverage.out` |
+| `--history` | History file | `.cover/history.json` |
+| `--commit` / `--branch` | Git metadata | auto-detected |
+| `--run` | Run coverage before recording | `false` |
 | `-l, --language` | Override language detection | auto |
-| `-d, --domain` | Filter to specific domain (repeatable) | all domains |
-| `--tags` | Build tags (e.g., `integration,e2e`) | |
-| `--race` | Enable race detector | `false` |
-| `--short` | Skip long-running tests | `false` |
-| `-v` | Verbose test output | `false` |
-| `--test-run` | Run only tests matching pattern | |
-| `--timeout` | Test timeout (e.g., `10m`, `1h`) | |
-| `--test-arg` | Additional go test argument (repeatable) | |
-
-### Examples
 
 ```bash
-# Record with auto-detected git info
-coverctl record
-
-# Explicit commit and branch
-coverctl record --commit abc1234 --branch main
-
-# Run coverage before recording history
-coverctl record --run --tags integration
-```
-
-### CI Integration
-
-```yaml
-# .github/workflows/coverage.yml
-- name: Record coverage
-  run: |
-    coverctl check
-    coverctl record --commit ${{ github.sha }} --branch ${{ github.ref_name }}
+coverctl record --commit "$GITHUB_SHA" --branch "$GITHUB_REF_NAME"
 ```
 
 ---
 
 ## suggest
 
-Suggest optimal coverage thresholds based on current coverage.
+```bash
+coverctl suggest [--strategy current|aggressive|conservative]
+```
+
+| Strategy | Behavior |
+|----------|----------|
+| `current` | Thresholds slightly below observed coverage |
+| `aggressive` | Push targets up |
+| `conservative` | Smaller incremental mins |
 
 ```bash
-coverctl suggest [flags]
-```
-
-### Flags
-
-| Flag | Description | Default |
-|------|-------------|---------|
-| `-c, --config` | Config file path | `.coverctl.yaml` |
-| `-p, --profile` | Coverage profile path | `.cover/coverage.out` |
-| `--strategy` | Strategy: `current`, `aggressive`, `conservative` | `current` |
-
-### Strategies
-
-| Strategy | Description |
-|----------|-------------|
-| `current` | Set thresholds slightly below current coverage |
-| `aggressive` | Push for higher thresholds |
-| `conservative` | Lower thresholds for gradual improvement |
-
-### Example
-
-```bash
-# Get suggestions
-coverctl suggest
-
-# Aggressive strategy
-coverctl suggest --strategy aggressive
-```
-
-### Output
-
-```
-Suggested Thresholds
-────────────────────
-Domain   Current  Suggested  Reason
-core       87.3%       85%   Slightly below current (buffer for variance)
-api        81.2%       80%   Slightly below current
-cli        76.4%       75%   Slightly below current
+coverctl suggest --strategy current
 ```
 
 ---
 
 ## debt
 
-Show coverage debt report identifying files that need more tests.
-
 ```bash
 coverctl debt [flags]
 ```
 
-### Flags
-
-| Flag | Description | Default |
-|------|-------------|---------|
-| `-c, --config` | Config file path | `.coverctl.yaml` |
-| `-p, --profile` | Coverage profile path | `.cover/coverage.out` |
-| `-o, --output` | Output format: `text`, `json` | `text` |
-
-### Example
+Ranks files/domains by shortfall vs policy. Use after a failing `check` to decide where to write tests.
 
 ```bash
-coverctl debt
-```
-
-### Output
-
-```
-Coverage Debt Report
-────────────────────
-File                           Current  Required  Shortfall
-internal/core/validator.go       65.2%      85%     -19.8%
-internal/api/handler.go          72.1%      80%      -7.9%
-────────────────────
-Total Debt: 27.7%
-Health Score: 73/100
+coverctl debt -o json
 ```
 
 ---
 
 ## ignore
 
-Show configured exclude patterns and ignored files.
-
-```bash
-coverctl ignore [flags]
-```
-
-### Flags
-
-| Flag | Description | Default |
-|------|-------------|---------|
-| `-c, --config` | Config file path | `.coverctl.yaml` |
-
-### Example
-
 ```bash
 coverctl ignore
 ```
 
-### Output
-
-```
-Configured Excludes
-───────────────────
-- **/generated/**
-- **/mocks/**
-- internal/testdata/*
-
-Ignored Files (matching excludes)
-─────────────────────────────────
-- internal/generated/proto/api.pb.go
-- internal/mocks/service_mock.go
-```
+Lists `exclude` patterns from `.coverctl.yaml` and matching files.
 
 ---
 
 ## detect
 
-Auto-detect domains and write configuration.
-
 ```bash
-coverctl detect [flags]
+coverctl detect [--dry-run] [--force]
 ```
 
-### Flags
-
-| Flag | Description | Default |
-|------|-------------|---------|
-| `-c, --config` | Config file path | `.coverctl.yaml` |
-| `--dry-run` | Preview config without writing | `false` |
-| `-f, --force` | Overwrite existing config | `false` |
-
-### Examples
+Non-interactive domain detection (sibling of `coverctl init --no-interactive`).
 
 ```bash
-# Preview detected domains
 coverctl detect --dry-run
-
-# Write config
-coverctl detect
-
-# Overwrite existing
-coverctl detect --force
 ```
+
+---
+
+## mcp
+
+```bash
+coverctl mcp serve [--mode=agent|ci|auto]
+coverctl mcp doctor
+```
+
+Agent mode advertises `check` / `suggest` / `debt`. Use `--mode=ci` for the full tool surface. `doctor` validates MCP wiring end-to-end. Full contract: [MCP server](/coverctl/mcp/).
 
 ---
 
 ## version
 
-Show version information.
-
 ```bash
 coverctl version
 ```
 
-### Output
+## help
 
-```
-coverctl v1.4.0 (abc1234) built 2024-12-23
+```bash
+coverctl help [command]
+coverctl check --help
 ```
 
 ---
 
-## help
+## Exit codes
 
-Show help for any command.
+Same family as the rest of the CLI: `0` success, `1` policy/soft failure, `2` usage/config, `3` runner failure (where applicable).
 
-```bash
-coverctl help [command]
-
-# Examples
-coverctl help
-coverctl help check
-coverctl check --help
-```
+<DocsNext
+  links={[
+    { title: 'check', href: '/coverctl/cli/check/', description: 'Enforce per-domain policy — the wedge command.' },
+    { title: 'CLI overview', href: '/coverctl/cli/', description: 'Global flags and command map.' },
+    { title: 'MCP server', href: '/coverctl/mcp/', description: 'Agent-callable tools and rejection schema.' },
+  ]}
+/>

@@ -3,6 +3,8 @@ title: coverctl init
 description: Auto-detect language and domains, write .coverctl.yaml. One-time setup for agent-loop coverage governance across 15 supported languages.
 ---
 
+import DocsNext from '../../../components/DocsNext.astro';
+
 The `init` command launches an interactive wizard to configure coverctl for your project. It auto-detects domains and lets you customize coverage thresholds.
 
 ## Usage
@@ -117,9 +119,11 @@ More language examples: [Quick start](/coverctl/quick-start/#after-init-example-
 | `1` | Detection / write failure |
 | `2` | Usage / flag error (e.g. config exists without `--force`) |
 
-## Related
-
-- [detect](/coverctl/cli/other/) — non-interactive domain detection (`coverctl detect --dry-run`)
-- [Configuration](/coverctl/configuration/) — `.coverctl.yaml` reference
-- [Domains](/coverctl/configuration/domains/) — match patterns and mins
-- [Quick start (terminal)](/coverctl/quick-start/) — golden path after init
+<DocsNext
+  heading="Related"
+  links={[
+    { title: 'detect', href: '/coverctl/cli/other/#detect', description: 'Non-interactive domain detection' },
+    { title: 'Configuration', href: '/coverctl/configuration/', description: '.coverctl.yaml reference' },
+    { title: 'Quick start', href: '/coverctl/quick-start/', description: 'Golden path after init' },
+  ]}
+/>

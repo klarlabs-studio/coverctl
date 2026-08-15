@@ -4,6 +4,7 @@ description: Group source paths into governance domains. Auth at 90%, utilities 
 ---
 
 import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
+import DocsNext from '../../../components/DocsNext.astro';
 
 Domains are **named groups of source paths** with their own coverage minimums. They work the same way for **all sorts of languages** — Python, TypeScript, Java, Rust, Go, and the rest. They are not language constructs and do not wrap packages, modules, or crates — they match directories and files in your repo so auth can require 90% while utilities stay at 60%.
 
@@ -249,8 +250,11 @@ package generated
 4. **Keep excludes minimal**: Only exclude truly non-testable code
 5. **Review overlaps**: Check for unintended domain assignments
 
-## See Also
-
-- [Policies](/coverctl/configuration/policies/) - Set coverage thresholds
-- [Quick start](/coverctl/quick-start/) - Per-language example configs
-- [Advanced](/coverctl/configuration/advanced/) - Annotations and more
+<DocsNext
+  heading="See Also"
+  links={[
+    { title: 'Policies', href: '/coverctl/configuration/policies/', description: 'Set coverage thresholds' },
+    { title: 'Quick start', href: '/coverctl/quick-start/', description: 'Per-language example configs' },
+    { title: 'Advanced', href: '/coverctl/configuration/advanced/', description: 'Annotations and more' },
+  ]}
+/>

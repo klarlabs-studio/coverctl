@@ -3,6 +3,8 @@ title: coverctl report
 description: Analyze an existing coverage profile without re-running tests. Same agent-loop coverage governance schema; reads profiles from any of 15 supported languages.
 ---
 
+import DocsNext from '../../../components/DocsNext.astro';
+
 The `report` command analyzes a pre-generated coverage profile and evaluates policies. Use this when you have coverage data from a previous run or CI artifact.
 
 ## Usage
@@ -176,7 +178,9 @@ coverctl report \
 | `2` | Invalid configuration or arguments |
 | `3` | Profile parsing failed |
 
-## See Also
-
-- [check](/coverctl/cli/check/) - Run tests and check coverage
-- [Configuration](/coverctl/configuration/) - Policy configuration
+<DocsNext
+  links={[
+    { title: 'check', href: '/coverctl/cli/check/', description: 'Run tests then enforce policy.' },
+    { title: 'Policy basics', href: '/coverctl/configuration/', description: 'What .coverctl.yaml evaluates.' },
+  ]}
+/>

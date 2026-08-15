@@ -3,6 +3,8 @@ title: Configure policies
 description: Per-domain coverage thresholds in .coverctl.yaml. The policy file your AI coding agent reads when it calls coverctl check via MCP.
 ---
 
+import DocsNext from '../../../components/DocsNext.astro';
+
 Policies define the minimum coverage requirements for your project. coverctl supports domain-level and file-level policies. Domains group **source paths** (globs or Go package paths) — they are not wrappers around language packages. See [Domains](/coverctl/configuration/domains/) for both match dialects.
 
 ## Policy Structure
@@ -169,7 +171,11 @@ policy:
       min: 85
 ```
 
-## See Also
-
-- [Domains](/coverctl/configuration/domains/) - Domain configuration
-- [CI Integration](/coverctl/guides/ci-integration/) - Enforce policies in CI
+<DocsNext
+  heading="See Also"
+  links={[
+    { title: 'Domains', href: '/coverctl/configuration/domains/', description: 'Domain configuration' },
+    { title: 'CI Integration', href: '/coverctl/guides/ci-integration/', description: 'Enforce policies in CI' },
+    { title: 'check', href: '/coverctl/cli/check/', description: 'Enforce policies from the CLI' },
+  ]}
+/>
