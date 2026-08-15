@@ -1,6 +1,10 @@
 package cli
 
-import "runtime/debug"
+import (
+	"fmt"
+	"io"
+	"runtime/debug"
+)
 
 // Version information, set at build time via ldflags for released binaries and
 // otherwise recovered from the embedded build info (see applyBuildInfo).
@@ -52,5 +56,15 @@ func applyBuildInfo(read func() (*debug.BuildInfo, bool)) {
 				Date = s.Value
 			}
 		}
+	}
+}
+
+func printVersion(w io.Writer) {
+	fmt.Fprintf(w, "coverctl version %s\n", Version)
+	if Commit != "unknown" {
+		fmt.Fprintf(w, "  commit: %s\n", Commit)
+	}
+	if Date != "unknown" {
+		fmt.Fprintf(w, "  built:  %s\n", Date)
 	}
 }
