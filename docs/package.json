@@ -12,7 +12,8 @@
   "dependencies": {
     "@astrojs/starlight": "^0.41.7",
     "astro": "^7.2.2",
-    "sharp": "^0.35.3"
+    "sharp": "^0.35.3",
+    "starlight-blog": "^0.27.0"
   },
   "overrides": {
     "postcss": ">=8.5.18",

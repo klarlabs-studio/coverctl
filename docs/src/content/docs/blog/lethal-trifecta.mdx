@@ -1,0 +1,14 @@
+---
+title: The lethal trifecta and local coverage tools
+description: Private data, untrusted content, and external communication — how coverctl stays out of the worst agent-security combinations.
+date: 2026-08-11
+authors:
+  - coverctl
+tags:
+  - security
+  - platform
+---
+
+Security write-ups about agent systems often cite a lethal combination: access to private data, exposure to untrusted content, and ability to communicate externally. coverctl is deliberately narrow: it runs **locally**, reads coverage profiles and policy you already have, and does not phone home by default.
+
+Opt-in `--mcp-telemetry` emits JSONL to **your** stderr for your own pipelines — still no SaaS upload. Platform teams evaluating multi-repo rollout should start from the [threat model](/coverctl/security/threat-model/) and [platform teams](/coverctl/for-platform-teams/) pages.

@@ -1,0 +1,19 @@
+---
+title: What agents do with coverage output
+description: Structured MCP responses, rejection schemas, and remediation hints — why coverctl's output boundary matters for agent loops.
+date: 2026-08-14
+authors:
+  - coverctl
+tags:
+  - mcp
+  - security
+---
+
+An agent that receives free-form shell output will invent next steps. coverctl returns bounded JSON: `passed`, `summary`, domain rows, and on rejection a stable `error_code` plus `remediation`.
+
+That boundary does two jobs:
+
+1. **Actionability** — the agent knows whether to write tests, lower ambition, or stop.
+2. **Safety** — dangerous runner flags (`--rootdir`, `--require`, …) are rejected before they reach a toolchain.
+
+Read the contract: [Rejection schema](/coverctl/security/rejection-schema/) and [Threat model](/coverctl/security/threat-model/).

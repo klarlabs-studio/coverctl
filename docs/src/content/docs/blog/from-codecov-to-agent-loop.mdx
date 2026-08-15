@@ -1,0 +1,20 @@
+---
+title: From Codecov dashboards to agent-loop gates
+description: How teams migrate from post-CI coverage dashboards to coverctl policy the agent enforces before commit.
+date: 2026-08-13
+authors:
+  - coverctl
+tags:
+  - migration
+  - compare
+---
+
+Codecov and Coveralls excel at historical dashboards and PR badges. coverctl does not replace those products for leadership reporting — it fills the gap **inside** the edit loop.
+
+A practical migration:
+
+1. Keep your existing CI upload for humans.
+2. Add `.coverctl.yaml` domains that match how you already think about risk (auth, payments, utils).
+3. Point the agent at `coverctl mcp serve` so `check` runs before commit.
+
+Compare pages: [vs Codecov](/coverctl/compare/coverctl-vs-codecov/), [vs Coveralls](/coverctl/compare/coverctl-vs-coveralls/), [vs native commands](/coverctl/compare/coverctl-vs-native/).

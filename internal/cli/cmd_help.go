@@ -376,6 +376,8 @@ Claude Desktop Configuration:
 
 Examples:
   coverctl mcp serve
+  coverctl mcp serve --mode=agent
+  coverctl mcp serve --mcp-telemetry   # JSONL tool-call events on stderr
   coverctl mcp serve -c custom.yaml
   coverctl mcp serve --history .cover/history.json
   coverctl mcp doctor                  # validate first-run setup

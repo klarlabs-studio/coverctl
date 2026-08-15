@@ -6,15 +6,20 @@ Status as of 2026-08-15 health-improvements pass. Items below marked
 
 ## Still open (prioritized)
 
-1. **5-user polyglot usability test** — protocol ready (`docs/research/usability-test-protocol.md`); no findings report yet (needs human participants).
-2. **Site content infra** — blog/RSS still open. **SHIPPED:** Diataxis polish on CLI `other.mdx`; universal `DocsNext` component on CLI, configuration, installation, community, and MCP pages.
-3. **AI/Agent success metrics baseline** — telemetry flag exists; retained-value analysis of which 3 MCP tools drive usage is not yet instrumented end-to-end.
-4. **Activation funnel / GTM metrics** — specs exist; no live funnel dashboards.
-5. **Real polyglot toolchain smoke** — runners unit workflow + mocked buildArgs exist; optional CI with pytest-cov/nyc/cargo-llvm-cov still open.
-6. **Live-agent tool-selection evals** — happy_path + anti-pattern judge scenarios shipped; LLM-driven tool selection still deferred.
+1. **5-user polyglot usability test** — protocol + recruitment/session/example scaffolding ready; **needs human participants** for a dated findings report.
+2. **Site content infra** — **SHIPPED:** DocsNext, `other.mdx` polish, blog + RSS (`starlight-blog`). Optional: changelog auto-feed from git tags.
+3. **AI/Agent success metrics baseline** — **SHIPPED:** `--mcp-telemetry` wired; check/suggest/debt emit; regression_caught + `first_passing_check`; `scripts/analyze-mcp-telemetry.py`. Donation/aggregation still deferred.
+4. **Activation funnel / GTM metrics** — **SHIPPED (scaffolding):** review template, fixtures, DuckDB query, mention/inbound logs. Live dashboards still deferred (by design).
+5. **Real polyglot toolchain smoke** — **SHIPPED:** `testdata/smoke/{python,nodejs,rust}` + `.github/workflows/polyglot-smoke.yml` (pytest-cov / c8 / cargo-llvm-cov).
+6. **Live-agent tool-selection evals** — **SHIPPED:** `tool_selection` scenarios + `HTTPLLMToolSelector` (gated by `COVERCTL_EVAL_LLM_JUDGE` on eval-llm workflow).
 
 ## SHIPPED (do not re-open)
 
+- DocsNext + CLI `other.mdx` Diataxis polish + blog/RSS (`starlight-blog`)
+- MCP `--mcp-telemetry` end-to-end + analyze script + tool_selection evals
+- Polyglot smoke fixtures + workflow (pytest-cov / nyc / cargo-llvm-cov)
+- GTM funnel scaffolding (fixtures, DuckDB query, review template)
+- Usability recruitment / session / example findings scaffolding
 - Mode-aware MCP tool surface (`--mode=agent|ci|auto`)
 - MCP output boundary hardening (check/report/compare/debt/suggest/pr-comment/resources)
 - Structured rejection schema + output budgets

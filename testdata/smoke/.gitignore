@@ -1,0 +1,12 @@
+.cover/
+coverage.xml
+.coverage
+.pytest_cache/
+__pycache__/
+coverage/
+node_modules/
+target/
+*.lcov
+.nyc_output/
+__pycache__/
+*.pyc

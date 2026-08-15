@@ -9,8 +9,8 @@ name: Eval Harness
 #
 #  - LLM-judge (manual / scheduled): set ANTHROPIC_API_KEY repo secret
 #    and trigger via workflow_dispatch with run-llm-judge=true. Uses the
-#    HTTPLLMJudge in internal/eval/judge.go to score scenarios that ship
-#    an `llmQuestion` field — output-interpretation accuracy.
+#    HTTPLLMJudge (output interpretation) and HTTPLLMToolSelector (tool
+#    selection) in internal/eval when COVERCTL_EVAL_LLM_JUDGE=1.
 #
 # Why split: LLM judging is billed and non-deterministic. Running it on
 # every PR would be expensive and noisy. The split keeps the PR signal

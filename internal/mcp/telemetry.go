@@ -3,6 +3,8 @@ package mcp
 import (
 	"crypto/sha256"
 	"encoding/hex"
+	"errors"
+	"io"
 	"log"
 	"os/exec"
 	"strings"
@@ -53,19 +55,33 @@ func (NoopTelemetry) RecordToolCall(_ string, _ time.Duration, _ error, _ bool) 
 func (NoopTelemetry) RecordRegressionCaught(_ string, _ string, _ float64)      {}
 func (NoopTelemetry) RecordActivationStep(_ string, _ string)                   {}
 
+// ErrPolicyFail marks a completed tool call that failed coverage policy.
+// MetricsTelemetry records outcome=policy_fail (not error) so retained-value
+// analysis can separate runtime failures from intentional gate catches.
+var ErrPolicyFail = errors.New("policy failed")
+
 // MetricsTelemetry writes structured JSON logs to the provided writer.
 // Format: {"tool":"check","duration_ms":1234,"outcome":"success","rejected":false}
 type MetricsTelemetry struct {
 	logger *log.Logger
 }
 
+// NewMetricsTelemetry returns a MetricsTelemetry that writes one JSON
+// event per line to w (typically os.Stderr). Prefix is empty so the
+// line is parseable JSONL for local analysis scripts.
+func NewMetricsTelemetry(w io.Writer) *MetricsTelemetry {
+	return &MetricsTelemetry{logger: log.New(w, "", 0)}
+}
+
 func (m *MetricsTelemetry) RecordToolCall(tool string, duration time.Duration, err error, rejected bool) {
 	outcome := "success"
-	if err != nil {
-		outcome = "error"
-	}
-	if rejected {
+	switch {
+	case rejected:
 		outcome = "rejected"
+	case errors.Is(err, ErrPolicyFail):
+		outcome = "policy_fail"
+	case err != nil:
+		outcome = "error"
 	}
 	m.logger.Printf(`{"tool":%q,"duration_ms":%d,"outcome":%q,"rejected":%v}`,
 		tool, duration.Milliseconds(), outcome, rejected)

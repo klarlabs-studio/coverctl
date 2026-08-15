@@ -1,0 +1,12 @@
+{
+  "id": "tool_select_coverage_drop_check",
+  "description": "After an edit that may drop coverage, agent should call check first",
+  "category": "tool_selection",
+  "prompt": "I just refactored internal/api/auth.go. Before I commit, how do I know if coverage still meets policy?",
+  "expectedTools": ["check"],
+  "allowedTools": ["check", "suggest", "debt"],
+  "selectedTools": ["check"],
+  "tool": "check",
+  "input": { "fromProfile": true },
+  "expect": { "passed": true, "hasField": ["summary", "domains"] }
+}

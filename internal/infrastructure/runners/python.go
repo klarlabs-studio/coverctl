@@ -100,26 +100,28 @@ func (r *PythonRunner) RunIntegration(ctx context.Context, opts application.Inte
 // probe subprocess runs under a short timeout derived from ctx so a hung
 // interpreter cannot stall detection indefinitely.
 func (r *PythonRunner) detectCoverageTool(ctx context.Context) string {
-	// Check for pytest-cov first (more common in modern projects)
-	if _, err := exec.LookPath("pytest"); err == nil {
-		// Check if pytest-cov is installed
-		probeCtx, cancel := context.WithTimeout(ctx, probeTimeout)
-		err := exec.CommandContext(probeCtx, "python", "-c", "import pytest_cov").Run()
-		cancel()
-		if err == nil {
-			return "pytest-cov"
-		}
+	py := pythonBinary()
+	if py == "" {
+		return ""
 	}
 
-	// Fall back to coverage.py
+	// Prefer pytest-cov. Probe via the interpreter import — do not require a
+	// `pytest` binary on PATH (user-site installs often only expose the module).
+	probeCtx, cancel := context.WithTimeout(ctx, probeTimeout)
+	err := exec.CommandContext(probeCtx, py, "-c", "import pytest, pytest_cov").Run()
+	cancel()
+	if err == nil {
+		return "pytest-cov"
+	}
+
+	// Fall back to coverage.py CLI or module
 	if _, err := exec.LookPath("coverage"); err == nil {
 		return "coverage"
 	}
 
-	// Try python -m coverage
-	probeCtx, cancel := context.WithTimeout(ctx, probeTimeout)
+	probeCtx, cancel = context.WithTimeout(ctx, probeTimeout)
 	defer cancel()
-	if exec.CommandContext(probeCtx, "python", "-m", "coverage", "--version").Run() == nil {
+	if exec.CommandContext(probeCtx, py, "-m", "coverage", "--version").Run() == nil {
 		return "coverage"
 	}
 
@@ -197,11 +199,26 @@ func (r *PythonRunner) buildCoverageArgs(opts application.RunOptions, _ string) 
 func runPythonCommand(ctx context.Context, dir string, tool string, args []string) error {
 	switch tool {
 	case "pytest-cov", "coverage":
-		// Both run as `python <args>`; the args slice already encodes
+		// Both run as `<python> <args>`; the args slice already encodes
 		// `-m pytest` or `-m coverage run` from the buildPytest/buildCoverage
 		// helpers above.
 	default:
 		return fmt.Errorf("unsupported tool: %s", tool)
 	}
-	return cmdrun.Runner{Stdout: os.Stdout, Stderr: os.Stderr}.Exec(ctx, dir, "python", args)
+	py := pythonBinary()
+	if py == "" {
+		return fmt.Errorf("python interpreter not found (tried python3, python)")
+	}
+	return cmdrun.Runner{Stdout: os.Stdout, Stderr: os.Stderr}.Exec(ctx, dir, py, args)
+}
+
+// pythonBinary returns the first available CPython launcher. Prefer python3
+// (PEP 394 / modern distros) and fall back to python (setup-python CI images).
+func pythonBinary() string {
+	for _, name := range []string{"python3", "python"} {
+		if path, err := exec.LookPath(name); err == nil {
+			return path
+		}
+	}
+	return ""
 }

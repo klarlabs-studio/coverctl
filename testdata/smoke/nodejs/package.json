@@ -1,0 +1,12 @@
+{
+  "name": "coverctl-smoke-nodejs",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test src/calc.test.js"
+  },
+  "devDependencies": {
+    "c8": "^10.1.3"
+  }
+}

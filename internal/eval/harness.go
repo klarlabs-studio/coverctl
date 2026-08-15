@@ -61,14 +61,17 @@ func LoadScenariosFS(fsys fs.FS, root string) ([]Scenario, error) {
 // Run executes every scenario against the given dispatcher and returns an
 // aggregated report. Judges (rule-based plus optionally HTTPLLMJudge from
 // env) run after Expect on scenarios that ship a non-empty Judge block.
+// Tool-selection scenarios use HTTPLLMToolSelector when available, else
+// the scenario's canned selectedTools.
 func Run(ctx context.Context, d Dispatcher, scenarios []Scenario) Report {
 	report := Report{
 		ByCategory: map[string]CategoryStat{},
 	}
 	rule := RuleJudge{}
 	llm, llmErr := NewHTTPLLMJudge() // nil + ErrSkipped when no API key
+	selector, selErr := NewHTTPLLMToolSelector()
 	for _, s := range scenarios {
-		r := runOne(ctx, d, s, rule, llm, llmErr)
+		r := runOne(ctx, d, s, rule, llm, llmErr, selector, selErr)
 		report.Total++
 		stat := report.ByCategory[s.Category]
 		stat.Total++
@@ -84,18 +87,46 @@ func Run(ctx context.Context, d Dispatcher, scenarios []Scenario) Report {
 	return report
 }
 
-func runOne(ctx context.Context, d Dispatcher, s Scenario, rule Judge, llm Judge, llmErr error) Result {
+func runOne(ctx context.Context, d Dispatcher, s Scenario, rule Judge, llm Judge, llmErr error, selector ToolSelector, selErr error) Result {
 	r := Result{Scenario: s}
+
+	if len(s.ExpectedTools) > 0 || s.Prompt != "" {
+		allowed := s.AllowedTools
+		if len(allowed) == 0 {
+			allowed = []string{"check", "suggest", "debt"}
+		}
+		var selected []string
+		var err error
+		switch {
+		case selector != nil && selErr == nil && s.Prompt != "":
+			selected, err = selector.Select(ctx, s.Prompt, allowed)
+			if err != nil {
+				r.Reasons = append(r.Reasons, fmt.Sprintf("tool selector: %v", err))
+			}
+		case len(s.SelectedTools) > 0:
+			selected = s.SelectedTools
+		default:
+			r.Reasons = append(r.Reasons, "tool_selection scenario missing selectedTools (and no live LLM selector)")
+		}
+		if err == nil && len(r.Reasons) == 0 {
+			if scoreErr := ScoreToolSelection(selected, s.ExpectedTools); scoreErr != nil {
+				r.Reasons = append(r.Reasons, scoreErr.Error())
+			}
+		}
+	}
+
 	resp, err := d.Dispatch(ctx, s.Tool, s.Input)
 	r.Response = resp
 	r.DispatchErr = err
 
 	if err != nil {
 		r.Reasons = append(r.Reasons, fmt.Sprintf("dispatcher returned error: %v", err))
+		r.Passed = len(r.Reasons) == 0
 		return r
 	}
 	if resp == nil {
 		r.Reasons = append(r.Reasons, "response is nil")
+		r.Passed = false
 		return r
 	}
 

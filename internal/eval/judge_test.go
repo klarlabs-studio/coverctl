@@ -124,7 +124,7 @@ func TestRunOne_AppliesJudge(t *testing.T) {
 			MustContain: []string{"rejected"},
 		},
 	}
-	r := runOne(ctx, stub, scenario, RuleJudge{}, nil, ErrSkipped)
+	r := runOne(ctx, stub, scenario, RuleJudge{}, nil, ErrSkipped, nil, ErrToolSelectSkipped)
 	if r.Passed {
 		t.Fatal("expected failure (judge should reject)")
 	}

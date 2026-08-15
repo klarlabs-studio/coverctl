@@ -68,6 +68,7 @@ func runMCP(ctx context.Context, args []string, stdout, stderr io.Writer, svc Se
 		profilePath := fs.String("profile", ".cover/coverage.out", "Coverage profile path")
 		fs.StringVar(profilePath, "p", ".cover/coverage.out", "Coverage profile path (shorthand)")
 		mode := fs.String("mode", "auto", "Tool surface mode: 'agent' (3 tools: check, suggest, debt), 'ci' (full 9-tool surface), or 'auto' (detect from CI environment variables)")
+		mcpTelemetry := fs.Bool("mcp-telemetry", false, "Opt-in: emit structured MCP tool-call JSONL events to stderr (see docs/design/mcp-metrics-spec.md)")
 		if err := fs.Parse(args[1:]); err != nil {
 			return 2
 		}
@@ -90,12 +91,16 @@ func runMCP(ctx context.Context, args []string, stdout, stderr io.Writer, svc Se
 		// different pipe.
 		mcpSvc := BuildService(os.Stdout)
 		_ = stdout
-		mcpServer := mcp.New(mcpSvc, mcp.Config{
+		cfg := mcp.Config{
 			ConfigPath:  *configPath,
 			HistoryPath: *historyPath,
 			ProfilePath: *profilePath,
 			Mode:        modeVal,
-		}, Version)
+		}
+		if *mcpTelemetry {
+			cfg.Telemetry = mcp.NewMetricsTelemetry(stderr)
+		}
+		mcpServer := mcp.New(mcpSvc, cfg, Version)
 
 		ctx, cancel := context.WithCancel(ctx)
 		defer cancel()

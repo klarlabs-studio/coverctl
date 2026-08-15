@@ -1,0 +1,16 @@
+---
+title: Rejection schemas beat prompt hope
+description: Why coverctl advertises a structured rejection schema instead of hoping agents ignore dangerous flags.
+date: 2026-08-12
+authors:
+  - coverctl
+tags:
+  - security
+  - mcp
+---
+
+Prompt injection against coding agents is not theoretical. If an MCP tool forwards arbitrary flags to pytest or node, a hostile prompt can turn coverage into code execution.
+
+coverctl's answer is boring and effective: sanitize inputs, reject known-dangerous shapes with stable error codes, and document the schema so agents (and humans) can recover.
+
+Details: [Rejection schema](/coverctl/security/rejection-schema/). Eval corpus under `internal/eval/scenarios/` gates every PR on this boundary.

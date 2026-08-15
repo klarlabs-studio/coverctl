@@ -1,0 +1,12 @@
+{
+  "id": "tool_select_gap_ranking_debt",
+  "description": "Asking where to add tests next should prefer debt",
+  "category": "tool_selection",
+  "prompt": "Policy is failing and I need the smallest tests to write first. Which coverctl MCP tool ranks coverage gaps?",
+  "expectedTools": ["debt"],
+  "allowedTools": ["check", "suggest", "debt"],
+  "selectedTools": ["debt"],
+  "tool": "debt",
+  "input": {},
+  "expect": { "passed": true, "hasField": ["items", "totalDebt"] }
+}

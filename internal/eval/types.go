@@ -14,11 +14,10 @@
 // # First-cut scope
 //
 // V1 covers adversarial scenarios that exercise the input boundary
-// (sanitization rejections + path scope checks) and shape conformance
-// scenarios that exercise the rejection schema. Tool-selection-via-LLM
-// (judging whether an agent would invoke `check` vs `report` for a given
-// edit context) is deferred to a follow-up that adds an LLM-as-judge.
-// See docs/design/mcp-metrics-spec.md.
+// (sanitization rejections + path scope checks), shape conformance
+// scenarios that exercise the rejection schema, and tool_selection
+// scenarios (canned selectedTools on PR CI; live HTTPLLMToolSelector when
+// COVERCTL_EVAL_LLM_JUDGE=1). See docs/design/mcp-metrics-spec.md.
 package eval
 
 // Scenario describes one input/expected-output pair the harness runs
@@ -34,9 +33,12 @@ type Scenario struct {
 	Description string `json:"description"`
 	// Category groups scenarios for per-axis reporting:
 	// "adversarial" (input boundary), "schema" (response shape),
-	// "happy_path" (positive flows requiring a mocked service).
+	// "happy_path" (positive flows requiring a mocked service),
+	// "tool_selection" (which MCP tool an agent should pick).
 	Category string `json:"category"`
 	// Tool is the MCP tool name to dispatch (init, check, report, ...).
+	// For tool_selection scenarios this is still dispatched after scoring
+	// selection (typically the first expected tool) so Expect can run.
 	Tool string `json:"tool"`
 	// Input is the JSON-encodable map handed to Server.Dispatch.
 	Input map[string]any `json:"input"`
@@ -47,6 +49,16 @@ type Scenario struct {
 	// agent should interpret coverctl output, not just whether the
 	// response is structurally correct.
 	Judge ScenarioJudge `json:"judge,omitempty"`
+	// Prompt is the natural-language agent situation for tool_selection.
+	Prompt string `json:"prompt,omitempty"`
+	// ExpectedTools is the ground-truth tool set the selector should pick.
+	ExpectedTools []string `json:"expectedTools,omitempty"`
+	// AllowedTools limits the selector surface (default: check, suggest, debt).
+	AllowedTools []string `json:"allowedTools,omitempty"`
+	// SelectedTools is a canned selection used when no live LLM selector
+	// is available (rule-only CI). Must match ExpectedTools for the
+	// scenario to pass without COVERCTL_EVAL_LLM_JUDGE.
+	SelectedTools []string `json:"selectedTools,omitempty"`
 }
 
 // ScenarioJudge encodes a JSON-serializable JudgeCriteria plus the
