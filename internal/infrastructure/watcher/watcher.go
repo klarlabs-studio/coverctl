@@ -104,21 +104,29 @@ func (w *Watcher) Events(ctx context.Context) <-chan struct{} {
 					continue
 				}
 
-				// Debounce: reset timer on each event
+				// Debounce: reset timer on each event. Drain if Stop loses
+				// the race with an already-expired timer so a stale tick
+				// cannot fire alongside the new timer.
 				if timer != nil {
-					timer.Stop()
+					if !timer.Stop() && timerCh != nil {
+						select {
+						case <-timerCh:
+						default:
+						}
+					}
 				}
 				timer = time.NewTimer(w.debounce)
 				timerCh = timer.C
 
 			case <-timerCh:
 				// Debounce complete, send notification
+				timer = nil
+				timerCh = nil
 				select {
 				case out <- struct{}{}:
 				case <-ctx.Done():
 					return
 				}
-				timerCh = nil
 
 			case err, ok := <-w.watcher.Errors:
 				if !ok {
