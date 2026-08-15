@@ -34,16 +34,12 @@ func (r *ScalaRunner) Language() application.Language {
 
 // Detect checks if this runner can handle the current project.
 func (r *ScalaRunner) Detect(projectDir string) bool {
-	markers := []string{
-		"build.sbt",
-		"project/build.properties",
+	// build.sbt is canonical; also accept project/build.properties (sbt layout)
+	if detectByLanguageMarkers(projectDir, r.Language()) {
+		return true
 	}
-	for _, marker := range markers {
-		if _, err := os.Stat(filepath.Join(projectDir, marker)); err == nil {
-			return true
-		}
-	}
-	return false
+	_, err := os.Stat(filepath.Join(projectDir, "project", "build.properties"))
+	return err == nil
 }
 
 // Run executes Scala coverage tools and returns the profile path.

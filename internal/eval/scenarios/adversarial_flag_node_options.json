@@ -1,0 +1,18 @@
+{
+  "id": "adversarial_flag_node_options",
+  "description": "check rejects --node-options test arg as dangerous flag with stable error_code.",
+  "category": "adversarial",
+  "tool": "check",
+  "input": {
+    "testArgs": [
+      "--node-options=/tmp/evil"
+    ]
+  },
+  "expect": {
+    "passed": false,
+    "errorCode": "INPUT_REJECTED_DANGEROUS_FLAG",
+    "errorContains": "--node-options",
+    "remediationContains": "denied from MCP input",
+    "summaryContains": "Rejected unsafe MCP input"
+  }
+}

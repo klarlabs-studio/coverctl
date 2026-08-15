@@ -1,0 +1,17 @@
+{
+  "id": "adversarial_short_I",
+  "description": "check rejects short flag prefix -I as dangerous.",
+  "category": "adversarial",
+  "tool": "check",
+  "input": {
+    "testArgs": [
+      "-Iscript.gradle"
+    ]
+  },
+  "expect": {
+    "passed": false,
+    "errorCode": "INPUT_REJECTED_DANGEROUS_FLAG",
+    "errorContains": "-I",
+    "remediationContains": "denied from MCP input"
+  }
+}

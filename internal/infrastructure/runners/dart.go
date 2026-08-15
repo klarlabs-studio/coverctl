@@ -35,16 +35,7 @@ func (r *DartRunner) Language() application.Language {
 
 // Detect checks if this runner can handle the current project.
 func (r *DartRunner) Detect(projectDir string) bool {
-	markers := []string{
-		"pubspec.yaml",
-		"pubspec.lock",
-	}
-	for _, marker := range markers {
-		if _, err := os.Stat(filepath.Join(projectDir, marker)); err == nil {
-			return true
-		}
-	}
-	return false
+	return detectByLanguageMarkers(projectDir, r.Language())
 }
 
 // Run executes Dart or Flutter coverage tools and returns the profile path.

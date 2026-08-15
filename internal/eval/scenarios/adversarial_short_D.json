@@ -1,0 +1,17 @@
+{
+  "id": "adversarial_short_D",
+  "description": "check rejects short flag prefix -D as dangerous.",
+  "category": "adversarial",
+  "tool": "check",
+  "input": {
+    "testArgs": [
+      "-Dexec.executable=/bin/sh"
+    ]
+  },
+  "expect": {
+    "passed": false,
+    "errorCode": "INPUT_REJECTED_DANGEROUS_FLAG",
+    "errorContains": "-D",
+    "remediationContains": "denied from MCP input"
+  }
+}

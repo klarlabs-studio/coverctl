@@ -37,19 +37,7 @@ func (r *PythonRunner) Language() application.Language {
 
 // Detect checks if this runner can handle the current project.
 func (r *PythonRunner) Detect(projectDir string) bool {
-	markers := []string{
-		"pyproject.toml",
-		"setup.py",
-		"requirements.txt",
-		"Pipfile",
-		"poetry.lock",
-	}
-	for _, marker := range markers {
-		if _, err := os.Stat(filepath.Join(projectDir, marker)); err == nil {
-			return true
-		}
-	}
-	return false
+	return detectByLanguageMarkers(projectDir, r.Language())
 }
 
 // Run executes pytest with coverage and returns the profile path.

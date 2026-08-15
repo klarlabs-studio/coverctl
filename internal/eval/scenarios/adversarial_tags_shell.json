@@ -1,0 +1,14 @@
+{
+  "id": "adversarial_tags_shell",
+  "description": "check rejects invalid tags with INPUT_REJECTED_INVALID_TAGS.",
+  "category": "adversarial",
+  "tool": "check",
+  "input": {
+    "tags": "ok;rm"
+  },
+  "expect": {
+    "passed": false,
+    "errorCode": "INPUT_REJECTED_INVALID_TAGS",
+    "remediationContains": "Build tags must match"
+  }
+}

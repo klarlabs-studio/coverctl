@@ -14,14 +14,26 @@ policy:
     - name: cli
       match:
         - "./internal/cli/..."
-      min: 25
+      min: 55
     - name: application
       match:
         - "./internal/application/..."
-      min: 18
+      min: 30
     - name: domain
       match:
         - "./internal/domain/..."
+    - name: mcp
+      match:
+        - "./internal/mcp/..."
+      min: 60
+    - name: eval
+      match:
+        - "./internal/eval/..."
+      min: 50
+    - name: pathutil
+      match:
+        - "./internal/pathutil/..."
+      min: 90
     - name: autodetect
       match:
         - "./internal/infrastructure/autodetect/..."
@@ -50,3 +62,27 @@ policy:
     - name: wizard
       match:
         - "./internal/infrastructure/wizard/..."
+    - name: runners
+      match:
+        - "./internal/infrastructure/runners/..."
+      min: 55
+    - name: parsers
+      match:
+        - "./internal/infrastructure/parsers/..."
+      min: 75
+    - name: history
+      match:
+        - "./internal/infrastructure/history/..."
+      min: 70
+    - name: paths
+      match:
+        - "./internal/infrastructure/paths/..."
+      min: 90
+    - name: resolver
+      match:
+        - "./internal/infrastructure/resolver/..."
+      min: 80
+    - name: badge
+      match:
+        - "./internal/infrastructure/badge/..."
+      min: 90

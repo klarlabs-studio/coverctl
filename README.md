@@ -116,7 +116,7 @@ coverctl treats MCP traffic as untrusted in both directions, per the Lethal Trif
 - **Input boundary.** Test-runner flags that allow arbitrary code loading (`--rootdir`, `--cov-config`, `-D`, `-I`, `--require`, `--init-script`, `--node-options`, ...) are rejected when they come from MCP. Rejection responses use a stable schema with `error_code` and agent-actionable `remediation`. CLI invocations from a human terminal are not sanitized; the human is the trust boundary there.
 - **Output boundary.** User-controlled strings flowing *back* to the agent (filenames in coverage profiles, test names, profile-derived paths, PR description content in `pr-comment`) are canonicalized before return. Prevents return-trip prompt injection through a hostile PR or attacker-named test file.
 
-coverctl is local-first. The default install transmits nothing — no telemetry, no analytics, no source data. An opt-in `--mcp-telemetry` flag emits structured tool-call events to stderr for users who want to instrument their own pipelines (format documented in [docs/design/mcp-metrics-spec.md](docs/design/mcp-metrics-spec.md)). Adversarial evals (50+ scenarios under [internal/eval/](internal/eval/)) gate every release on rejection-schema integrity and prompt-injection resistance.
+coverctl is local-first. The default install transmits nothing — no telemetry, no analytics, no source data. An opt-in `--mcp-telemetry` flag emits structured tool-call events to stderr for users who want to instrument their own pipelines (format documented in [docs/design/mcp-metrics-spec.md](docs/design/mcp-metrics-spec.md)). Adversarial evals (70+ scenarios under [internal/eval/scenarios/](internal/eval/scenarios/)) gate every release on rejection-schema integrity and prompt-injection resistance.
 
 Full threat model + residual risk: [docs/security/mcp-threat-model.md](docs/security/mcp-threat-model.md).
 
@@ -294,7 +294,7 @@ Built by Felix Geelhaar with contributions from the polyglot AI-coding community
 ## Contributing
 
 - TDD: tests before behavior changes.
-- Coverage ≥80% (`go test ./... -cover`).
+- Meet each domain's `min` in `.coverctl.yaml` (default 80% when unset). Prefer `go run ./cmd/coverctl check` over raw `go test -cover`.
 - Conventional Commits (`feat:`, `fix:`, `chore:`, ...) for Relicta version-bump logic.
 - `main` is protected; merge via PR after CI green (`.github/workflows/go.yml` + `.github/workflows/eval.yml`).
 - Run `gofmt -w` and `golangci-lint v2` before pushing.

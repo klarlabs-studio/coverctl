@@ -34,24 +34,10 @@ func (r *RubyRunner) Language() application.Language {
 
 // Detect checks if this runner can handle the current project.
 func (r *RubyRunner) Detect(projectDir string) bool {
-	markers := []string{
-		"Gemfile",
-		"Gemfile.lock",
-		"Rakefile",
-	}
-	for _, marker := range markers {
-		if _, err := os.Stat(filepath.Join(projectDir, marker)); err == nil {
-			return true
-		}
-	}
-
-	// Check for gemspec files
-	matches, err := filepath.Glob(filepath.Join(projectDir, "*.gemspec"))
-	if err == nil && len(matches) > 0 {
+	if detectByLanguageMarkers(projectDir, r.Language()) {
 		return true
 	}
-
-	return false
+	return detectGlobMarkers(projectDir, "*.gemspec")
 }
 
 // Run executes Ruby coverage tools and returns the profile path.

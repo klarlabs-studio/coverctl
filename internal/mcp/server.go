@@ -485,7 +485,7 @@ func (s *Server) handleDebtResource(ctx context.Context, uri string, params map[
 		return nil, fmt.Errorf("failed to calculate debt: %w", err)
 	}
 
-	data, err := json.MarshalIndent(result, "", "  ")
+	data, err := json.MarshalIndent(sanitizeDebtResult(result), "", "  ")
 	if err != nil {
 		return nil, fmt.Errorf("failed to marshal debt result: %w", err)
 	}
@@ -510,7 +510,7 @@ func (s *Server) handleTrendResource(ctx context.Context, uri string, params map
 		return nil, fmt.Errorf("failed to calculate trend: %w", err)
 	}
 
-	data, err := json.MarshalIndent(result, "", "  ")
+	data, err := json.MarshalIndent(sanitizeTrendResult(result), "", "  ")
 	if err != nil {
 		return nil, fmt.Errorf("failed to marshal trend result: %w", err)
 	}
@@ -532,7 +532,7 @@ func (s *Server) handleSuggestResource(ctx context.Context, uri string, params m
 		return nil, fmt.Errorf("failed to generate suggestions: %w", err)
 	}
 
-	data, err := json.MarshalIndent(result, "", "  ")
+	data, err := json.MarshalIndent(sanitizeSuggestResult(result), "", "  ")
 	if err != nil {
 		return nil, fmt.Errorf("failed to marshal suggest result: %w", err)
 	}
@@ -550,7 +550,7 @@ func (s *Server) handleConfigResource(ctx context.Context, uri string, params ma
 		return nil, fmt.Errorf("failed to detect config: %w", err)
 	}
 
-	data, err := json.MarshalIndent(result, "", "  ")
+	data, err := json.MarshalIndent(sanitizeConfig(result), "", "  ")
 	if err != nil {
 		return nil, fmt.Errorf("failed to marshal config: %w", err)
 	}
@@ -595,14 +595,15 @@ func (s *Server) handleSuggest(ctx context.Context, input SuggestInput) (map[str
 		return classified, nil
 	}
 
+	safeSuggestions := sanitizeSuggestions(result.Suggestions)
 	output := map[string]any{
 		"passed":      err == nil,
-		"suggestions": result.Suggestions,
+		"suggestions": safeSuggestions,
 	}
 
 	if err != nil {
 		output["passed"] = false
-		output["error"] = err.Error()
+		output["error"] = sanitizeOutputString(err.Error())
 		output["summary"] = "Failed to generate suggestions"
 		return output, nil
 	}
@@ -614,9 +615,9 @@ func (s *Server) handleSuggest(ctx context.Context, input SuggestInput) (map[str
 	// gate-lowering write requires an explicit --mode=ci.
 	if input.WriteConfig && s.config.Mode != ModeCI {
 		output["writeConfig"] = false
-		output["summary"] = fmt.Sprintf(
+		output["summary"] = sanitizeOutputString(fmt.Sprintf(
 			"Generated %d threshold suggestions using %s strategy; config NOT written: writeConfig requires --mode=ci (agent mode is read-only so suggestions cannot silently lower the coverage gate)",
-			len(result.Suggestions), strategy)
+			len(safeSuggestions), strategy))
 		return output, nil
 	}
 
@@ -628,25 +629,25 @@ func (s *Server) handleSuggest(ctx context.Context, input SuggestInput) (map[str
 		// Backup existing config if it exists
 		backupPath, backupErr := backupConfig(configPath)
 		if backupErr != nil && !os.IsNotExist(backupErr) {
-			output["error"] = fmt.Sprintf("failed to backup config: %v", backupErr)
+			output["error"] = sanitizeOutputString(fmt.Sprintf("failed to backup config: %v", backupErr))
 			output["summary"] = "Failed to backup existing config"
 			return output, nil
 		}
 
 		// Write new config
 		if err := writeConfig(configPath, suggestedConfig); err != nil {
-			output["error"] = err.Error()
+			output["error"] = sanitizeOutputString(err.Error())
 			output["summary"] = "Failed to write config"
 			return output, nil
 		}
 
-		output["configPath"] = configPath
+		output["configPath"] = canonicalizePath(configPath)
 		if backupPath != "" {
-			output["backupPath"] = backupPath
+			output["backupPath"] = canonicalizePath(backupPath)
 		}
-		output["summary"] = fmt.Sprintf("Applied %d threshold suggestions to %s", len(result.Suggestions), configPath)
+		output["summary"] = sanitizeOutputString(fmt.Sprintf("Applied %d threshold suggestions to %s", len(safeSuggestions), configPath))
 	} else {
-		output["summary"] = fmt.Sprintf("Generated %d threshold suggestions using %s strategy", len(result.Suggestions), strategy)
+		output["summary"] = sanitizeOutputString(fmt.Sprintf("Generated %d threshold suggestions using %s strategy", len(safeSuggestions), strategy))
 	}
 
 	return output, nil
@@ -712,11 +713,7 @@ func (s *Server) handleCompare(ctx context.Context, input CompareInput) (map[str
 	}
 
 	if input.BaseProfile == "" {
-		return map[string]any{
-			"passed":  false,
-			"error":   "baseProfile is required",
-			"summary": "Missing required parameter",
-		}, nil
+		return errorResponse(OpCodeMissingArg, "Missing required parameter", nil, "Provide baseProfile pointing at the baseline coverage profile to compare against."), nil
 	}
 
 	opts := application.CompareOptions{
@@ -754,15 +751,15 @@ func (s *Server) handleCompare(ctx context.Context, input CompareInput) (map[str
 
 	if err != nil {
 		output["passed"] = false
-		output["error"] = err.Error()
+		output["error"] = sanitizeOutputString(err.Error())
 		output["summary"] = "Failed to compare coverage"
 	} else {
 		sign := "+"
 		if result.Delta < 0 {
 			sign = ""
 		}
-		output["summary"] = fmt.Sprintf("Coverage %s%.1f%% (%.1f%% → %.1f%%), %d improved, %d regressed",
-			sign, result.Delta, result.BaseOverall, result.HeadOverall, len(result.Improved), len(result.Regressed))
+		output["summary"] = sanitizeOutputString(fmt.Sprintf("Coverage %s%.1f%% (%.1f%% → %.1f%%), %d improved, %d regressed",
+			sign, result.Delta, result.BaseOverall, result.HeadOverall, len(result.Improved), len(result.Regressed)))
 	}
 
 	return output, nil
@@ -801,18 +798,10 @@ func (s *Server) handlePRComment(ctx context.Context, input PRCommentInput) (map
 	owner, repo, prNumber := detectPRContextMCP(provider, input.Owner, input.Repo, input.PRNumber)
 
 	if prNumber == 0 {
-		return map[string]any{
-			"passed":  false,
-			"error":   "prNumber is required (or set CI environment variables for auto-detection)",
-			"summary": "Missing required parameter",
-		}, nil
+		return errorResponse(OpCodeMissingArg, "Missing required parameter", nil, "Provide prNumber, or run inside CI so provider environment variables can auto-detect it."), nil
 	}
 	if owner == "" || repo == "" {
-		return map[string]any{
-			"passed":  false,
-			"error":   "owner and repo are required (or set provider-specific environment variables)",
-			"summary": "Missing required parameter",
-		}, nil
+		return errorResponse(OpCodeMissingArg, "Missing required parameter", nil, "Provide owner and repo, or set provider-specific CI environment variables for auto-detection."), nil
 	}
 
 	if !input.DryRun {
@@ -844,24 +833,24 @@ func (s *Server) handlePRComment(ctx context.Context, input PRCommentInput) (map
 
 	output := map[string]any{
 		"passed":      err == nil,
-		"commentBody": result.CommentBody,
+		"commentBody": sanitizeOutputString(result.CommentBody),
 		"provider":    string(provider),
 	}
 
 	switch {
 	case err != nil:
 		output["passed"] = false
-		output["error"] = err.Error()
+		output["error"] = sanitizeOutputString(err.Error())
 		output["summary"] = "Failed to post PR comment"
 	case input.DryRun:
 		output["summary"] = "Generated PR comment (dry-run mode)"
 	case result.Created:
 		output["commentId"] = result.CommentID
-		output["commentUrl"] = result.CommentURL
-		output["summary"] = fmt.Sprintf("Created comment on PR #%d: %s", prNumber, result.CommentURL)
+		output["commentUrl"] = sanitizeOutputString(result.CommentURL)
+		output["summary"] = sanitizeOutputString(fmt.Sprintf("Created comment on PR #%d: %s", prNumber, result.CommentURL))
 	default:
 		output["commentId"] = result.CommentID
-		output["summary"] = fmt.Sprintf("Updated existing comment #%d on PR #%d", result.CommentID, prNumber)
+		output["summary"] = sanitizeOutputString(fmt.Sprintf("Updated existing comment #%d on PR #%d", result.CommentID, prNumber))
 	}
 
 	return output, nil

@@ -35,16 +35,7 @@ func (r *RustRunner) Language() application.Language {
 
 // Detect checks if this runner can handle the current project.
 func (r *RustRunner) Detect(projectDir string) bool {
-	markers := []string{
-		"Cargo.toml",
-		"Cargo.lock",
-	}
-	for _, marker := range markers {
-		if _, err := os.Stat(filepath.Join(projectDir, marker)); err == nil {
-			return true
-		}
-	}
-	return false
+	return detectByLanguageMarkers(projectDir, r.Language())
 }
 
 // Run executes Rust coverage tools and returns the profile path.

@@ -1,0 +1,16 @@
+{
+  "id": "adversarial_metachar_record_pipe",
+  "description": "record rejects shell metacharacters in testArgs (record_pipe).",
+  "category": "adversarial",
+  "tool": "record",
+  "input": {
+    "testArgs": [
+      "a|b"
+    ]
+  },
+  "expect": {
+    "passed": false,
+    "errorCode": "INPUT_REJECTED_SHELL_METACHAR",
+    "remediationContains": "shell metacharacters"
+  }
+}

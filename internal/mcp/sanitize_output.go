@@ -184,3 +184,64 @@ func sanitizeDomainDeltas(m map[string]float64) map[string]float64 {
 	}
 	return out
 }
+
+// sanitizeSuggestions returns a copy with Domain and Reason scrubbed.
+// Suggestion.Domain echoes config/domain names; Reason is free-form and
+// may interpolate coverage-derived strings.
+func sanitizeSuggestions(ss []application.Suggestion) []application.Suggestion {
+	if len(ss) == 0 {
+		return ss
+	}
+	out := make([]application.Suggestion, len(ss))
+	for i, s := range ss {
+		s.Domain = canonicalizePath(s.Domain)
+		s.Reason = sanitizeOutputString(s.Reason)
+		out[i] = s
+	}
+	return out
+}
+
+// sanitizeSuggestResult scrubbs suggestion payloads before they reach an
+// agent via the suggest tool or the suggest resource.
+func sanitizeSuggestResult(r application.SuggestResult) application.SuggestResult {
+	r.Suggestions = sanitizeSuggestions(r.Suggestions)
+	r.Config = sanitizeConfig(r.Config)
+	return r
+}
+
+// sanitizeDebtResult scrubbs debt item names before resource/tool return.
+func sanitizeDebtResult(r application.DebtResult) application.DebtResult {
+	r.Items = sanitizeDebtItems(r.Items)
+	return r
+}
+
+// sanitizeTrendResult scrubbs domain keys in ByDomain maps.
+func sanitizeTrendResult(r application.TrendResult) application.TrendResult {
+	if len(r.ByDomain) == 0 {
+		return r
+	}
+	out := make(map[string]domain.Trend, len(r.ByDomain))
+	for k, v := range r.ByDomain {
+		out[canonicalizePath(k)] = v
+	}
+	r.ByDomain = out
+	return r
+}
+
+// sanitizeConfig scrubbs domain names, match patterns, and excludes so
+// the config resource cannot smuggle hostile paths into agent context.
+func sanitizeConfig(cfg application.Config) application.Config {
+	cfg.Exclude = sanitizeWarnings(cfg.Exclude)
+	if cfg.Profile.Path != "" {
+		cfg.Profile.Path = canonicalizePath(cfg.Profile.Path)
+	}
+	domains := make([]domain.Domain, len(cfg.Policy.Domains))
+	for i, d := range cfg.Policy.Domains {
+		d.Name = canonicalizePath(d.Name)
+		d.Match = sanitizeWarnings(d.Match)
+		d.Exclude = sanitizeWarnings(d.Exclude)
+		domains[i] = d
+	}
+	cfg.Policy.Domains = domains
+	return cfg
+}

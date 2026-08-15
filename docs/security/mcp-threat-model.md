@@ -63,8 +63,10 @@ To close this surface:
   characters (NUL, CR, LF, tabs) replaced with a single space, backticks
   rewritten to single quotes, and length capped at 1024 bytes.
 - Sanitization is idempotent and applied at every handler that emits
-  user-controlled strings: `check`, `report`, `compare`, `debt`. The
-  helpers live in `internal/mcp/sanitize_output.go`.
+  user-controlled strings: `check`, `report`, `compare`, `debt`,
+  `suggest`, `pr-comment` (`commentBody`), and MCP resources
+  (`debt`, `trend`, `suggest`, `config`). The helpers live in
+  `internal/mcp/sanitize_output.go`.
 
 This is the Output-side complement to the input-side controls in §1
 and §2. Together they guarantee that no attacker-controlled byte from a

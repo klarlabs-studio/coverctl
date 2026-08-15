@@ -1,3 +1,44 @@
+# Product Backlog
+
+Status as of 2026-08-15 health-improvements pass. Items below marked
+**SHIPPED** were completed in tree; remaining open work is listed under
+**Still open**. See also `docs/research/codebase-health-assessment.md`.
+
+## Still open (prioritized)
+
+1. **MCP agent-loop eval harness expansion** — corpus now 70+ adversarial/schema/judge scenarios; still missing happy-path polyglot runner scenarios and live-agent tool-selection evals.
+2. **5-user polyglot usability test** — protocol ready (`docs/research/usability-test-protocol.md`); no findings report yet.
+3. **Site / docs-site IA work** — sidebar re-architecture, Diataxis splits, comparison pages, blog/changelog, pricing page, social-proof (docs Astro site).
+4. **CI product metrics dogfooding** — structured artifacts partially exist in `coverage.yml`; trend analysis pipeline not yet productized.
+5. **AI/Agent success metrics baseline** — telemetry flag exists; retained-value analysis of which 3 MCP tools drive usage is not yet instrumented end-to-end.
+6. **Activation funnel / GTM metrics** — specs exist; no live funnel dashboards.
+7. **Runner CI matrix** — mocked buildArgs tests exist; real toolchain smoke for Python/Node/Rust still optional.
+
+## SHIPPED (do not re-open)
+
+- Mode-aware MCP tool surface (`--mode=agent|ci|auto`)
+- MCP output boundary hardening (check/report/compare/debt/suggest/pr-comment/resources)
+- Structured rejection schema + output budgets
+- `coverctl mcp doctor`
+- Module-root failure remediation (`OP_MODULE_ROOT_MISSING`)
+- Category POV + monetization decision + ICP brief
+- Public surface wedge reframe (README agent-loop positioning)
+- Transparency-moment artifact (agent transcript in README)
+- Security and privacy public posture (input+output boundaries in README)
+- Community and platform-teams surface area (README sections)
+- Eval harness skeleton + RuleJudge CI gate (corpus grown to 70+)
+- Architecture drift guardrails (ceiling tests; god-file extraction below ceilings)
+- Coverage quality hotspot uplift (mcp/cli/runners/parsers/eval domains gated)
+- Golden path UX / CLI next-action hints / failure-mode docs (prior iterations)
+- Rust LCOV parsing + quick-start coverage (prior iterations)
+
+---
+
+## Historical backlog detail
+
+The sections below are the original detailed write-ups. Prefer the
+Still-open list above for prioritization; keep detail here for context.
+
 
 ## Product Messaging & Docs Alignment
 

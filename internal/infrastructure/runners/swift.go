@@ -37,18 +37,10 @@ func (r *SwiftRunner) Language() application.Language {
 
 // Detect checks if this runner can handle the current project.
 func (r *SwiftRunner) Detect(projectDir string) bool {
-	// Check for Swift Package Manager manifest
-	if _, err := os.Stat(filepath.Join(projectDir, "Package.swift")); err == nil {
+	if detectByLanguageMarkers(projectDir, r.Language()) {
 		return true
 	}
-
-	// Check for Xcode project bundles
-	matches, err := filepath.Glob(filepath.Join(projectDir, "*.xcodeproj"))
-	if err == nil && len(matches) > 0 {
-		return true
-	}
-
-	return false
+	return detectGlobMarkers(projectDir, "*.xcodeproj")
 }
 
 // Run executes Swift coverage tools and returns the profile path.

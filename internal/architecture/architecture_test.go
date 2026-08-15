@@ -267,11 +267,16 @@ func TestLanguageRegistryIsCompleteAndConsistent(t *testing.T) {
 	// must appear in the Languages registry.
 	for _, line := range strings.Split(source, "\n") {
 		line = strings.TrimSpace(line)
-		idx := strings.Index(line, `Language = "`)
-		if idx == -1 {
+		// Match: LanguageX Language = "value"
+		constIdx := strings.Index(line, " Language = \"")
+		if constIdx == -1 {
 			continue
 		}
-		rest := line[idx+len(`Language = "`):]
+		name := strings.TrimSpace(line[:constIdx])
+		if !strings.HasPrefix(name, "Language") {
+			continue
+		}
+		rest := line[constIdx+len(` Language = "`):]
 		end := strings.Index(rest, `"`)
 		if end == -1 {
 			continue
@@ -280,14 +285,9 @@ func TestLanguageRegistryIsCompleteAndConsistent(t *testing.T) {
 		if value == "" || value == "auto" {
 			continue
 		}
-		// Look for a Code: LanguageX line in the Languages registry block.
-		needle := "Code:             Language" + capitalize(value)
-		// Some constant names diverge (LanguageCpp for "cpp", LanguageCSharp
-		// for "csharp", LanguagePHP for "php"). Tolerate by also checking
-		// for the literal value in `Code:` proximity.
-		if !strings.Contains(source, needle) &&
-			!strings.Contains(source, `Code:             Language`) {
-			t.Errorf("Language %q missing from Languages registry", value)
+		needle := "Code:             " + name
+		if !strings.Contains(source, needle) {
+			t.Errorf("Language %q (%s) missing from Languages registry (looked for %q)", value, name, needle)
 		}
 	}
 }
