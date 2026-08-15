@@ -1,3 +1,50 @@
+# Product Backlog
+
+Status as of 2026-08-15 health-improvements pass. Items below marked
+**SHIPPED** were completed in tree; remaining open work is listed under
+**Still open**. See also `docs/research/codebase-health-assessment.md`.
+
+## Still open (prioritized)
+
+1. **5-user polyglot usability test** — protocol ready (`docs/research/usability-test-protocol.md`); no findings report yet (needs human participants).
+2. **Site content infra** — blog/RSS; remaining Diataxis polish on CLI `other.mdx`; universal Next component across all pages.
+3. **AI/Agent success metrics baseline** — telemetry flag exists; retained-value analysis of which 3 MCP tools drive usage is not yet instrumented end-to-end.
+4. **Activation funnel / GTM metrics** — specs exist; no live funnel dashboards.
+5. **Real polyglot toolchain smoke** — runners unit workflow + mocked buildArgs exist; optional CI with pytest-cov/nyc/cargo-llvm-cov still open.
+6. **Live-agent tool-selection evals** — happy_path + anti-pattern judge scenarios shipped; LLM-driven tool selection still deferred.
+
+## SHIPPED (do not re-open)
+
+- Mode-aware MCP tool surface (`--mode=agent|ci|auto`)
+- MCP output boundary hardening (check/report/compare/debt/suggest/pr-comment/resources)
+- Structured rejection schema + output budgets
+- `coverctl mcp doctor`
+- Module-root failure remediation (`OP_MODULE_ROOT_MISSING`)
+- Category POV + monetization decision + ICP brief
+- Public surface wedge reframe (README agent-loop positioning)
+- Transparency-moment artifact (agent transcript in README)
+- Security and privacy public posture (input+output boundaries in README)
+- Community and platform-teams surface area (README sections)
+- Eval harness skeleton + RuleJudge CI gate (corpus grown to 80+ with happy_path)
+- Architecture drift guardrails (ceiling tests; god-file extraction below ceilings)
+- Coverage quality hotspot uplift (mcp/cli/runners/parsers/eval/providers domains gated)
+- Docs site journey sidebar + compare pages + community page + print.css + 404
+- Runners unit CI workflow (mocked Detect/buildArgs; no language toolchains)
+- Happy-path MCP eval scenarios (check/report/badge/debt/suggest/compare/record)
+- CI dogfood record+trend artifacts in coverage.yml
+- Docs Diataxis trim (architecture pointer, CI other-systems compact, config example cut)
+- Changelog docs page + CLI exit-codes polish (watch/init)
+- Application Service tests for Record/Trend/Debt/Compare/detectProvider (~50% coverage)
+- Golden path UX / CLI next-action hints / failure-mode docs (prior iterations)
+- Rust LCOV parsing + quick-start coverage (prior iterations)
+
+---
+
+## Historical backlog detail
+
+The sections below are the original detailed write-ups. Prefer the
+Still-open list above for prioritization; keep detail here for context.
+
 
 ## Product Messaging & Docs Alignment
 

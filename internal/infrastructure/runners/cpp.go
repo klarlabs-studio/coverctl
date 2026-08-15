@@ -34,17 +34,7 @@ func (r *CppRunner) Language() application.Language {
 
 // Detect checks if this runner can handle the current project.
 func (r *CppRunner) Detect(projectDir string) bool {
-	markers := []string{
-		"CMakeLists.txt",
-		"meson.build",
-		"configure.ac",
-	}
-	for _, marker := range markers {
-		if _, err := os.Stat(filepath.Join(projectDir, marker)); err == nil {
-			return true
-		}
-	}
-	return false
+	return detectByLanguageMarkers(projectDir, r.Language())
 }
 
 // Run executes C/C++ coverage tools and returns the profile path.

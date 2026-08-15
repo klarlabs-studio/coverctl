@@ -145,13 +145,13 @@ func TestFileSizeCeilings(t *testing.T) {
 	ceilings := []fileSizeCeiling{
 		{
 			relpath: "internal/cli/cli.go",
-			maxLOC:  1400,
-			reason:  "Dispatch is now a thin switch; each command lives in its own cmd_*.go. Adding back inline command bodies (instead of an extracted runXxx) is the regression to prevent.",
+			maxLOC:  490,
+			reason:  "Dispatch is now a thin switch; helpers (help text, completion, printers, watch loop) live in cmd_*.go / version.go. Adding back inline bodies is the regression to prevent.",
 		},
 		{
 			relpath: "internal/application/service.go",
-			maxLOC:  1600,
-			reason:  "Service god-struct with extracted handlers living alongside. Migrate remaining methods to per-concern handlers (engineering review R1).",
+			maxLOC:  1400,
+			reason:  "Service god-struct with extracted handlers living alongside. Aggregate helpers moved to aggregate.go; migrate remaining methods to per-concern handlers (engineering review R1).",
 		},
 		{
 			relpath: "internal/mcp/server.go",
@@ -267,11 +267,16 @@ func TestLanguageRegistryIsCompleteAndConsistent(t *testing.T) {
 	// must appear in the Languages registry.
 	for _, line := range strings.Split(source, "\n") {
 		line = strings.TrimSpace(line)
-		idx := strings.Index(line, `Language = "`)
-		if idx == -1 {
+		// Match: LanguageX Language = "value"
+		constIdx := strings.Index(line, " Language = \"")
+		if constIdx == -1 {
 			continue
 		}
-		rest := line[idx+len(`Language = "`):]
+		name := strings.TrimSpace(line[:constIdx])
+		if !strings.HasPrefix(name, "Language") {
+			continue
+		}
+		rest := line[constIdx+len(` Language = "`):]
 		end := strings.Index(rest, `"`)
 		if end == -1 {
 			continue
@@ -280,23 +285,11 @@ func TestLanguageRegistryIsCompleteAndConsistent(t *testing.T) {
 		if value == "" || value == "auto" {
 			continue
 		}
-		// Look for a Code: LanguageX line in the Languages registry block.
-		needle := "Code:             Language" + capitalize(value)
-		// Some constant names diverge (LanguageCpp for "cpp", LanguageCSharp
-		// for "csharp", LanguagePHP for "php"). Tolerate by also checking
-		// for the literal value in `Code:` proximity.
-		if !strings.Contains(source, needle) &&
-			!strings.Contains(source, `Code:             Language`) {
-			t.Errorf("Language %q missing from Languages registry", value)
+		needle := "Code:             " + name
+		if !strings.Contains(source, needle) {
+			t.Errorf("Language %q (%s) missing from Languages registry (looked for %q)", value, name, needle)
 		}
 	}
-}
-
-func capitalize(s string) string {
-	if s == "" {
-		return s
-	}
-	return strings.ToUpper(s[:1]) + s[1:]
 }
 
 // TestNoProductionCodeUsesTestOnlyHTTPConstructors prevents reintroduction

@@ -1,0 +1,21 @@
+{
+  "id": "schema_record_rejection_fields",
+  "description": "record rejection/missing-arg response includes stable schema fields.",
+  "category": "schema",
+  "tool": "record",
+  "input": {
+    "testArgs": [
+      "--require=/x"
+    ]
+  },
+  "expect": {
+    "passed": false,
+    "hasField": [
+      "passed",
+      "error_code",
+      "error",
+      "summary",
+      "remediation"
+    ]
+  }
+}

@@ -22,7 +22,7 @@ func runRecord(ctx context.Context, args []string, stdout, stderr io.Writer, svc
 	commit := fs.String("commit", "", "Git commit SHA (optional)")
 	branch := fs.String("branch", "", "Git branch name (optional)")
 	runCoverage := fs.Bool("run", false, "Run coverage before recording history")
-	language := fs.String("language", "", "Override language detection (go, python, nodejs, rust, java)")
+	language := fs.String("language", "", "Override language detection (python, javascript, typescript, java, rust, go, csharp, cpp, php, ruby, swift, dart, scala, elixir, shell)")
 	fs.StringVar(language, "l", "", "Override language detection (shorthand)")
 	tags := fs.String("tags", "", "Build tags (e.g., integration,e2e)")
 	race := fs.Bool("race", false, "Enable race detector")

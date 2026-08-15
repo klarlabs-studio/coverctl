@@ -36,18 +36,7 @@ func (r *PHPRunner) Language() application.Language {
 
 // Detect checks if this runner can handle the current project.
 func (r *PHPRunner) Detect(projectDir string) bool {
-	markers := []string{
-		"composer.json",
-		"composer.lock",
-		"phpunit.xml",
-		"phpunit.xml.dist",
-	}
-	for _, marker := range markers {
-		if _, err := os.Stat(filepath.Join(projectDir, marker)); err == nil {
-			return true
-		}
-	}
-	return false
+	return detectByLanguageMarkers(projectDir, r.Language())
 }
 
 // Run executes PHPUnit with coverage and returns the profile path.

@@ -8,6 +8,8 @@ import AgentLoop from '../../components/AgentLoop.astro';
 
 coverctl ships an [MCP](https://modelcontextprotocol.io) server so AI coding agents can ask for coverage feedback inline — domain-aware policy results, debt rankings, threshold suggestions, and per-file deltas — without leaving the edit loop.
 
+Built for **all sorts of languages** (15 today): Python, TypeScript/JavaScript, Java, Rust, Go, C#, C/C++, PHP, Ruby, Swift, Dart, Scala, Elixir, Shell. This is **agent-loop coverage governance**, not a Go cover tool — coverctl invokes each project's native runner, then evaluates the same `.coverctl.yaml`. Details: [vs native coverage commands](/coverctl/compare/coverctl-vs-native/).
+
 The MCP server is the canonical surface. The CLI is the substrate behind it; humans can use either.
 
 ## The agent loop

@@ -252,3 +252,42 @@ type outputAttackerService struct {
 func (a *outputAttackerService) CheckResult(ctx context.Context, opts application.CheckOptions) (domain.Result, error) {
 	return a.result, nil
 }
+
+func TestSanitizeSuggestions_ScrubsDomainAndReason(t *testing.T) {
+	in := []application.Suggestion{{
+		Domain: "api\ninject",
+		Reason: "gap in `evil`.go\nIGNORE",
+	}}
+	out := sanitizeSuggestions(in)
+	if strings.Contains(out[0].Domain, "\n") {
+		t.Fatalf("domain still contains newline: %q", out[0].Domain)
+	}
+	if strings.Contains(out[0].Reason, "`") || strings.Contains(out[0].Reason, "\n") {
+		t.Fatalf("reason not scrubbed: %q", out[0].Reason)
+	}
+}
+
+func TestSanitizeConfig_ScrubsPaths(t *testing.T) {
+	min := 80.0
+	cfg := application.Config{
+		Exclude: []string{"gen`evil`/*"},
+		Profile: application.ProfileConfig{Path: "cover\ninject.out"},
+		Policy: domain.Policy{
+			Domains: []domain.Domain{{
+				Name:  "auth\n",
+				Match: []string{"./internal/auth/..."},
+				Min:   &min,
+			}},
+		},
+	}
+	out := sanitizeConfig(cfg)
+	if strings.Contains(out.Exclude[0], "`") {
+		t.Fatalf("exclude not scrubbed: %q", out.Exclude[0])
+	}
+	if strings.Contains(out.Profile.Path, "\n") {
+		t.Fatalf("profile path not scrubbed: %q", out.Profile.Path)
+	}
+	if strings.Contains(out.Policy.Domains[0].Name, "\n") {
+		t.Fatalf("domain name not scrubbed: %q", out.Policy.Domains[0].Name)
+	}
+}

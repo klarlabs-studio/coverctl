@@ -34,16 +34,7 @@ func (r *ElixirRunner) Language() application.Language {
 
 // Detect checks if this runner can handle the current project.
 func (r *ElixirRunner) Detect(projectDir string) bool {
-	markers := []string{
-		"mix.exs",
-		"mix.lock",
-	}
-	for _, marker := range markers {
-		if _, err := os.Stat(filepath.Join(projectDir, marker)); err == nil {
-			return true
-		}
-	}
-	return false
+	return detectByLanguageMarkers(projectDir, r.Language())
 }
 
 // Run executes Elixir coverage tools and returns the profile path.

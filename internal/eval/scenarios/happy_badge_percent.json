@@ -1,0 +1,16 @@
+{
+  "id": "happy_badge_percent",
+  "description": "badge returns coverage percent for agent display.",
+  "category": "happy_path",
+  "tool": "badge",
+  "input": {},
+  "expect": {
+    "passed": true,
+    "summaryContains": "Coverage",
+    "hasField": [
+      "passed",
+      "percent",
+      "summary"
+    ]
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "id": "schema_badge_has_percent",
+  "description": "badge success response always includes percent field.",
+  "category": "schema",
+  "tool": "badge",
+  "input": {
+    "label": "coverage"
+  },
+  "expect": {
+    "passed": true,
+    "hasField": [
+      "passed",
+      "percent",
+      "summary"
+    ]
+  }
+}

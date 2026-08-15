@@ -37,7 +37,7 @@ policy:
     min: 75
   domains:
     - name: core
-      match: ["./internal/core/..."]
+      match: ["src/core/**"]   # path glob; Go often uses "./internal/core/..."
       min: 85
 
 exclude:
@@ -81,9 +81,11 @@ policy:
     min: 75
   domains:
     - name: core
-      match: ["./internal/core/..."]
+      match: ["src/core/**"]
       min: 85
 ```
+
+Domains match source paths (globs like `src/api/**`, or Go package paths like `./internal/api/...`). Details: [Domains](/coverctl/configuration/domains/).
 
 ### exclude
 
@@ -102,7 +104,7 @@ Per-file coverage rules. See [Policies](/coverctl/configuration/policies/).
 
 ```yaml
 files:
-  - match: ["internal/core/*.go"]
+  - match: ["src/core/*"]
     min: 90
 ```
 
@@ -147,55 +149,6 @@ annotations:
   enabled: true
 ```
 
-## Complete Example
-
-```yaml
-version: 1
-
-policy:
-  default:
-    min: 75
-  domains:
-    - name: core
-      match: ["./internal/core/..."]
-      min: 85
-    - name: api
-      match: ["./internal/api/..."]
-      min: 80
-    - name: infrastructure
-      match: ["./internal/infrastructure/..."]
-      min: 70
-    - name: cli
-      match: ["./cmd/..."]
-      min: 75
-
-files:
-  - match: ["internal/core/critical/*.go"]
-    min: 95
-
-exclude:
-  - "**/generated/**"
-  - "**/mocks/**"
-  - "**/testdata/**"
-
-diff:
-  enabled: false
-  base: origin/main
-
-integration:
-  enabled: false
-  packages: ["./internal/integration/..."]
-  run_args: []
-  cover_dir: ".cover/integration"
-  profile: ".cover/integration.out"
-
-merge:
-  profiles: []
-
-annotations:
-  enabled: true
-```
-
 ## Schema Validation
 
 A JSON schema is available at `schemas/coverctl.schema.json` for editor integration:
@@ -203,12 +156,15 @@ A JSON schema is available at `schemas/coverctl.schema.json` for editor integrat
 ```yaml
 # yaml-language-server: $schema=./schemas/coverctl.schema.json
 version: 1
-...
 ```
+
+For a full worked `.coverctl.yaml`, see [Domains](/coverctl/configuration/domains/)
+and [Policies](/coverctl/configuration/policies/), or copy
+[`templates/coverctl.yaml`](https://github.com/klarlabs-studio/coverctl/blob/main/templates/coverctl.yaml).
 
 ## Next Steps
 
-- [Domains](/coverctl/configuration/domains/) - Configure domain matching
-- [Policies](/coverctl/configuration/policies/) - Set coverage thresholds
-- [Advanced](/coverctl/configuration/advanced/) - Integration tests, diff mode, and more
-- [Monorepo Support](/coverctl/guides/monorepo/) - Config inheritance and workspace support
+- [Domains](/coverctl/configuration/domains/) — match patterns and per-domain mins
+- [Policies](/coverctl/configuration/policies/) — defaults, warn thresholds, ratchet
+- [Advanced](/coverctl/configuration/advanced/) — files, diff, merge, annotations
+- [Monorepo Support](/coverctl/guides/monorepo/) — config inheritance and workspace support

@@ -1,235 +1,46 @@
 ---
 title: Architecture
-description: coverctl architecture and design principles
+description: How coverctl is layered — domain, application, infrastructure, CLI, MCP — and where the canonical deep dive lives.
 ---
 
-coverctl is built with Domain-Driven Design (DDD) principles and follows clean architecture patterns. This document describes the project structure and design decisions.
+import { LinkCard, CardGrid, Aside } from '@astrojs/starlight/components';
 
-## Project Structure
+coverctl follows strict onion DDD: dependencies point inward. Agents and
+humans share one application service; MCP and CLI are thin adapters.
 
-```
-coverctl/
-├── cmd/coverctl/          # CLI entry point
-├── internal/
-│   ├── domain/            # Core business logic
-│   ├── application/       # Application services
-│   ├── infrastructure/    # External adapters
-│   └── cli/               # CLI parsing and output
-├── docs/                  # Documentation (this site)
-├── schemas/               # JSON schemas
-└── templates/             # Config templates
-```
+## Layers (short)
 
-## Layer Responsibilities
+| Layer | Package | Owns |
+| --- | --- | --- |
+| Domain | `internal/domain` | Coverage stats, policy evaluation, value objects |
+| Application | `internal/application` | Check / report / debt / suggest / compare orchestration |
+| Infrastructure | `internal/infrastructure` | Runners, parsers, config, history, PR clients |
+| CLI | `internal/cli` | Flags, formatters, golden-path output |
+| MCP | `internal/mcp` | Tool surface, input + output sanitization, rejection schema |
+| Eval | `internal/eval` | Adversarial + happy-path scenario corpus |
 
-### Domain Layer (`internal/domain/`)
+Import fitness tests in `internal/architecture/` enforce the boundaries
+in CI. God-file ceilings prevent `cli.go` / `service.go` / `server.go`
+from growing without extraction.
 
-The domain layer contains the core business logic with no external dependencies.
+## Wedge artifacts
 
-**Key components:**
-- `CoverageStat`: Coverage statistics for a file
-- `Policy`: Coverage policy definitions
-- `Domain`: Domain configuration
-- `Result`: Coverage evaluation results
-- `Evaluate()`: Policy evaluation logic
+The product wedge is **agent-loop coverage governance**. Strategy and
+security source-of-truth docs live in the repo:
 
-```go
-// domain/policy.go
-type Policy struct {
-    Default  DefaultPolicy
-    Domains  []Domain
-}
+- [`ARCHITECTURE.md`](https://github.com/klarlabs-studio/coverctl/blob/main/ARCHITECTURE.md) — full internal layout
+- [`docs/security/mcp-threat-model.md`](https://github.com/klarlabs-studio/coverctl/blob/main/docs/security/mcp-threat-model.md)
+- [`docs/strategy/category-pov.md`](https://github.com/klarlabs-studio/coverctl/blob/main/docs/strategy/category-pov.md)
 
-func Evaluate(policy Policy, coverage map[string]CoverageStat) Result {
-    // Pure business logic, no I/O
-}
-```
+<Aside type="note">
+This page is the explanation entrypoint. The repository `ARCHITECTURE.md`
+is the detailed contributor reference and stays in sync with ceiling tests.
+</Aside>
 
-### Application Layer (`internal/application/`)
+## Next
 
-The application layer orchestrates use cases by coordinating domain logic and infrastructure.
-
-**Key services:**
-- `Check()`: Run tests, evaluate coverage, enforce policy
-- `RunOnly()`: Generate coverage profile
-- `Report()`: Analyze existing profile
-- `Watch()`: Continuous coverage monitoring
-
-**Interfaces defined here:**
-- `CoverageRunner`: Run tests with coverage
-- `ProfileParser`: Parse coverage profiles
-- `ConfigLoader`: Load configuration
-- `Reporter`: Format and output results
-
-```go
-// application/service.go
-type Service struct {
-    CoverageRunner CoverageRunner
-    ProfileParser  ProfileParser
-    ConfigLoader   ConfigLoader
-    Reporter       Reporter
-    // ...
-}
-
-func (s *Service) Check(ctx context.Context, opts CheckOptions) error {
-    // Orchestrate domain + infrastructure
-}
-```
-
-### Infrastructure Layer (`internal/infrastructure/`)
-
-Adapters for external systems and I/O operations.
-
-**Adapters:**
-- `gotool/`: Go toolchain integration (`go test`)
-- `config/`: YAML configuration loading
-- `coverprofile/`: Coverage profile parsing
-- `report/`: Text/JSON/HTML output
-- `diff/`: Git diff integration
-- `watcher/`: File system watching
-
-```go
-// infrastructure/gotool/runner.go
-type Runner struct {
-    Module     ModuleResolver
-    Exec       func(ctx, dir, args) error
-}
-
-func (r Runner) Run(ctx context.Context, opts RunOptions) (string, error) {
-    // Execute go test with coverage
-}
-```
-
-### CLI Layer (`internal/cli/`)
-
-Command-line interface parsing and user interaction.
-
-**Responsibilities:**
-- Parse command-line arguments
-- Validate inputs
-- Call application services
-- Format output for terminal
-
-```go
-// cli/cli.go
-func Run(args []string, stdout, stderr io.Writer, svc Service) int {
-    // Parse args, dispatch to service methods
-}
-```
-
-## Design Principles
-
-### Dependency Inversion
-
-All dependencies point inward toward the domain layer:
-
-```
-CLI → Application → Domain
-         ↓
-   Infrastructure
-```
-
-Application layer defines interfaces; infrastructure implements them.
-
-### Hexagonal Architecture
-
-The application core is isolated from external concerns:
-
-```
-         ┌─────────────────┐
-         │    CLI Port     │
-         └────────┬────────┘
-                  │
-    ┌─────────────▼─────────────┐
-    │     Application Core      │
-    │  ┌─────────────────────┐  │
-    │  │       Domain        │  │
-    │  └─────────────────────┘  │
-    └─────────────┬─────────────┘
-                  │
-    ┌─────────────▼─────────────┐
-    │    Infrastructure Ports    │
-    │  ┌──────┐ ┌──────┐ ┌────┐ │
-    │  │ Git  │ │ File │ │ Go │ │
-    │  └──────┘ └──────┘ └────┘ │
-    └───────────────────────────┘
-```
-
-### Pure Domain Logic
-
-The domain layer has no side effects:
-
-```go
-// Pure function - easy to test
-func Evaluate(policy Policy, coverage Coverage) Result {
-    // No I/O, no state mutation
-    return result
-}
-```
-
-### Interface Segregation
-
-Small, focused interfaces:
-
-```go
-// Single responsibility
-type CoverageRunner interface {
-    Run(ctx context.Context, opts RunOptions) (string, error)
-}
-
-type ProfileParser interface {
-    Parse(path string) (map[string]CoverageStat, error)
-}
-```
-
-## Testing Strategy
-
-### Unit Tests
-
-Each layer is tested in isolation:
-
-- **Domain**: Pure function tests
-- **Application**: Mock infrastructure interfaces
-- **Infrastructure**: Integration tests with real I/O
-- **CLI**: End-to-end argument parsing tests
-
-### Test Coverage
-
-coverctl uses itself for coverage enforcement:
-
-```yaml
-# .coverctl.yaml
-policy:
-  default:
-    min: 75
-  domains:
-    - name: domain
-      match: ["./internal/domain/..."]
-      min: 85
-    - name: application
-      match: ["./internal/application/..."]
-      min: 80
-```
-
-## Key Decisions
-
-### Go Standard Library
-
-Minimal external dependencies:
-- `charmbracelet/bubbletea`: TUI wizard
-- `charmbracelet/lipgloss`: Terminal styling
-- `fsnotify/fsnotify`: File watching
-- `gopkg.in/yaml.v3`: YAML parsing
-
-### Coverage Mode
-
-Uses `covermode=atomic` for accurate concurrent coverage.
-
-### Profile Format
-
-Standard Go coverage profile format for compatibility with `go tool cover`.
-
-## See Also
-
-- [Contributing](/coverctl/architecture/contributing/) - How to contribute
-- [GitHub Repository](https://github.com/klarlabs-studio/coverctl)
+<CardGrid>
+  <LinkCard title="Contributing" href="/coverctl/architecture/contributing/" description="TDD, coverage floors, Conventional Commits." />
+  <LinkCard title="MCP reference" href="/coverctl/mcp/" description="Tools, rejection schema, agent mode." />
+  <LinkCard title="Threat model" href="/coverctl/security/threat-model/" description="Lethal Trifecta input + output boundaries." />
+</CardGrid>

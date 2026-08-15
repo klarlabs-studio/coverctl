@@ -1,0 +1,17 @@
+{
+  "id": "adversarial_metachar_debt_pipe",
+  "description": "debt rejects shell pipe metacharacter in testArgs if forwarded; path scope on profile is primary \u2014 use check.",
+  "category": "adversarial",
+  "tool": "check",
+  "input": {
+    "testArgs": [
+      "ok",
+      "bad|pipe"
+    ]
+  },
+  "expect": {
+    "passed": false,
+    "errorCode": "INPUT_REJECTED_SHELL_METACHAR",
+    "remediationContains": "shell metacharacters"
+  }
+}

@@ -34,7 +34,7 @@ func (r *ShellRunner) Language() application.Language {
 }
 
 // Detect checks if this runner can handle the current project.
-// Looks for bats test files in standard locations and verifies kcov availability.
+// Looks for bats test files in standard locations kcov availability is checked at Run time, not during Detect.
 func (r *ShellRunner) Detect(projectDir string) bool {
 	// Check for bats test files in common locations
 	batsPatterns := []string{

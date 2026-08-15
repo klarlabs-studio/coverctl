@@ -3,7 +3,7 @@ title: coverctl check
 description: Run tests with coverage and enforce per-domain policy. The wedge command of agent-loop coverage governance — agents call it inline before commit.
 ---
 
-The `check` command runs tests with coverage instrumentation, evaluates coverage per domain, and enforces policy thresholds.
+The `check` command runs the project's **native** coverage runner, evaluates coverage per domain, and enforces policy thresholds from `.coverctl.yaml`. It is governance over `go test` / `pytest` / `npm test` / … — not a replacement for `go tool cover`.
 
 ## Usage
 
@@ -45,7 +45,7 @@ coverctl check [flags]
 | `-v` | Verbose test output |
 | `--run` | Run only tests matching pattern |
 | `--timeout` | Test timeout (e.g., `10m`, `1h`) |
-| `--test-arg` | Additional go test argument (repeatable) |
+| `--test-arg` | Additional argument forwarded to the native test runner (repeatable) |
 
 ### Incremental Mode
 
@@ -160,7 +160,7 @@ Overall      82.1%      75%    PASS
 
 ## Troubleshooting
 
-If `coverctl check` disagrees with previously recorded history, make sure the history profile was produced by `coverctl run` or `coverctl check`. Profiles generated with plain `go test -coverprofile` can omit `-coverpkg` instrumentation, which makes history and policy checks diverge.
+If `coverctl check` disagrees with previously recorded history, make sure the history profile was produced by `coverctl run` or `coverctl check`. On Go projects, profiles from plain `go test -coverprofile` can omit `-coverpkg` instrumentation and diverge from coverctl's numbers — that is a Go-runner detail, not the product model.
 
 ## Exit Codes
 

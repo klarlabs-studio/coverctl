@@ -1,0 +1,14 @@
+{
+  "id": "happy_record_ok",
+  "description": "record accepts benign input and reports success.",
+  "category": "happy_path",
+  "tool": "record",
+  "input": {},
+  "expect": {
+    "passed": true,
+    "hasField": [
+      "passed",
+      "summary"
+    ]
+  }
+}

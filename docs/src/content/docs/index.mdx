@@ -3,7 +3,7 @@ title: coverctl
 description: Agent-loop coverage governance. Coverage your AI coding agent calls before commit — not a dashboard you read after CI.
 template: splash
 hero:
-  tagline: Agent-loop coverage governance — coverage your AI coding agent calls before commit, not a dashboard you read after CI. Domain-aware policy across 15 languages, MCP-native, local-first.
+  tagline: Agent-loop coverage governance for all sorts of languages — Python, TypeScript, Java, Rust, Go, and 10 more. Coverage your AI coding agent calls before commit, not a dashboard you read after CI. MCP-native, local-first.
   image:
     file: ../../assets/logo.svg
   actions:
@@ -31,7 +31,9 @@ import AgentLoop from '../../components/AgentLoop.astro';
 
 </div>
 
-Works best on standard Go/Python/JavaScript/Java/Rust projects with conventional layouts. Mock-heavy code or exotic monorepos may need an explicit `domains:` block — see [trust calibration](/coverctl/quick-start/#where-coverctl-works-best-and-where-it-may-need-adjustments).
+Works with **all sorts of languages** — Python, TypeScript/JavaScript, Java, Rust, Go, C#, C/C++, PHP, Ruby, Swift, Dart, Scala, Elixir, Shell — same domains and MCP tools. Mock-heavy or exotic layouts may need an explicit `domains:` block — see [trust calibration](/coverctl/quick-start/#where-coverctl-works-best-and-where-it-may-need-adjustments).
+
+coverctl is **not** `go tool cover` or a Go-only cover CLI — it is policy + MCP over each language's native runner. See [coverctl vs native commands](/coverctl/compare/coverctl-vs-native/).
 
 ---
 
@@ -51,18 +53,18 @@ After `coverctl mcp serve` is wired into Claude Code. *Rendered for clarity — 
 ```text
 You:    Add the email-validation feature to the api domain.
 
-Claude: I'll add EmailValidator + tests in internal/api/email.
+Claude: I'll add EmailValidator + tests under src/api/.
 
-  [edits: internal/api/email.go, internal/api/email_test.go]
+  [edits: src/api/email.ts, src/api/email.test.ts]
 
   Tool call → coverctl check
   Result   → passed: false; failing: api (78.2%, required 80%)
-             uncovered: internal/api/email.go:42-58 (error paths)
+             uncovered: src/api/email.ts:42-58 (error paths)
 
   Tool call → coverctl suggest api
-  Result   → uncovered files: email.go (16 lines), retry.go (4 lines)
+  Result   → uncovered files: email.ts (16 lines), retry.ts (4 lines)
 
-  Two error branches in EmailValidator.Validate are uncovered.
+  Two error branches in EmailValidator.validate are uncovered.
   I'll add cases for empty-input and malformed-domain so api meets
   the 80% threshold before we commit.
 ```
@@ -89,7 +91,7 @@ coverctl returns deterministic structured signals; the agent's *fix* still needs
 |---|---|
 | **Red-CI agent loop** (status quo) | Agent edits → tests fail in CI 8 minutes later → context lost. coverctl: feedback in seconds, in the same turn. |
 | **Codecov / Coveralls dashboards** | Post-merge visibility for humans. coverctl: pre-commit signal for agents. |
-| **Native `go test -cover` / `pytest --cov`** | Per-language only, no domain policy, no agent-callable interface. coverctl: uniform across 15 languages, MCP-native. |
+| **Native runners** (`go test -cover`, `pytest --cov`, `nyc`, …) | Substrate only — one language, no domain policy, no MCP. coverctl **uses** them; it does not replace Go cover or become a Go-cover wrapper. [Comparison →](/coverctl/compare/coverctl-vs-native/) |
 
 ---
 
@@ -131,7 +133,7 @@ coverctl check
     Speaks MCP — the multi-vendor agent-tool standard governed by Anthropic, OpenAI, Google, Microsoft, AWS. Works with every MCP-capable client today; works with whatever ships next.
   </Card>
   <Card title="Polyglot governance, one config" icon="laptop">
-    One `.coverctl.yaml` enforces per-domain thresholds across Go, Python, TypeScript, Rust, Java, C#, C/C++, PHP, Ruby, Swift, Dart, Scala, Elixir, Shell.
+    Built for all sorts of languages — one `.coverctl.yaml` across Python, TypeScript/JavaScript, Java, Rust, Go, C#, C/C++, PHP, Ruby, Swift, Dart, Scala, Elixir, Shell.
   </Card>
   <Card title="Local-first, hardened boundary" icon="shield">
     No SaaS account, no source upload, no third-party dependency in the agent's reach. Input + output sanitization defends against prompt-injection through test-runner flags and hostile filenames.

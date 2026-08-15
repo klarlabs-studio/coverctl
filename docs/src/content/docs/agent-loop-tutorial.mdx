@@ -3,7 +3,7 @@ title: The agent loop, end to end
 description: Walk through one full agent-loop cycle with coverctl. Install + wire MCP, ask agent to add a feature, watch the agent call check / suggest / debt, see structured failure and recovery, commit before CI sees the regression.
 ---
 
-import { Steps, Aside, Tabs, TabItem } from '@astrojs/starlight/components';
+import { Steps, Aside, Tabs, TabItem, LinkCard, CardGrid } from '@astrojs/starlight/components';
 import AgentLoop from '../../components/AgentLoop.astro';
 
 This is the tutorial that builds the mental model. By the end of it
@@ -112,18 +112,18 @@ Claude Code (or Cursor or Cline) already installed.
    ```text
    You:    Add an email validator to the API domain.
 
-   Claude: I'll add EmailValidator + tests in internal/api/email.
+   Claude: I'll add EmailValidator + tests under src/api/.
 
-     [edits: internal/api/email.go, internal/api/email_test.go]
+     [edits: src/api/email.ts, src/api/email.test.ts]
 
      Tool call → coverctl check
      Result   → passed: false; failing: api (78.2%, required 80%)
-                uncovered: internal/api/email.go:42-58 (error paths)
+                uncovered: src/api/email.ts:42-58 (error paths)
 
      Tool call → coverctl suggest api
-     Result   → uncovered files: email.go (16 lines), retry.go (4 lines)
+     Result   → uncovered files: email.ts (16 lines), retry.ts (4 lines)
 
-     Two error branches in EmailValidator.Validate are uncovered.
+     Two error branches in EmailValidator.validate are uncovered.
      I'll add cases for empty-input and malformed-domain so api meets
      the 80% threshold before we commit.
    ```
@@ -201,11 +201,9 @@ mail when there's a phone in your pocket.
 
 ## Where next
 
-- [MCP server reference](/coverctl/mcp/) — every tool, every
-  resource, every input/output schema.
-- [Configure your policy](/coverctl/configuration/) — what threshold
-  to set on which domain, and why.
-- [coverctl vs Codecov](/coverctl/compare/coverctl-vs-codecov/) —
-  honest comparison; both tools serve real needs.
-- [For platform & devex teams](/coverctl/for-platform-teams/) —
-  procurement-ready summary if you're evaluating coverctl org-wide.
+<CardGrid>
+  <LinkCard title="MCP server reference" href="/coverctl/mcp/" description="Every tool, resource, and rejection code." />
+  <LinkCard title="Configure your policy" href="/coverctl/configuration/" description="Thresholds per domain." />
+  <LinkCard title="coverctl vs Codecov" href="/coverctl/compare/coverctl-vs-codecov/" description="Honest category comparison." />
+  <LinkCard title="For platform teams" href="/coverctl/for-platform-teams/" description="Procurement-ready artifacts." />
+</CardGrid>

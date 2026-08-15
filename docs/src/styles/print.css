@@ -1,0 +1,43 @@
+/* Print stylesheet for procurement / offline review.
+ * Hide chrome, force light readable text, keep code wrapping. */
+@media print {
+  :root {
+    color-scheme: light;
+  }
+
+  nav,
+  aside,
+  .sidebar,
+  header,
+  footer,
+  .sl-sidebar,
+  .social-icons,
+  [data-pagefind-ignore] {
+    display: none !important;
+  }
+
+  main,
+  article,
+  .content {
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  body {
+    background: #fff !important;
+    color: #111 !important;
+  }
+
+  pre,
+  code {
+    white-space: pre-wrap !important;
+    word-break: break-word !important;
+    box-shadow: none !important;
+  }
+
+  a[href]::after {
+    content: none !important;
+  }
+}

@@ -9,10 +9,10 @@
 ## Build, Test, and Development Commands
 - `go test ./...` runs the full suite.
 - `go test -covermode=atomic -coverpkg=./cmd/... -coverpkg=./internal/... -coverprofile=.cover/coverage.out ./...` mirrors the `coverctl check` instrumentation.
-- `go run ./cmd/coverctl check` enforces the >80% policy for every tracked domain; repeat it after changing code or tests.
+- `go run ./cmd/coverctl check` enforces each domain's minimum from `.coverctl.yaml` (default 80%; some packages set explicit floors — see that file); repeat it after changing code or tests.
 - `go run ./cmd/coverctl init` launches the Bubble Tea wizard before writing `.coverctl.yaml`; pass `--no-interactive` for automation.
 - `go run ./cmd/coverctl ignore` lists the `exclude` patterns contributors already documented.
-- `relicta release --yes` (GitHub Action) builds the CLI artifact and publishes releases; see `relicta.config.yaml` for details.
+- `relicta release --yes` (GitHub Action) builds the CLI artifact and publishes releases; see `.relicta.yaml` for details.
 
 ## Coding Style & Naming Conventions
 - Format with `gofmt`, keep imports grouped, and prefer short, lowercase package names that mirror directories.
@@ -23,7 +23,7 @@
 ## Testing Guidelines
 - Follow TDD: extend or add tests before production code changes. Consult `docs/tdd.md` for examples.
 - Use Go’s `testing` package; keep fixtures under `testdata/` and name files `*_test.go`.
-- Target >80% coverage for each domain in `.coverctl.yaml`. Run `go run ./cmd/coverctl check` until every slice passes.
+- Meet each domain's `min` in `.coverctl.yaml` (default 80% when unset). Run `go run ./cmd/coverctl check` until every slice passes.
 
 ## Commit & Pull Request Guidelines
 - Use Conventional Commits (`feat:`, `fix:`, `test:`) so release automation can categorize changes.
@@ -31,6 +31,6 @@
 - Keep `main` protected; merge through PRs only once CI and policy checks succeed.
 
 ## Release & Automation Notes
-- Relicta v2.6.1 drives releases; install via the GitHub action and keep `relicta.config.yaml` aligned with CLI artifacts.
+- Relicta v2.6.1 drives releases; install via the GitHub action and keep `.relicta.yaml` aligned with CLI artifacts.
 - Store the token as `RELICTA_TOKEN` with repo and workflow scopes; avoid `GITHUB_` prefixes.
 - Relicta pushes tags only when they do not exist yet; do not tag manually before a release run.

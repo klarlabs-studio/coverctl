@@ -2,7 +2,9 @@ package cli
 
 import (
 	"context"
+	"encoding/json"
 	"flag"
+	"fmt"
 	"io"
 
 	"go.klarlabs.de/coverctl/internal/application"
@@ -30,4 +32,40 @@ func runDebt(ctx context.Context, args []string, stdout, stderr io.Writer, svc S
 	}
 	printDebtResult(result, stdout, *output)
 	return 0
+}
+
+func printDebtResult(result application.DebtResult, w io.Writer, format application.OutputFormat) {
+	if format == application.OutputJSON {
+		enc := json.NewEncoder(w)
+		enc.SetIndent("", "  ")
+		_ = enc.Encode(result)
+		return
+	}
+
+	// Text output
+	if len(result.Items) == 0 {
+		fmt.Fprintln(w, "No coverage debt found - all targets are met!")
+		fmt.Fprintf(w, "Health Score: %.1f%%\n", result.HealthScore)
+		return
+	}
+
+	fmt.Fprintln(w, "Coverage Debt Report")
+	fmt.Fprintln(w, "====================")
+	fmt.Fprintln(w, "")
+	fmt.Fprintf(w, "%-8s %-30s %10s %10s %10s %8s\n", "TYPE", "NAME", "CURRENT", "REQUIRED", "SHORTFALL", "LINES")
+	fmt.Fprintf(w, "%-8s %-30s %10s %10s %10s %8s\n", "----", "----", "-------", "--------", "---------", "-----")
+
+	for _, item := range result.Items {
+		name := item.Name
+		if len(name) > 30 {
+			name = "..." + name[len(name)-27:]
+		}
+		fmt.Fprintf(w, "%-8s %-30s %9.1f%% %9.1f%% %9.1f%% %8d\n",
+			item.Type, name, item.Current, item.Required, item.Shortfall, item.Lines)
+	}
+
+	fmt.Fprintln(w, "")
+	fmt.Fprintf(w, "Total Debt: %.1f%% shortfall across %d items\n", result.TotalDebt, len(result.Items))
+	fmt.Fprintf(w, "Estimated Lines Needing Tests: %d\n", result.TotalLines)
+	fmt.Fprintf(w, "Health Score: %.1f%%\n", result.HealthScore)
 }

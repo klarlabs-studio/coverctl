@@ -35,30 +35,10 @@ func (r *CSharpRunner) Language() application.Language {
 
 // Detect checks if this runner can handle the current project.
 func (r *CSharpRunner) Detect(projectDir string) bool {
-	// Check for glob-based markers (*.csproj, *.sln)
-	globPatterns := []string{
-		filepath.Join(projectDir, "*.csproj"),
-		filepath.Join(projectDir, "*.sln"),
+	if detectGlobMarkers(projectDir, "*.csproj", "*.sln") {
+		return true
 	}
-	for _, pattern := range globPatterns {
-		matches, err := filepath.Glob(pattern)
-		if err == nil && len(matches) > 0 {
-			return true
-		}
-	}
-
-	// Check for exact file markers
-	markers := []string{
-		"Directory.Build.props",
-		"global.json",
-	}
-	for _, marker := range markers {
-		if _, err := os.Stat(filepath.Join(projectDir, marker)); err == nil {
-			return true
-		}
-	}
-
-	return false
+	return detectByLanguageMarkers(projectDir, r.Language())
 }
 
 // Run executes dotnet test with XPlat Code Coverage and returns the profile path.

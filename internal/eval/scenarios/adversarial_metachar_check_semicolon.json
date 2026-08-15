@@ -1,0 +1,17 @@
+{
+  "id": "adversarial_metachar_check_semicolon",
+  "description": "check rejects shell metacharacters in testArgs (check_semicolon).",
+  "category": "adversarial",
+  "tool": "check",
+  "input": {
+    "testArgs": [
+      "safe",
+      "evil;rm"
+    ]
+  },
+  "expect": {
+    "passed": false,
+    "errorCode": "INPUT_REJECTED_SHELL_METACHAR",
+    "remediationContains": "shell metacharacters"
+  }
+}

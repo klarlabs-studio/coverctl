@@ -1,0 +1,16 @@
+{
+  "id": "adversarial_metachar_check_ampersand",
+  "description": "check rejects shell metacharacters in testArgs (check_ampersand).",
+  "category": "adversarial",
+  "tool": "check",
+  "input": {
+    "testArgs": [
+      "a&b"
+    ]
+  },
+  "expect": {
+    "passed": false,
+    "errorCode": "INPUT_REJECTED_SHELL_METACHAR",
+    "remediationContains": "shell metacharacters"
+  }
+}

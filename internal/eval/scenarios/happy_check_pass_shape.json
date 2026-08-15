@@ -1,0 +1,18 @@
+{
+  "id": "happy_check_pass_shape",
+  "description": "check returns passed=true with domains/files/summary when policy is met.",
+  "category": "happy_path",
+  "tool": "check",
+  "input": {},
+  "expect": {
+    "passed": true,
+    "summaryContains": "PASS",
+    "hasField": [
+      "passed",
+      "summary",
+      "domains",
+      "files",
+      "warnings"
+    ]
+  }
+}

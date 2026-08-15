@@ -1,0 +1,17 @@
+{
+  "id": "schema_debt_has_health",
+  "description": "debt success response includes healthScore and items.",
+  "category": "schema",
+  "tool": "debt",
+  "input": {},
+  "expect": {
+    "passed": true,
+    "hasField": [
+      "passed",
+      "items",
+      "healthScore",
+      "totalDebt",
+      "summary"
+    ]
+  }
+}

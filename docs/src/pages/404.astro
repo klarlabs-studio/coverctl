@@ -1,0 +1,24 @@
+---
+const base = import.meta.env.BASE_URL || '/coverctl/';
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Page not found · coverctl</title>
+  </head>
+  <body>
+    <main style="font-family: Geist, system-ui, sans-serif; max-width: 40rem; margin: 4rem auto; padding: 0 1.5rem; color: #111;">
+      <p style="letter-spacing: 0.08em; text-transform: uppercase; font-size: 0.75rem; opacity: 0.7;">404</p>
+      <h1 style="font-family: 'Instrument Serif', Georgia, serif; font-weight: 400; font-size: 2.5rem; line-height: 1.15;">
+        This page is not in the agent loop.
+      </h1>
+      <p>Try one of these:</p>
+      <ul>
+        <li><a href={`${base}quick-start-agent/`}>Get started (AI agent)</a></li>
+        <li><a href={`${base}mcp/`}>MCP tools</a></li>
+        <li><a href={`${base}cli/`}>CLI reference</a></li>
+      </ul>
+    </main>
+  </body>
+</html>

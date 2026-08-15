@@ -1,30 +1,46 @@
 ---
 title: coverctl vs native commands (go test -cover, pytest --cov, nyc)
-description: When to use agent-loop coverage governance vs language-native coverage commands. coverctl is built on top of these tools, not against them.
+description: coverctl is agent-loop coverage governance — not a replacement for go tool cover, go test -cover, pytest --cov, or nyc. It runs those tools, then enforces domain policy for agents.
 ---
+
+import { Aside } from '@astrojs/starlight/components';
 
 ## TL;DR
 
-coverctl runs the native commands. The question is what happens to
-the result afterward.
+coverctl is **not** the Go cover tool, and not locked to one language. It is
+a governance layer for **all sorts of languages**: it invokes whatever
+native coverage command your project already uses, then evaluates
+per-domain policy from `.coverctl.yaml` — for agents via MCP, or for
+humans via the CLI.
 
 | | Native commands | coverctl |
 |---|---|---|
-| **What runs the tests** | `go test -cover`, `pytest --cov`, `nyc`, … | The same native commands, invoked by coverctl |
+| **What it is** | Language coverage runners (`go test -cover`, `pytest --cov`, `nyc`, …) | Agent-loop **policy** over those runners |
+| **What runs the tests** | You invoke them | The same native commands, invoked by coverctl |
 | **What reads the result** | You, in a terminal | The agent (via MCP) **or** you (via CLI) |
 | **Per-language** | Yes, only one at a time | One uniform interface across 15 languages |
 | **Domain policy** | None | First-class, in `.coverctl.yaml` |
 | **Agent integration** | None | Native MCP |
 | **Pre-commit signal** | You wire it up manually per-language | Built-in, MCP-native |
 
+<Aside type="caution" title="Separate from Go cover">
+
+`go tool cover`, `go test -cover`, and `-coverprofile` remain Go's
+coverage substrate. coverctl may *call* them on Go repos the same way
+it calls `pytest --cov` on Python repos. Domains, MCP tools, and
+`.coverctl.yaml` are coverctl's job — not `go cover`'s.
+
+</Aside>
+
 ## Native commands are the substrate
 
-coverctl does not replace `go test -cover` or `pytest --cov`. It runs
-them. Then it does three things native commands cannot:
+coverctl does not replace `go test -cover`, `go tool cover`,
+`pytest --cov`, or `nyc`. It runs them. Then it does three things
+native commands cannot:
 
-1. **Adds per-domain policy** — you can require 90 % on
-   `internal/auth` and 60 % on `internal/utils` in the same repo,
-   declared once.
+1. **Adds per-domain policy** — require 90% on `src/auth/**` and 60% on
+   `src/utils/**` in the same repo, declared once (Go repos may use
+   `./internal/auth/...` as the match dialect).
 2. **Speaks one language across many** — same `.coverctl.yaml` works
    in a Go + Python + TypeScript monorepo. Native commands force you
    to wire each language's coverage tool independently.
@@ -50,13 +66,15 @@ Anything beyond the above. Especially:
 ## What you don't lose
 
 coverctl never hides the underlying tool. `coverctl run -v` shows
-exactly what `go test` invocation it produced; the same with `pytest
---cov`, `nyc`, `cargo llvm-cov`, etc. If something fails, you can
-reproduce it with the native command directly. coverctl is a thin
-governance layer over a stable substrate, not a replacement.
+exactly what runner invocation it produced (`go test`, `pytest --cov`,
+`nyc`, `cargo llvm-cov`, etc.). If something fails, you can reproduce
+it with the native command directly. coverctl is a thin governance
+layer over a stable substrate, not a replacement for Go cover or any
+other language's coverage CLI.
 
 ## See also
 
 - [coverctl vs Codecov](/coverctl/compare/coverctl-vs-codecov/)
 - [coverctl vs Coveralls](/coverctl/compare/coverctl-vs-coveralls/)
+- [Configure domains](/coverctl/configuration/domains/) — path groups, not Go packages
 - [The agent loop, end to end](/coverctl/agent-loop-tutorial/)

@@ -20,7 +20,13 @@ type GlobResolver struct {
 // NewGlobResolver creates a new glob-based domain resolver.
 func NewGlobResolver(projectDir string) *GlobResolver {
 	if projectDir == "" {
-		projectDir, _ = os.Getwd()
+		cwd, err := os.Getwd()
+		if err != nil {
+			// Fall back to "." so callers still get a usable resolver;
+			// Resolve will surface path errors relative to cwd.
+			cwd = "."
+		}
+		projectDir = cwd
 	}
 	return &GlobResolver{projectDir: projectDir}
 }

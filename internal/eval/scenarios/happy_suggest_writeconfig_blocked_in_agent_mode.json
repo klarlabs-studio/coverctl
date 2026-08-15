@@ -1,0 +1,20 @@
+{
+  "id": "happy_suggest_writeconfig_blocked_in_agent_mode",
+  "description": "suggest writeConfig is refused in default agent mode so thresholds cannot be silently lowered.",
+  "category": "happy_path",
+  "tool": "suggest",
+  "input": {
+    "strategy": "current",
+    "writeConfig": true
+  },
+  "expect": {
+    "passed": true,
+    "summaryContains": "NOT written",
+    "hasField": [
+      "passed",
+      "suggestions",
+      "writeConfig",
+      "summary"
+    ]
+  }
+}

@@ -28,7 +28,7 @@ func runCheck(ctx context.Context, args []string, stdout, stderr io.Writer, svc 
 	failUnder := fs.Float64("fail-under", 0, "Fail if overall coverage is below this percentage")
 	ratchet := fs.Bool("ratchet", false, "Fail if coverage decreases from previous recorded value")
 	validate := fs.Bool("validate", false, "Validate config without running tests")
-	language := fs.String("language", "", "Override language detection (go, python, nodejs, rust, java)")
+	language := fs.String("language", "", "Override language detection (python, javascript, typescript, java, rust, go, csharp, cpp, php, ruby, swift, dart, scala, elixir, shell)")
 	fs.StringVar(language, "l", "", "Override language detection (shorthand)")
 	tags := fs.String("tags", "", "Build tags (e.g., integration,e2e)")
 	race := fs.Bool("race", false, "Enable race detector")

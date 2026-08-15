@@ -1,0 +1,36 @@
+---
+title: Changelog
+description: Release notes for coverctl. Relicta manages the canonical CHANGELOG.md in the repository.
+---
+
+import { LinkCard } from '@astrojs/starlight/components';
+
+Release notes are maintained in the repository by Relicta.
+
+<LinkCard
+  title="Full CHANGELOG.md on GitHub"
+  description="Unreleased notes plus every tagged release."
+  href="https://github.com/klarlabs-studio/coverctl/blob/main/CHANGELOG.md"
+/>
+
+## Recent highlights
+
+### Unreleased
+
+- Unmatched-package warnings now see packages the profile cannot (enumeration via `go list`).
+- Inherited domain minimums are marked `80.0% (default)` in the check table.
+
+### 1.18.0
+
+Security and correctness hardening — closing fail-open paths where the
+coverage gate could report PASS incorrectly. See the full entry on GitHub.
+
+## Install a specific release
+
+```bash
+brew install klarlabs-studio/tap/coverctl
+# or
+go install go.klarlabs.de/coverctl@latest
+```
+
+GitHub Releases: [klarlabs-studio/coverctl/releases](https://github.com/klarlabs-studio/coverctl/releases).

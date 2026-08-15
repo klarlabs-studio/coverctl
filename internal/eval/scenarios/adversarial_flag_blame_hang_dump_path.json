@@ -1,0 +1,18 @@
+{
+  "id": "adversarial_flag_blame_hang_dump_path",
+  "description": "check rejects --blame-hang-dump-path test arg as dangerous flag with stable error_code.",
+  "category": "adversarial",
+  "tool": "check",
+  "input": {
+    "testArgs": [
+      "--blame-hang-dump-path=/tmp/evil"
+    ]
+  },
+  "expect": {
+    "passed": false,
+    "errorCode": "INPUT_REJECTED_DANGEROUS_FLAG",
+    "errorContains": "--blame-hang-dump-path",
+    "remediationContains": "denied from MCP input",
+    "summaryContains": "Rejected unsafe MCP input"
+  }
+}

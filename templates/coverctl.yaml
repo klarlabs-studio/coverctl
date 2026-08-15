@@ -1,3 +1,8 @@
+# Starter template — copy to .coverctl.yaml and adjust.
+# Domains group source paths (not language packages).
+#   Most languages: path globs  →  match: ["src/api/**"]
+#   Go: package paths          →  match: ["./internal/api/..."]
+# See docs: configuration/domains
 version: 1
 policy:
   default:
@@ -5,12 +10,13 @@ policy:
   domains:
     - name: core
       match:
-        - "./internal/core/..."
+        - "src/core/**"
+        # Go projects typically use: "./internal/core/..."
 exclude:
-  - "internal/generated/*"
+  - "**/generated/**"
 files:
   - match:
-      - "internal/core/*.go"
+      - "src/core/*"
     min: 90
 diff:
   enabled: false

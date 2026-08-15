@@ -12,6 +12,12 @@ designed to give agents in-loop coverage feedback before commit — most of the
 value lands when the agent calls coverctl directly.
 :::
 
+:::note[Not the Go cover tool]
+coverctl is agent-loop **governance** over native runners. It does not replace
+`go tool cover` / `go test -cover` (or `pytest --cov`, `nyc`, …) — it invokes
+them, then enforces `.coverctl.yaml`. See [vs native commands](/coverctl/compare/coverctl-vs-native/).
+:::
+
 This guide sets up coverctl from your terminal and runs your first coverage
 check from the command line. The same `.coverctl.yaml` works whether you call
 coverctl from a terminal or from an AI agent later.
