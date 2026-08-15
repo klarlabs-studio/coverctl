@@ -48,7 +48,9 @@ jobs:
           cache: true
 
       - name: Build coverctl
-        run: go build -o "$GITHUB_WORKSPACE/coverctl" ./cmd/coverctl
+        # Binary lands at repo root; smoke steps run from testdata/smoke/<lang>
+        # so they invoke ../../../coverctl.
+        run: go build -o coverctl ./cmd/coverctl
 
       - name: Set up Python
         if: matrix.lang == 'python'
@@ -86,15 +88,14 @@ jobs:
       - name: coverctl check (python)
         if: matrix.lang == 'python'
         working-directory: testdata/smoke/python
-        run: |
-          PYTHONPATH=. "$GITHUB_WORKSPACE/coverctl" check -l python -p coverage.xml
+        run: PYTHONPATH=. ../../../coverctl check -l python -p coverage.xml
 
       - name: coverctl check (nodejs)
         if: matrix.lang == 'nodejs'
         working-directory: testdata/smoke/nodejs
-        run: "$GITHUB_WORKSPACE/coverctl" check -l javascript -p coverage/lcov.info
+        run: ../../../coverctl check -l javascript -p coverage/lcov.info
 
       - name: coverctl check (rust)
         if: matrix.lang == 'rust'
         working-directory: testdata/smoke/rust
-        run: "$GITHUB_WORKSPACE/coverctl" check -l rust -p target/coverage/lcov.info
+        run: ../../../coverctl check -l rust -p target/coverage/lcov.info
