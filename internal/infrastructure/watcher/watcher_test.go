@@ -148,7 +148,12 @@ func TestWatcherSkipsHiddenDirs(t *testing.T) {
 func TestWatcherDebounces(t *testing.T) {
 	tmpDir := t.TempDir()
 
-	w, err := New(WithDebounce(100 * time.Millisecond))
+	// Debounce must be well above typical fsnotify delivery jitter so a
+	// create+write burst coalesces under CI load (the previous 100ms window
+	// with 20ms sleeps between writes could open a gap and emit twice).
+	const debounce = 200 * time.Millisecond
+
+	w, err := New(WithDebounce(debounce))
 	if err != nil {
 		t.Fatalf("new watcher: %v", err)
 	}
@@ -158,36 +163,32 @@ func TestWatcherDebounces(t *testing.T) {
 		t.Fatalf("watch dir: %v", err)
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
 	events := w.Events(ctx)
 	goFile := filepath.Join(tmpDir, "test.go")
 
-	// Rapidly write to the file multiple times
+	// Burst writes with no artificial delay so create/write notifications
+	// land inside a single debounce window.
 	for i := 0; i < 5; i++ {
 		if err := os.WriteFile(goFile, []byte("package main // "+string(rune('a'+i))), 0o644); err != nil {
 			t.Fatalf("write file: %v", err)
 		}
-		time.Sleep(20 * time.Millisecond)
 	}
 
-	// Should only receive one debounced event
-	eventCount := 0
-	timeout := time.After(300 * time.Millisecond)
-
-loop:
-	for {
-		select {
-		case <-events:
-			eventCount++
-		case <-timeout:
-			break loop
-		}
+	// Wait for the coalesced event, then confirm quiet for another debounce.
+	select {
+	case <-events:
+	case <-ctx.Done():
+		t.Fatal("timeout waiting for debounced event")
 	}
 
-	if eventCount != 1 {
-		t.Fatalf("expected 1 debounced event, got %d", eventCount)
+	select {
+	case <-events:
+		t.Fatal("expected a single debounced event, got a second")
+	case <-time.After(debounce + 50*time.Millisecond):
+		// Quiet period — coalescing held.
 	}
 }
 

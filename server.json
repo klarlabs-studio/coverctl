@@ -6,52 +6,52 @@
     "url": "https://github.com/klarlabs-studio/coverctl",
     "source": "github"
   },
-  "version": "1.17.0",
+  "version": "1.20.0",
   "packages": [
     {
       "registryType": "mcpb",
-      "identifier": "https://github.com/klarlabs-studio/coverctl/releases/download/v1.17.0/coverctl-mcp-darwin-arm64.mcpb",
-      "fileSha256": "6820b95a4ba2caf4ee9d3ed770f5ff3f9f858e42c82527ef1b39d66952c7341a",
+      "identifier": "https://github.com/klarlabs-studio/coverctl/releases/download/v1.20.0/coverctl-mcp-darwin-arm64.mcpb",
+      "fileSha256": "0e35ea91660508712715d374ce3c3a5cbccce4c626201eb80396596f661fe742",
       "transport": {
         "type": "stdio"
       }
     },
     {
       "registryType": "mcpb",
-      "identifier": "https://github.com/klarlabs-studio/coverctl/releases/download/v1.17.0/coverctl-mcp-darwin-amd64.mcpb",
-      "fileSha256": "27a25c907cbb35d57e4bd59780f3f18d1d6bac5467616f0991f4fb8d4a859ed2",
+      "identifier": "https://github.com/klarlabs-studio/coverctl/releases/download/v1.20.0/coverctl-mcp-darwin-amd64.mcpb",
+      "fileSha256": "d41c1dd2555f7f4d3e62f553e9da004df34857ecc35a225f0c4692e512be7d18",
       "transport": {
         "type": "stdio"
       }
     },
     {
       "registryType": "mcpb",
-      "identifier": "https://github.com/klarlabs-studio/coverctl/releases/download/v1.17.0/coverctl-mcp-linux-amd64.mcpb",
-      "fileSha256": "664e37822bade31e43765ac84668f16b6607a0c25a7774bef257a1bd86c74556",
+      "identifier": "https://github.com/klarlabs-studio/coverctl/releases/download/v1.20.0/coverctl-mcp-linux-amd64.mcpb",
+      "fileSha256": "ab30639f2aa4b417bb6cb1484bbe0c4afb3cf472f289b03f657b4e683477b9c8",
       "transport": {
         "type": "stdio"
       }
     },
     {
       "registryType": "mcpb",
-      "identifier": "https://github.com/klarlabs-studio/coverctl/releases/download/v1.17.0/coverctl-mcp-linux-arm64.mcpb",
-      "fileSha256": "8b98bcb73f1c2ca9d4e91d5fa0a60e98086804cf9cf598786eb28e4ad3688c31",
+      "identifier": "https://github.com/klarlabs-studio/coverctl/releases/download/v1.20.0/coverctl-mcp-linux-arm64.mcpb",
+      "fileSha256": "9e513f88a911a8ae7c5e76bf021aa7022ed98df09fe8ab336cb5ab596e6d6ac1",
       "transport": {
         "type": "stdio"
       }
     },
     {
       "registryType": "mcpb",
-      "identifier": "https://github.com/klarlabs-studio/coverctl/releases/download/v1.17.0/coverctl-mcp-windows-amd64.mcpb",
-      "fileSha256": "c51541c2c18865b97c0d79b8e319b67b99eceb2b06b9c9063c1160d00723145f",
+      "identifier": "https://github.com/klarlabs-studio/coverctl/releases/download/v1.20.0/coverctl-mcp-windows-amd64.mcpb",
+      "fileSha256": "fa38f6d12cd90ab2929a4646565f65e07d896c750c0ea969f19d77c7feacc972",
       "transport": {
         "type": "stdio"
       }
     },
     {
       "registryType": "mcpb",
-      "identifier": "https://github.com/klarlabs-studio/coverctl/releases/download/v1.17.0/coverctl-mcp-windows-arm64.mcpb",
-      "fileSha256": "8ad3daa42259b7f9d05461a8d1f7c53a9a257d4adb6ba4447181ada1615cc607",
+      "identifier": "https://github.com/klarlabs-studio/coverctl/releases/download/v1.20.0/coverctl-mcp-windows-arm64.mcpb",
+      "fileSha256": "890fd103b2f7bbd435a95b44a58f8bd7338922dfb8e3249afca081e42916a995",
       "transport": {
         "type": "stdio"
       }

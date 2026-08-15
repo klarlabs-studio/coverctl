@@ -4,25 +4,59 @@ All notable changes to `coverctl` will be documented here. Relicta manages this 
 
 ## [Unreleased]
 
+## [1.20.0] - 2026-08-15
+
+Agent-loop coverage governance: polyglot smoke, MCP telemetry, blog/RSS,
+tool-selection evals, and gate/reporting correctness.
+
+### Added
+- **Polyglot smoke CI** for Python (pytest-cov), Node (c8), and Rust
+  (cargo-llvm-cov) fixtures under `testdata/smoke/`. (#133)
+- **MCP success telemetry** (`coverctl mcp serve --mcp-telemetry`) with
+  check/suggest/debt emission, policy-fail / regression-caught signals, and
+  `scripts/analyze-mcp-telemetry.py`. (#133)
+- **Docs blog + RSS** via starlight-blog (posts under
+  `docs/src/content/docs/blog/`, feed at `/coverctl/blog/rss.xml`). (#133)
+- **Tool-selection eval harness** (`tool_selection` scenarios + live
+  `HTTPLLMToolSelector` when `COVERCTL_EVAL_LLM_JUDGE=1`). (#133)
+- GTM funnel scaffolding and usability recruitment/session templates under
+  `docs/gtm/` and `docs/research/`. (#133)
+- Codebase health improvements (assessment-driven hardening). (#130)
+
 ### Fixed
 - **The unmatched-package warning could not see the packages that matter most.**
   It was derived from the coverage profile, but a package with no test files
   contributes no profile lines under a plain `go test ./...` — so a package that
   was *both* unmatched and untested, the exact case the warning exists for, was
   invisible to it. Package enumeration (`go list ./...`) now runs alongside the
-  profile pass. (#126)
+  profile pass. (#127, #128)
 - **The capability was lost at the wrapper.** The CLI wires a `MultiResolver`
   around the Go resolver; the warning type-asserts for the enumeration
   capability, and the assertion failed against the wrapper even though the
-  resolver underneath implemented it. The warning degraded silently — it
-  reported nothing and looked like it had nothing to report. `MultiResolver`
-  now forwards enumeration to the selected resolver. (#126)
+  resolver underneath implemented it. `MultiResolver` now forwards enumeration
+  to the selected resolver. (#127, #128)
+- Accept in-root absolute paths and stamp CLI version consistently. (#127)
+- Python runner prefers `python3` and detects pytest-cov via import. (#133)
+- Docs-only PRs now run required CI checks so branch protection can report.
+  (#121)
+- Security: bump `golang.org/x/text` and remediate known CVEs in Go + JS deps.
+  (#120, #122)
 
 ### Changed
 - Domain thresholds inherited from `policy.default.min` are now marked
-  `80.0% (default)` in the table. A config where every domain reads `min: null`
-  reads as a disabled gate; the threshold *is* enforced, and printing a bare
-  number did not say so. (#126)
+  `80.0% (default)` in the table. (#127, #128)
+- MCP domain policy minimum adjusted to 55 with a note on coverpkg merge
+  inflation. (#133)
+
+## [1.19.0] - 2026-07-10
+
+### Added
+- MCP tools advertise output schemas for data tools. (#116)
+
+### Changed
+- Bump `go.klarlabs.de/mcp` (v1.21.0 → v1.22.0). (#111, #115)
+- Refresh nox baseline to fingerprint v2 (nox 1.7.0). (#113)
+- Nox remediation for deps + actions. (#112)
 
 ## [1.18.0] - 2026-07-06
 
