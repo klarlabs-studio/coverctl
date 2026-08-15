@@ -150,8 +150,8 @@ func TestFileSizeCeilings(t *testing.T) {
 		},
 		{
 			relpath: "internal/application/service.go",
-			maxLOC:  1600,
-			reason:  "Service god-struct with extracted handlers living alongside. Migrate remaining methods to per-concern handlers (engineering review R1).",
+			maxLOC:  1400,
+			reason:  "Service god-struct with extracted handlers living alongside. Aggregate helpers moved to aggregate.go; migrate remaining methods to per-concern handlers (engineering review R1).",
 		},
 		{
 			relpath: "internal/mcp/server.go",
