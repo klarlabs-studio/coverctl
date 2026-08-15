@@ -182,14 +182,14 @@ policy:
     min: 75
   domains:
     - name: core
-      match: ["./internal/core/..."]
+      match: ["src/core/**"]   # Go: "./internal/core/..."
       min: 85
     - name: api
-      match: ["./internal/api/..."]
+      match: ["src/api/**"]
       min: 80
 
 files:
-  - match: ["internal/core/payments/*.go"]
+  - match: ["src/core/payments/*"]
     min: 95
 
 exclude:
@@ -243,7 +243,7 @@ policy:
     min: 50
   domains:
     - name: core
-      match: ["./internal/core/..."]
+      match: ["src/core/**"]
       min: 70
 ```
 
@@ -257,7 +257,7 @@ policy:
     min: 75
   domains:
     - name: core
-      match: ["./internal/core/..."]
+      match: ["src/core/**"]
       min: 85
 diff:
   enabled: true

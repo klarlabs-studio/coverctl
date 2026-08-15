@@ -12,9 +12,10 @@ Strict DDD with dependencies pointing inward:
 - `internal/application` — orchestration: check, run, report, detect,
   record, compare, debt, suggest. Owns the use-case-shaped service
   interface used by both CLI and MCP entrypoints.
-- `internal/infrastructure` — runners (15 languages), parsers (Go,
-  LCOV, Cobertura, JaCoCo), config loader, history store, PR clients
-  (GitHub, GitLab, Bitbucket).
+- `internal/infrastructure` — runners for 15 language IDs (14 runner
+  implementations; TypeScript aliases to the Node runner), parsers
+  (Go coverprofile, LCOV, Cobertura, JaCoCo), config loader, history
+  store, PR clients (GitHub, GitLab, Bitbucket).
 - `internal/cli` — CLI parsing, output formatters, golden-path output
   with shortfall delta and inline next-action footer.
 - `internal/mcp` — MCP server, input sanitization, output
@@ -48,9 +49,10 @@ documents:
 ## Boundaries
 
 - **MCP input boundary:** `internal/mcp/sanitize.go`. Stable rejection
-  schema in `rejectionResponse` and `errorResponse`. 13 stable
-  `RejectionCode` constants with operator-actionable remediation
-  copy in `remediationFor` map and inline at error sites.
+  schema in `rejectionResponse` and `errorResponse`. 16 stable
+  `RejectionCode` constants (8 input + 8 operational) with
+  operator-actionable remediation copy in `remediationFor` and
+  inline at error sites.
 - **MCP output boundary:** `internal/mcp/sanitize_output.go`. File
   paths canonicalized to `[A-Za-z0-9._/-]`; free-form strings have
   control characters stripped, backticks rewritten, length capped.

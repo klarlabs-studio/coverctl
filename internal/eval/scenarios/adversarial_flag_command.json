@@ -1,0 +1,18 @@
+{
+  "id": "adversarial_flag_command",
+  "description": "check rejects --command test arg as dangerous flag with stable error_code.",
+  "category": "adversarial",
+  "tool": "check",
+  "input": {
+    "testArgs": [
+      "--command=/tmp/evil"
+    ]
+  },
+  "expect": {
+    "passed": false,
+    "errorCode": "INPUT_REJECTED_DANGEROUS_FLAG",
+    "errorContains": "--command",
+    "remediationContains": "denied from MCP input",
+    "summaryContains": "Rejected unsafe MCP input"
+  }
+}

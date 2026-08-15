@@ -67,7 +67,11 @@ coverctl init -c custom-config.yaml
 
 ## Domain Detection
 
-The wizard automatically detects domains based on your project structure:
+The wizard automatically detects domains from your project layout. Match
+patterns follow the detected language: path globs (`src/api/**`) for most
+stacks, Go package paths (`./internal/api/...`) when `go.mod` is present.
+
+### Go layout heuristics (when applicable)
 
 | Directory | Detected Domain |
 |-----------|-----------------|
@@ -77,11 +81,14 @@ The wizard automatically detects domains based on your project structure:
 | `internal/infrastructure/` | Infrastructure adapters |
 | `pkg/` | Public packages |
 
-Directories named `generated`, `mocks`, or `testdata` are automatically excluded.
+For Python, TypeScript, Rust, and others, detection proposes `src/**`-style
+globs. Preview with `coverctl detect --dry-run`. Directories named
+`generated`, `mocks`, or `testdata` are automatically excluded.
 
 ## Generated Config
 
-After running `init`, you'll have a `.coverctl.yaml` file:
+After running `init`, you'll have a `.coverctl.yaml` file. Example for a
+TypeScript / Python-style tree (Go uses `./internal/...` instead):
 
 ```yaml
 version: 1
@@ -90,34 +97,29 @@ policy:
     min: 75
   domains:
     - name: core
-      match: ["./internal/core/..."]
+      match: ["src/core/**"]
       min: 85
     - name: api
-      match: ["./internal/api/..."]
+      match: ["src/api/**"]
       min: 80
-    - name: cli
-      match: ["./cmd/..."]
-      min: 75
 exclude:
   - "**/generated/**"
   - "**/mocks/**"
 ```
 
-## Related Commands
+More language examples: [Quick start](/coverctl/quick-start/#after-init-example-configs).
 
-### detect
+## Exit Codes
 
-For non-interactive domain detection:
+| Code | Meaning |
+| --- | --- |
+| `0` | Config written (or validated) successfully |
+| `1` | Detection / write failure |
+| `2` | Usage / flag error (e.g. config exists without `--force`) |
 
-```bash
-# Preview detected domains
-coverctl detect --dry-run
+## Related
 
-# Write config directly
-coverctl detect
-```
-
-## See Also
-
-- [Configuration](/coverctl/configuration/) - Configuration reference
-- [Domains](/coverctl/configuration/domains/) - Domain configuration
+- [detect](/coverctl/cli/other/) — non-interactive domain detection (`coverctl detect --dry-run`)
+- [Configuration](/coverctl/configuration/) — `.coverctl.yaml` reference
+- [Domains](/coverctl/configuration/domains/) — match patterns and mins
+- [Quick start (terminal)](/coverctl/quick-start/) — golden path after init

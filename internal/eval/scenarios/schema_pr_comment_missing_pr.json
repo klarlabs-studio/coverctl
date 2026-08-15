@@ -1,0 +1,19 @@
+{
+  "id": "schema_pr_comment_missing_pr",
+  "description": "pr-comment rejection/missing-arg response includes stable schema fields.",
+  "category": "schema",
+  "tool": "pr-comment",
+  "input": {
+    "dryRun": true
+  },
+  "expect": {
+    "passed": false,
+    "hasField": [
+      "passed",
+      "error_code",
+      "summary",
+      "remediation"
+    ],
+    "errorCode": "OP_MISSING_ARG"
+  }
+}

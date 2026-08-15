@@ -3,8 +3,6 @@ title: CI integration
 description: Run coverctl in CI alongside agent-loop coverage governance on the developer machine. --mode=ci exposes the full nine-tool MCP surface for automation runners.
 ---
 
-import { Tabs, TabItem } from '@astrojs/starlight/components';
-
 This guide shows how to integrate coverctl into your CI/CD pipeline.
 
 ## GitHub Actions
@@ -235,92 +233,36 @@ jobs:
           git push
 ```
 
-## Other CI Systems
+## Other CI systems
 
-<Tabs>
-  <TabItem label="GitLab CI">
-    ```yaml
-    # .gitlab-ci.yml
-    coverage:
-      image: golang:1.25
-      script:
-        - go install go.klarlabs.de/coverctl@latest
-        - coverctl check --ci --fail-under 80
-      coverage: '/Overall\s+(\d+\.\d+)%/'
+The same two commands work everywhere: install the binary, then
+`coverctl check --ci`. PR comments auto-detect from provider env vars.
 
-    # Post MR comments (merge requests)
-    coverage:mr-comment:
-      image: golang:1.25
-      rules:
-        - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
-      script:
-        - go install go.klarlabs.de/coverctl@latest
-        - coverctl check
-        # MR number auto-detected from CI_MERGE_REQUEST_IID
-        - coverctl pr-comment
-    ```
-  </TabItem>
-  <TabItem label="CircleCI">
-    ```yaml
-    # .circleci/config.yml
-    version: 2.1
-    jobs:
-      coverage:
-        docker:
-          - image: cimg/go:1.25
-        steps:
-          - checkout
-          - run:
-              name: Install coverctl
-              command: go install go.klarlabs.de/coverctl@latest
-          - run:
-              name: Run coverage
-              command: coverctl check --ci
-    ```
-  </TabItem>
-  <TabItem label="Jenkins">
-    ```groovy
-    // Jenkinsfile
-    pipeline {
-      agent {
-        docker { image 'golang:1.25' }
-      }
-      stages {
-        stage('Coverage') {
-          steps {
-            sh 'go install go.klarlabs.de/coverctl@latest'
-            sh 'coverctl check --ci --fail-under 80'
-          }
-        }
-      }
-    }
-    ```
-  </TabItem>
-  <TabItem label="Bitbucket Pipelines">
-    ```yaml
-    # bitbucket-pipelines.yml
-    pipelines:
-      default:
-        - step:
-            name: Coverage
-            image: golang:1.25
-            script:
-              - go install go.klarlabs.de/coverctl@latest
-              - coverctl check --ci --fail-under 80
+| System | Install + gate | PR comment env |
+| --- | --- | --- |
+| GitLab CI | `go install … && coverctl check --ci` | `CI_MERGE_REQUEST_IID` |
+| CircleCI | same in a Go job step | — |
+| Jenkins | same in a `golang` agent | — |
+| Bitbucket Pipelines | same | `BITBUCKET_PR_ID` |
 
-      pull-requests:
-        '**':
-          - step:
-              name: Coverage with PR Comment
-              image: golang:1.25
-              script:
-                - go install go.klarlabs.de/coverctl@latest
-                - coverctl check
-                # PR number auto-detected from BITBUCKET_PR_ID
-                - coverctl pr-comment
-    ```
-  </TabItem>
-</Tabs>
+Minimal GitLab snippet:
+
+```yaml
+coverage:
+  image: golang:1.25
+  script:
+    - go install go.klarlabs.de/coverctl@latest
+    - coverctl check --ci --fail-under 80
+```
+
+Minimal Bitbucket PR comment:
+
+```yaml
+script:
+  - go install go.klarlabs.de/coverctl@latest
+  - coverctl check
+  - coverctl pr-comment   # uses BITBUCKET_PR_ID
+```
 
 ## CI Flags
 

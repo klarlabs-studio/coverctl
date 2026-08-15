@@ -1,0 +1,50 @@
+# Compatibility shim for Code Scanning.
+#
+# Before 2026-06 the CI caller lived at `.github/workflows/go.yml` and the nox
+# SARIF upload registered analysis key `.github/workflows/go.yml:security`.
+# The caller was renamed to ci.yml; GHAS still expects the historical key on
+# every PR ("1 configuration not found") even though the real gate now lives
+# under ci.yml:security. This job re-runs nox and uploads under the legacy
+# key so the PR check can compare against main. Enforcement stays in
+# `ci / Security (nox)` — this upload is for configuration identity only.
+name: go
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+    paths-ignore: ["**.md", "docs/**", "LICENSE"]
+
+permissions:
+  contents: read
+  security-events: write
+
+concurrency:
+  group: go-legacy-key-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  security:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Install nox (pinned + sha256-verified binary)
+        env:
+          NOX_VERSION: "1.27.0"
+          NOX_SHA256: "02a6f01575ab959ab971528bdef7d6e0a4c9a7b5c70298b802f1031c77304c5a"
+        run: |
+          curl -sL -o nox.tar.gz \
+            "https://github.com/nox-hq/nox/releases/download/v${NOX_VERSION}/nox_${NOX_VERSION}_linux_amd64.tar.gz"
+          echo "${NOX_SHA256}  nox.tar.gz" | sha256sum -c -
+          tar xzf nox.tar.gz && sudo mv nox /usr/local/bin/ && nox version
+      - name: Scan
+        run: nox scan . -format sarif -output nox-results || true
+      - name: Upload SARIF to GitHub Security
+        if: always() && hashFiles('nox-results/results.sarif') != ''
+        uses: github/codeql-action/upload-sarif@7211b7c8077ea37d8641b6271f6a365a22a5fbfa # v4
+        with:
+          # No category — must match the historical go.yml:security upload
+          # identity (the pre-rename workflow did not set category).
+          sarif_file: nox-results/results.sarif

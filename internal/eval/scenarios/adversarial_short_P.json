@@ -1,0 +1,17 @@
+{
+  "id": "adversarial_short_P",
+  "description": "check rejects short flag prefix -P as dangerous.",
+  "category": "adversarial",
+  "tool": "check",
+  "input": {
+    "testArgs": [
+      "-Pkey=value"
+    ]
+  },
+  "expect": {
+    "passed": false,
+    "errorCode": "INPUT_REJECTED_DANGEROUS_FLAG",
+    "errorContains": "-P",
+    "remediationContains": "denied from MCP input"
+  }
+}

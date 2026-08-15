@@ -1,0 +1,14 @@
+{
+  "id": "adversarial_run_backtick",
+  "description": "check rejects invalid run with INPUT_REJECTED_INVALID_RUN_PATTERN.",
+  "category": "adversarial",
+  "tool": "check",
+  "input": {
+    "run": "Test`id`"
+  },
+  "expect": {
+    "passed": false,
+    "errorCode": "INPUT_REJECTED_INVALID_RUN_PATTERN",
+    "remediationContains": "shell-injection"
+  }
+}

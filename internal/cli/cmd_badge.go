@@ -5,8 +5,11 @@ import (
 	"flag"
 	"fmt"
 	"io"
+	"os"
 
 	"go.klarlabs.de/coverctl/internal/application"
+	"go.klarlabs.de/coverctl/internal/infrastructure/badge"
+	"go.klarlabs.de/coverctl/internal/pathutil"
 )
 
 // runBadge implements `coverctl badge`.
@@ -41,4 +44,27 @@ func runBadge(ctx context.Context, args []string, stdout, stderr io.Writer, svc 
 		fmt.Fprintf(stdout, "Badge written to %s (%.1f%%)\n", *output, result.Percent)
 	}
 	return 0
+}
+
+func writeBadgeFile(path string, percent float64, label, style string) error {
+	cleanPath, err := pathutil.ValidatePath(path)
+	if err != nil {
+		return fmt.Errorf("invalid path: %w", err)
+	}
+	file, err := os.Create(cleanPath) // #nosec G304 - path is validated above
+	if err != nil {
+		return err
+	}
+	defer func() { _ = file.Close() }()
+
+	badgeStyle := badge.StyleFlat
+	if style == "flat-square" {
+		badgeStyle = badge.StyleFlatSquare
+	}
+
+	return badge.Generate(file, badge.Options{
+		Label:   label,
+		Percent: percent,
+		Style:   badgeStyle,
+	})
 }

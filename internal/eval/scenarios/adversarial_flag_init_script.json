@@ -1,0 +1,18 @@
+{
+  "id": "adversarial_flag_init_script",
+  "description": "check rejects --init-script test arg as dangerous flag with stable error_code.",
+  "category": "adversarial",
+  "tool": "check",
+  "input": {
+    "testArgs": [
+      "--init-script=/tmp/evil"
+    ]
+  },
+  "expect": {
+    "passed": false,
+    "errorCode": "INPUT_REJECTED_DANGEROUS_FLAG",
+    "errorContains": "--init-script",
+    "remediationContains": "denied from MCP input",
+    "summaryContains": "Rejected unsafe MCP input"
+  }
+}

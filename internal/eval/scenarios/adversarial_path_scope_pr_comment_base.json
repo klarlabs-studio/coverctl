@@ -1,0 +1,17 @@
+{
+  "id": "adversarial_path_scope_pr_comment_base",
+  "description": "pr-comment rejects out-of-tree baseProfile.",
+  "category": "adversarial",
+  "tool": "pr-comment",
+  "input": {
+    "baseProfile": "/etc/passwd",
+    "dryRun": true,
+    "prNumber": 1,
+    "owner": "o",
+    "repo": "r"
+  },
+  "expect": {
+    "passed": false,
+    "errorCode": "INPUT_REJECTED_PATH_SCOPE"
+  }
+}

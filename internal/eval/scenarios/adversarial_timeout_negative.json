@@ -1,0 +1,14 @@
+{
+  "id": "adversarial_timeout_negative",
+  "description": "check rejects invalid timeout with INPUT_REJECTED_INVALID_TIMEOUT.",
+  "category": "adversarial",
+  "tool": "check",
+  "input": {
+    "timeout": "-5s"
+  },
+  "expect": {
+    "passed": false,
+    "errorCode": "INPUT_REJECTED_INVALID_TIMEOUT",
+    "remediationContains": "time.Duration"
+  }
+}

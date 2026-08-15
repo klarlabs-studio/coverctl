@@ -1,0 +1,18 @@
+{
+  "id": "adversarial_flag_config_file",
+  "description": "check rejects --config-file test arg as dangerous flag with stable error_code.",
+  "category": "adversarial",
+  "tool": "check",
+  "input": {
+    "testArgs": [
+      "--config-file=/tmp/evil"
+    ]
+  },
+  "expect": {
+    "passed": false,
+    "errorCode": "INPUT_REJECTED_DANGEROUS_FLAG",
+    "errorContains": "--config-file",
+    "remediationContains": "denied from MCP input",
+    "summaryContains": "Rejected unsafe MCP input"
+  }
+}

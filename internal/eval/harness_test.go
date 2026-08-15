@@ -11,44 +11,113 @@ import (
 	"go.klarlabs.de/coverctl/internal/mcp"
 )
 
-// stubService implements mcp.Service with no-op semantics. The eval
-// harness scenarios in this package exercise the input boundary
-// (sanitization + path scope) which short-circuits before the service
-// is reached, so a non-functional stub is sufficient.
+// stubService returns realistic agent-loop happy-path payloads so scenarios
+// in category "happy_path" exercise the full handler response shape without
+// invoking language toolchains. Adversarial/schema scenarios still short-
+// circuit before these methods run.
 type stubService struct{}
 
 func (stubService) CheckResult(context.Context, application.CheckOptions) (domain.Result, error) {
-	return domain.Result{}, nil
+	return domain.Result{
+		Passed: true,
+		Domains: []domain.DomainResult{{
+			Domain:   "api",
+			Covered:  82,
+			Total:    100,
+			Percent:  82.0,
+			Required: 80.0,
+			Status:   domain.StatusPass,
+		}},
+		Files: []domain.FileResult{{
+			File:     "internal/api/handler.go",
+			Covered:  40,
+			Total:    50,
+			Percent:  80.0,
+			Required: 80.0,
+			Status:   domain.StatusPass,
+		}},
+	}, nil
 }
 func (stubService) EnforceExtraGates(domain.Result, application.CheckOptions) error {
 	return nil
 }
 func (stubService) ReportResult(context.Context, application.ReportOptions) (domain.Result, error) {
-	return domain.Result{}, nil
+	return domain.Result{
+		Passed: true,
+		Domains: []domain.DomainResult{{
+			Domain:   "api",
+			Covered:  90,
+			Total:    100,
+			Percent:  90.0,
+			Required: 80.0,
+			Status:   domain.StatusPass,
+		}},
+	}, nil
 }
 func (stubService) Record(context.Context, application.RecordOptions, application.HistoryStore) error {
 	return nil
 }
 func (stubService) PRComment(context.Context, application.PRCommentOptions) (application.PRCommentResult, error) {
-	return application.PRCommentResult{}, nil
+	return application.PRCommentResult{
+		CommentBody: "## Coverage\napi: 82%",
+		Created:     true,
+		CommentID:   42,
+		CommentURL:  "https://example.com/pr/1#comment-42",
+	}, nil
 }
 func (stubService) Debt(context.Context, application.DebtOptions) (application.DebtResult, error) {
-	return application.DebtResult{}, nil
+	return application.DebtResult{
+		Items: []application.DebtItem{{
+			Name:      "utils",
+			Type:      "domain",
+			Current:   70,
+			Required:  80,
+			Shortfall: 10,
+			Lines:     12,
+		}},
+		TotalDebt:   10,
+		TotalLines:  12,
+		HealthScore: 88,
+	}, nil
 }
 func (stubService) Trend(context.Context, application.TrendOptions, application.HistoryStore) (application.TrendResult, error) {
-	return application.TrendResult{}, nil
+	return application.TrendResult{
+		Current:  82,
+		Previous: 80,
+		ByDomain: map[string]domain.Trend{"api": {}},
+	}, nil
 }
 func (stubService) Suggest(context.Context, application.SuggestOptions) (application.SuggestResult, error) {
-	return application.SuggestResult{}, nil
+	return application.SuggestResult{
+		Suggestions: []application.Suggestion{{
+			Domain:         "api",
+			CurrentPercent: 82,
+			CurrentMin:     80,
+			SuggestedMin:   80,
+			Reason:         "keep current threshold (coverage near minimum)",
+		}},
+	}, nil
 }
 func (stubService) Badge(context.Context, application.BadgeOptions) (application.BadgeResult, error) {
-	return application.BadgeResult{}, nil
+	return application.BadgeResult{Percent: 82.5}, nil
 }
 func (stubService) Compare(context.Context, application.CompareOptions) (application.CompareResult, error) {
-	return application.CompareResult{}, nil
+	return application.CompareResult{
+		BaseOverall: 80,
+		HeadOverall: 82,
+		Delta:       2,
+		Improved:    []application.FileDelta{{File: "internal/api/handler.go", Delta: 2}},
+	}, nil
 }
 func (stubService) Detect(context.Context, application.DetectOptions) (application.Config, error) {
-	return application.Config{}, nil
+	min := 80.0
+	return application.Config{
+		Version: 1,
+		Policy: domain.Policy{
+			DefaultMin: 80,
+			Domains:    []domain.Domain{{Name: "api", Match: []string{"./internal/api/..."}, Min: &min}},
+		},
+	}, nil
 }
 
 // TestEvalScenarios runs the embedded scenario corpus against a fresh

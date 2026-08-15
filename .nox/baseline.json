@@ -77,6 +77,14 @@
       "created_at": "2026-05-09T10:27:11.807195Z"
     },
     {
+      "fingerprint": "4f3da718c4275616076c6fe8dd0778e657112d1c4847fe2f1f85de4aa573da06",
+      "rule_id": "AI-006",
+      "file_path": "internal/cli/cmd_completion.go",
+      "severity": "medium",
+      "reason": "False positive: same AI-006 completion-script match as the cli.go baseline; fingerprint moved when completion helpers were extracted to cmd_completion.go.",
+      "created_at": "2026-08-15T16:15:00.000000Z"
+    },
+    {
       "fingerprint": "b0a8cd85117b8cd70199c7ab8e8f20a02cfa3e8610856ff3a29d9a171408fbb6",
       "rule_id": "SEC-652",
       "file_path": "docs/src/content/docs/mcp.mdx",

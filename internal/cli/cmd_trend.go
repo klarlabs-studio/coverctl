@@ -3,9 +3,11 @@ package cli
 import (
 	"context"
 	"flag"
+	"fmt"
 	"io"
 
 	"go.klarlabs.de/coverctl/internal/application"
+	"go.klarlabs.de/coverctl/internal/domain"
 	"go.klarlabs.de/coverctl/internal/infrastructure/history"
 )
 
@@ -34,4 +36,29 @@ func runTrend(ctx context.Context, args []string, stdout, stderr io.Writer, svc 
 	}
 	printTrendResult(result, stdout)
 	return 0
+}
+
+func printTrendResult(result application.TrendResult, w io.Writer) {
+	trendSymbol := "→"
+	switch result.Trend.Direction {
+	case domain.TrendUp:
+		trendSymbol = "↑"
+	case domain.TrendDown:
+		trendSymbol = "↓"
+	}
+
+	fmt.Fprintf(w, "Coverage Trend: %.1f%% %s %.1f%% (%+.1f%%)\n",
+		result.Previous, trendSymbol, result.Current, result.Trend.Delta)
+	fmt.Fprintln(w, "\nDomain Trends:")
+	for name, trend := range result.ByDomain {
+		symbol := "→"
+		switch trend.Direction {
+		case domain.TrendUp:
+			symbol = "↑"
+		case domain.TrendDown:
+			symbol = "↓"
+		}
+		fmt.Fprintf(w, "  %s: %s %+.1f%%\n", name, symbol, trend.Delta)
+	}
+	fmt.Fprintf(w, "\nHistory: %d entries\n", len(result.Entries))
 }

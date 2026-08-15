@@ -8,6 +8,8 @@ import (
 	"os"
 
 	"go.klarlabs.de/coverctl/internal/application"
+	"go.klarlabs.de/coverctl/internal/infrastructure/config"
+	"go.klarlabs.de/coverctl/internal/pathutil"
 )
 
 // runInit implements `coverctl init`.
@@ -43,4 +45,34 @@ func runInit(ctx context.Context, args []string, stdout, stderr io.Writer, svc S
 		return exitCodeWithCI(err, 2, stderr, global)
 	}
 	return 0
+}
+
+func writeConfigFile(path string, cfg application.Config, stdout io.Writer, force bool) error {
+	if path == "-" {
+		return config.Write(stdout, cfg)
+	}
+	if !force {
+		if _, err := os.Stat(path); err == nil {
+			return fmt.Errorf("config %s already exists", path)
+		}
+	}
+	cleanPath, err := pathutil.ValidatePath(path)
+	if err != nil {
+		return fmt.Errorf("invalid path: %w", err)
+	}
+	file, err := os.Create(cleanPath) // #nosec G304 - path is validated above
+	if err != nil {
+		return err
+	}
+	defer func() { _ = file.Close() }()
+	return config.Write(file, cfg)
+}
+
+// validateConfig checks if the config file is valid without running tests
+func validateConfig(path string) error {
+	_, err := config.Loader{}.Load(path)
+	if err != nil {
+		return fmt.Errorf("invalid config: %w", err)
+	}
+	return nil
 }

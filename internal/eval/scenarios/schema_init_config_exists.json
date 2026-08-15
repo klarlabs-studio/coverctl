@@ -1,0 +1,17 @@
+{
+  "id": "schema_init_config_exists",
+  "description": "init rejects when .coverctl.yaml already exists without force.",
+  "category": "schema",
+  "tool": "init",
+  "input": {},
+  "expect": {
+    "passed": false,
+    "errorCode": "OP_CONFIG_EXISTS",
+    "hasField": [
+      "passed",
+      "error_code",
+      "summary",
+      "remediation"
+    ]
+  }
+}

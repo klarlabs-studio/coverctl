@@ -41,7 +41,17 @@ jobs:
         run: ./coverctl check --config .coverctl.yaml
       - name: Capture structured coverage outputs
         if: always()
-        run: mkdir -p .cover/ci-artifacts && ./coverctl check --config .coverctl.yaml --output json > .cover/ci-artifacts/check.json 2>&1 || true && ./coverctl report --config .coverctl.yaml --profile .cover/coverage.out --output json > .cover/ci-artifacts/report.json 2>&1 || true
+        run: |
+          mkdir -p .cover/ci-artifacts
+          ./coverctl check --config .coverctl.yaml --output json > .cover/ci-artifacts/check.json 2>&1 || true
+          ./coverctl report --config .coverctl.yaml --profile .cover/coverage.out --output json > .cover/ci-artifacts/report.json 2>&1 || true
+          # Dogfood record + trend against a CI-local history file (not committed).
+          ./coverctl record --config .coverctl.yaml --profile .cover/coverage.out \
+            --history .cover/ci-artifacts/history.json \
+            --commit "${GITHUB_SHA}" --branch "${GITHUB_REF_NAME}" 2>&1 | tee .cover/ci-artifacts/record.log || true
+          ./coverctl trend --config .coverctl.yaml --profile .cover/coverage.out \
+            --history .cover/ci-artifacts/history.json --output json \
+            > .cover/ci-artifacts/trend.json 2>&1 || true
       - name: Upload coverage artifacts
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1

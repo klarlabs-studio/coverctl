@@ -1,14 +1,18 @@
 # coverctl
 
-**Agent-loop coverage governance — coverage your AI coding agent calls before commit, not a dashboard you read after CI.**
+**Agent-loop coverage governance for all sorts of languages** — coverage your AI coding agent calls before commit, not a dashboard you read after CI.
 
-[Get started ↓](#get-started) · [What it looks like ↓](#what-it-looks-like-in-the-agent-loop) · [MCP tools ↓](#mcp-tools) · [CLI reference ↓](#cli-reference) · [Why this exists ↓](#why-this-exists) · [Community ↓](#community)
+Works with **Python, TypeScript/JavaScript, Java, Rust, Go, C#, C/C++, PHP, Ruby, Swift, Dart, Scala, Elixir, and Shell** — one `.coverctl.yaml`, one MCP surface. Not a Go cover tool.
 
-![MCP](https://img.shields.io/badge/MCP-server-blueviolet) ![Releases](https://img.shields.io/github/v/release/klarlabs-studio/coverctl?label=release)
+[Get started ↓](#get-started) · [Languages ↓](#supported-languages) · [What it looks like ↓](#what-it-looks-like-in-the-agent-loop) · [MCP tools ↓](#mcp-tools) · [CLI reference ↓](#cli-reference) · [Why this exists ↓](#why-this-exists) · [Community ↓](#community)
+
+![MCP](https://img.shields.io/badge/MCP-server-blueviolet) ![15 languages](https://img.shields.io/badge/languages-15-teal) ![Releases](https://img.shields.io/github/v/release/klarlabs-studio/coverctl?label=release)
 
 > *"Our AI agents ship code fast, but they're blind to coverage policy while editing. We only see breakage in CI, after context is gone, and the same agent then guesses its way to a fix."*
 
-Works best on standard Go/Python/JavaScript/Java/Rust projects with conventional layouts. Mock-heavy code or exotic monorepos may need an explicit `domains:` block in `.coverctl.yaml`.
+Same policy model on every language: auto-detect the runner, group paths into domains, enforce mins before commit. Mock-heavy or exotic layouts may need an explicit `domains:` block in `.coverctl.yaml`.
+
+coverctl is **not** a Go cover CLI: it is policy + MCP over each language's native coverage runner ([vs `go test -cover` / `pytest --cov`](docs/src/content/docs/compare/coverctl-vs-native.mdx)).
 
 ## Get started
 
@@ -46,18 +50,18 @@ coverctl mcp doctor   # PASS/FAIL per step with remediation
 ```text
 You:    Add the email-validation feature to the api domain.
 
-Claude: I'll add EmailValidator + tests in internal/api/email.
+Claude: I'll add EmailValidator + tests under src/api/.
 
-  [edits: internal/api/email.go, internal/api/email_test.go]
+  [edits: src/api/email.ts, src/api/email.test.ts]
 
   Tool call → coverctl check
   Result   → passed: false; failing: api (78.2%, required 80%)
-             uncovered: internal/api/email.go:42-58 (error paths)
+             uncovered: src/api/email.ts:42-58 (error paths)
 
   Tool call → coverctl suggest api
-  Result   → uncovered files: email.go (16 lines), retry.go (4 lines)
+  Result   → uncovered files: email.ts (16 lines), retry.ts (4 lines)
 
-  Two error branches in EmailValidator.Validate are uncovered.
+  Two error branches in EmailValidator.validate are uncovered.
   I'll add cases for empty-input and malformed-domain so api meets
   the 80% threshold before we commit.
 ```
@@ -72,13 +76,13 @@ coverctl returns deterministic structured signals; the agent's *fix* still needs
 
 ## Why this exists
 
-AI coding agents write code blind to coverage. They edit, you commit, the regression surfaces in CI minutes or hours later — too late to course-correct in the same session. Existing coverage tools (Codecov, Coveralls, native `go test -cover`) target humans reading dashboards or PR comments, not agents reasoning inline.
+AI coding agents write code blind to coverage. They edit, you commit, the regression surfaces in CI minutes or hours later — too late to course-correct in the same session. Dashboards (Codecov, Coveralls) and raw language runners (`go test -cover`, `pytest --cov`, `nyc`) target humans reading numbers after the fact — not agents enforcing policy mid-edit.
 
-coverctl is built for the agent loop:
+coverctl is built for the agent loop (and is **not** a replacement for Go's cover tooling):
 
 - **Catches regressions before commit.** Coverage feedback in the agent's edit turn — not minutes after CI fails. The wedge metric is regressions caught pre-commit.
 - **Agent-callable via MCP.** Speaks MCP — the multi-vendor agent-tool standard now governed by Anthropic, OpenAI, Google, Microsoft, AWS. Works with every MCP-capable client today; works with whatever ships next without modification.
-- **Polyglot governance, one config.** One `.coverctl.yaml` enforces per-domain thresholds across 15 languages. Agents touch any language; coverage tooling must too.
+- **Polyglot governance, one config.** One `.coverctl.yaml` enforces per-domain thresholds across 15 languages. On Go repos it may *invoke* `go test` the way it invokes `pytest` elsewhere — then applies the same domain policy. Agents touch any language; coverage governance must too.
 - **Local-first.** Your source never leaves the machine. Agent calls coverctl over stdio, not over a SaaS API. No account, no upload, no third-party dependency in the agent's reach.
 - **Hardened MCP surface.** Input + output sanitization defends against prompt-injection through test-runner flags and hostile filenames in coverage profiles (Lethal Trifecta).
 
@@ -116,7 +120,7 @@ coverctl treats MCP traffic as untrusted in both directions, per the Lethal Trif
 - **Input boundary.** Test-runner flags that allow arbitrary code loading (`--rootdir`, `--cov-config`, `-D`, `-I`, `--require`, `--init-script`, `--node-options`, ...) are rejected when they come from MCP. Rejection responses use a stable schema with `error_code` and agent-actionable `remediation`. CLI invocations from a human terminal are not sanitized; the human is the trust boundary there.
 - **Output boundary.** User-controlled strings flowing *back* to the agent (filenames in coverage profiles, test names, profile-derived paths, PR description content in `pr-comment`) are canonicalized before return. Prevents return-trip prompt injection through a hostile PR or attacker-named test file.
 
-coverctl is local-first. The default install transmits nothing — no telemetry, no analytics, no source data. An opt-in `--mcp-telemetry` flag emits structured tool-call events to stderr for users who want to instrument their own pipelines (format documented in [docs/design/mcp-metrics-spec.md](docs/design/mcp-metrics-spec.md)). Adversarial evals (50+ scenarios under [internal/eval/](internal/eval/)) gate every release on rejection-schema integrity and prompt-injection resistance.
+coverctl is local-first. The default install transmits nothing — no telemetry, no analytics, no source data. An opt-in `--mcp-telemetry` flag emits structured tool-call events to stderr for users who want to instrument their own pipelines (format documented in [docs/design/mcp-metrics-spec.md](docs/design/mcp-metrics-spec.md)). Adversarial + happy-path evals (85+ scenarios under [internal/eval/scenarios/](internal/eval/scenarios/)) gate every release on rejection-schema integrity and prompt-injection resistance.
 
 Full threat model + residual risk: [docs/security/mcp-threat-model.md](docs/security/mcp-threat-model.md).
 
@@ -159,7 +163,7 @@ Global flags: `-q/--quiet`, `--no-color`, `--ci` (combines quiet + GitHub Action
 | `--run` | `--run TestFoo` |
 | `--timeout` | `--timeout 30m` |
 | `--test-arg` | Repeatable: `--test-arg=-count=1 --test-arg=-parallel=4` |
-| `--language` / `-l` | Override autodetection: `go`, `python`, `nodejs`, `rust`, `java`, ... |
+| `--language` / `-l` | Override autodetection: `python`, `javascript`, `typescript`, `java`, `rust`, `go`, `csharp`, `cpp`, `php`, `ruby`, `swift`, `dart`, `scala`, `elixir`, `shell` |
 
 ### Terminal flow (without an agent)
 
@@ -178,6 +182,8 @@ If a step fails: `coverctl detect --dry-run` previews `init` output; `coverctl c
 
 `.coverctl.yaml` (schema: [`schemas/coverctl.schema.json`](schemas/coverctl.schema.json)):
 
+Domains are **named path groups**, not language packages. `match` uses path globs for most languages (`src/auth/**`) or Go package paths when the project is Go (`./internal/auth/...`):
+
 ```yaml
 version: 1
 policy:
@@ -185,31 +191,26 @@ policy:
     min: 75
   domains:
     - name: auth
-      match: ["./internal/auth/..."]
-      min: 90       # critical path — stricter
+      match: ["src/auth/**"]   # Go equivalent: ["./internal/auth/..."]
+      min: 90                   # critical path — stricter
     - name: api
-      match: ["./internal/api/..."]
+      match: ["src/api/**"]
       min: 80
     - name: utils
-      match: ["./internal/utils/..."]
+      match: ["src/utils/**"]
       # falls back to default min: 75
 exclude:
-  - internal/generated/*
+  - "**/generated/**"
 ```
 
-Per-domain enforcement is the point: overall coverage hides regressions in critical paths. coverctl evaluates each domain against its own minimum and fails the build if any domain falls below.
+Per-domain enforcement is the point: overall coverage hides regressions in critical paths. coverctl evaluates each domain against its own minimum and fails the build if any domain falls below. Per-language starters: [docs quick start](docs/src/content/docs/quick-start.mdx). How this differs from raw runners: [vs native coverage](docs/src/content/docs/compare/coverctl-vs-native.mdx).
 
-#### Why these numbers differ from `go test ./...`
+<details>
+<summary>Go-only footnote: why numbers can differ from plain <code>go test ./...</code></summary>
 
-coverctl runs tests with `-coverpkg` spanning the configured domains, so a package is credited for the tests of *other* packages that exercise it. Plain `go test ./...` credits only a package's own test files. The same code therefore gets two legitimate numbers, and coverctl's is the higher, more accurate one:
+On Go projects coverctl may pass `-coverpkg` spanning configured domains so a package is credited for tests of *other* packages that exercise it. Plain `go test ./...` credits only a package's own tests — two legitimate numbers; coverctl's is usually higher. This is Go runner behavior, not the product model. Prefer `coverctl check` profiles when comparing history. `--from-profile` reports whatever the supplied profile measured.
 
-| package | `go test ./...` | coverctl |
-|---|---|---|
-| a package exercised only through its callers | 0.0% | 80% |
-
-If a package looks untested under `go test`, check it here before writing tests for it — a helper called from everywhere but tested nowhere directly will read as 0% and be fully covered in practice. The reverse case is real too: a package can look fine in aggregate while one file inside it has no tests at all, which is what `files:` rules exist for.
-
-Note that `--from-profile` reports whatever the supplied profile measured. If that profile came from a plain `go test ./...`, the numbers are per-package and the distinction above does not apply.
+</details>
 
 ### Advanced
 
@@ -235,13 +236,15 @@ Multi-package monorepo? Use `extends:` for inherited policies. Starting point: c
 
 ## Supported languages
 
+One product across **15** languages. coverctl auto-detects which runner to call; you write path domains once.
+
 | Language | Format | Detection markers |
 | --- | --- | --- |
-| Go | Native cover profile | `go.mod`, `go.sum` |
 | Python | Cobertura, LCOV | `pyproject.toml`, `setup.py`, `requirements.txt` |
 | TypeScript / JavaScript | LCOV | `tsconfig.json`, `package.json` |
-| Java | JaCoCo, Cobertura | `pom.xml`, `build.gradle` |
+| Java / Kotlin | JaCoCo, Cobertura | `pom.xml`, `build.gradle` |
 | Rust | LCOV (cargo-llvm-cov) | `Cargo.toml` |
+| Go | Native cover profile | `go.mod`, `go.sum` |
 | C# / .NET | Cobertura (coverlet) | `*.csproj`, `*.sln` |
 | C / C++ | LCOV (gcov/lcov) | `CMakeLists.txt`, `meson.build` |
 | PHP | Cobertura (PHPUnit) | `composer.json`, `phpunit.xml` |
@@ -251,6 +254,8 @@ Multi-package monorepo? Use `extends:` for inherited policies. Starting point: c
 | Scala | Cobertura (scoverage) | `build.sbt` |
 | Elixir | LCOV (mix test) | `mix.exs` |
 | Shell | Cobertura (kcov) | `*.bats` |
+
+Per-language config examples: [docs quick start](docs/src/content/docs/quick-start.mdx).
 
 ## GitHub Action
 
@@ -294,7 +299,7 @@ Built by Felix Geelhaar with contributions from the polyglot AI-coding community
 ## Contributing
 
 - TDD: tests before behavior changes.
-- Coverage ≥80% (`go test ./... -cover`).
+- Meet each domain's `min` in `.coverctl.yaml` (default 80% when unset). This repo is Go, so dogfood with `go run ./cmd/coverctl check` (policy over the runner — not a substitute for reading `go test` failures).
 - Conventional Commits (`feat:`, `fix:`, `chore:`, ...) for Relicta version-bump logic.
 - `main` is protected; merge via PR after CI green (`.github/workflows/go.yml` + `.github/workflows/eval.yml`).
 - Run `gofmt -w` and `golangci-lint v2` before pushing.

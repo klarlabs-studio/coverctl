@@ -54,3 +54,20 @@ func runSuggest(ctx context.Context, args []string, stdout, stderr io.Writer, sv
 	}
 	return 0
 }
+
+func printSuggestResult(result application.SuggestResult, w io.Writer) {
+	fmt.Fprintln(w, "Threshold Suggestions:")
+	fmt.Fprintln(w, "")
+	fmt.Fprintf(w, "%-20s %10s %10s %12s  %s\n", "DOMAIN", "CURRENT", "MIN", "SUGGESTED", "REASON")
+	fmt.Fprintf(w, "%-20s %10s %10s %12s  %s\n", "------", "-------", "---", "---------", "------")
+	for _, s := range result.Suggestions {
+		change := ""
+		if s.SuggestedMin > s.CurrentMin {
+			change = "↑"
+		} else if s.SuggestedMin < s.CurrentMin {
+			change = "↓"
+		}
+		fmt.Fprintf(w, "%-20s %9.1f%% %9.1f%% %10.1f%% %s  %s\n",
+			s.Domain, s.CurrentPercent, s.CurrentMin, s.SuggestedMin, change, s.Reason)
+	}
+}

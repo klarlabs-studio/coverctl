@@ -36,19 +36,13 @@ func (r *NodeRunner) Language() application.Language {
 
 // Detect checks if this runner can handle the current project.
 func (r *NodeRunner) Detect(projectDir string) bool {
-	markers := []string{
-		"package.json",
-		"tsconfig.json",
-		"yarn.lock",
-		"pnpm-lock.yaml",
-		"package-lock.json",
-	}
-	for _, marker := range markers {
-		if _, err := os.Stat(filepath.Join(projectDir, marker)); err == nil {
-			return true
-		}
-	}
-	return false
+	// Serve both TypeScript and JavaScript markers so tsconfig.json wins
+	// detection for TS projects via Languages priority while this runner
+	// still handles both dialects.
+	return detectByAnyLanguageMarkers(projectDir,
+		application.LanguageTypeScript,
+		application.LanguageJavaScript,
+	)
 }
 
 // Run executes Node.js coverage tools and returns the profile path.

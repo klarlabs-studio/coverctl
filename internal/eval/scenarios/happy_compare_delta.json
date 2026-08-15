@@ -1,0 +1,22 @@
+{
+  "id": "happy_compare_delta",
+  "description": "compare returns base/head/delta and improved file list.",
+  "category": "happy_path",
+  "tool": "compare",
+  "input": {
+    "baseProfile": "base.out",
+    "headProfile": "head.out"
+  },
+  "expect": {
+    "passed": true,
+    "summaryContains": "Coverage",
+    "hasField": [
+      "passed",
+      "baseOverall",
+      "headOverall",
+      "delta",
+      "improved",
+      "summary"
+    ]
+  }
+}

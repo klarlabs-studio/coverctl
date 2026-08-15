@@ -1,0 +1,18 @@
+{
+  "id": "adversarial_flag_runsettings",
+  "description": "check rejects --runsettings test arg as dangerous flag with stable error_code.",
+  "category": "adversarial",
+  "tool": "check",
+  "input": {
+    "testArgs": [
+      "--runsettings=/tmp/evil"
+    ]
+  },
+  "expect": {
+    "passed": false,
+    "errorCode": "INPUT_REJECTED_DANGEROUS_FLAG",
+    "errorContains": "--runsettings",
+    "remediationContains": "denied from MCP input",
+    "summaryContains": "Rejected unsafe MCP input"
+  }
+}

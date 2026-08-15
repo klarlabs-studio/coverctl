@@ -1,0 +1,21 @@
+{
+  "id": "schema_check_rejection_fields",
+  "description": "check rejection/missing-arg response includes stable schema fields.",
+  "category": "schema",
+  "tool": "check",
+  "input": {
+    "testArgs": [
+      "--rootdir=/x"
+    ]
+  },
+  "expect": {
+    "passed": false,
+    "hasField": [
+      "passed",
+      "error_code",
+      "error",
+      "summary",
+      "remediation"
+    ]
+  }
+}

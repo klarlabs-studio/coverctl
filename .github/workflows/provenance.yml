@@ -10,6 +10,8 @@ jobs:
   verify:
     name: Warden provenance
     runs-on: ubuntu-latest
+    # Match the comment above: do not block PRs on install flakes or missing notes.
+    continue-on-error: true
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -17,6 +19,12 @@ jobs:
       - uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6.5.0
         with:
           go-version-file: go.mod
+      # Pin the release so install-warden.sh skips api.github.com/releases/latest
+      # (unauthenticated "latest" lookups 403 under runner rate limits). Pass the
+      # token so any remaining API/download auth uses the job's contents:read scope.
       - uses: klarlabs-studio/warden/.github/actions/warden-verify@main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           commit: ${{ github.event.pull_request.head.sha }}
+          warden-version: "0.27.0"

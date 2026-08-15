@@ -1,0 +1,18 @@
+{
+  "id": "happy_suggest_thresholds",
+  "description": "suggest returns threshold suggestions without writing config in agent mode.",
+  "category": "happy_path",
+  "tool": "suggest",
+  "input": {
+    "strategy": "current"
+  },
+  "expect": {
+    "passed": true,
+    "summaryContains": "suggestions",
+    "hasField": [
+      "passed",
+      "suggestions",
+      "summary"
+    ]
+  }
+}
