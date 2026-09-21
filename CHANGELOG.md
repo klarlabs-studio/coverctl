@@ -21,7 +21,8 @@ All notable changes to `coverctl` will be documented here. Relicta manages this 
   distinct.
 - Reusable CI workflows and third-party actions pinned to immutable
   revisions; `secrets: inherit` removed from the Go CI caller (the
-  reusable workflow declares no secrets).
+  reusable workflow declares no secrets). Nox version on the reusable
+  caller is pinned to 1.30.1 to match `.nox/` fingerprints.
 
 ## [1.20.0] - 2026-08-15
 
