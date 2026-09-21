@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"go.klarlabs.de/coverctl/internal/application"
 	"go.klarlabs.de/coverctl/internal/infrastructure/cmdrun"
@@ -86,10 +87,7 @@ func (r *CppRunner) Run(ctx context.Context, opts application.RunOptions) (strin
 
 // RunIntegration runs integration tests with coverage collection.
 func (r *CppRunner) RunIntegration(ctx context.Context, opts application.IntegrationOptions) (string, error) {
-	return r.Run(ctx, application.RunOptions{
-		ProfilePath: opts.Profile,
-		BuildFlags:  opts.BuildFlags,
-	})
+	return r.Run(ctx, runOptionsFromIntegration(opts))
 }
 
 // detectBuildSystem determines which C/C++ build system is used.
@@ -137,11 +135,7 @@ func (r *CppRunner) runCMake(
 	}
 
 	// Run tests
-	ctestArgs := []string{"--test-dir", "build"}
-	if opts.BuildFlags.Run != "" {
-		ctestArgs = append(ctestArgs, "--tests-regex", opts.BuildFlags.Run)
-	}
-	if err := execFn(ctx, dir, "ctest", ctestArgs); err != nil {
+	if err := execFn(ctx, dir, "ctest", r.buildCTestArgs(opts)); err != nil {
 		return err
 	}
 
@@ -174,11 +168,7 @@ func (r *CppRunner) runMeson(
 	}
 
 	// Run tests
-	testArgs := []string{"test", "-C", "build"}
-	if opts.BuildFlags.Verbose {
-		testArgs = append(testArgs, "--verbose")
-	}
-	if err := execFn(ctx, dir, "meson", testArgs); err != nil {
+	if err := execFn(ctx, dir, "meson", r.buildMesonTestArgs(opts)); err != nil {
 		return err
 	}
 
@@ -215,11 +205,7 @@ func (r *CppRunner) runMake(
 	}
 
 	// Run tests
-	testArgs := []string{"test"}
-	if opts.BuildFlags.Verbose {
-		testArgs = append(testArgs, "V=1")
-	}
-	if err := execFn(ctx, dir, "make", testArgs); err != nil {
+	if err := execFn(ctx, dir, "make", r.buildMakeTestArgs(opts)); err != nil {
 		return err
 	}
 
@@ -235,6 +221,42 @@ func (r *CppRunner) runMake(
 	}
 
 	return nil
+}
+
+// buildCTestArgs builds ctest arguments. Packages and -run map to a single
+// --tests-regex (OR-joined) because ctest accepts one regex.
+func (r *CppRunner) buildCTestArgs(opts application.RunOptions) []string {
+	args := []string{"--test-dir", "build"}
+	filters := append([]string(nil), opts.Packages...)
+	if opts.BuildFlags.Run != "" {
+		filters = append(filters, opts.BuildFlags.Run)
+	}
+	if len(filters) > 0 {
+		args = append(args, "--tests-regex", strings.Join(filters, "|"))
+	}
+	args = appendTimeoutSeconds(args, opts.BuildFlags.Timeout)
+	return args
+}
+
+// buildMesonTestArgs builds meson test arguments. Packages are positional
+// test names.
+func (r *CppRunner) buildMesonTestArgs(opts application.RunOptions) []string {
+	args := []string{"test", "-C", "build"}
+	if opts.BuildFlags.Verbose {
+		args = append(args, "--verbose")
+	}
+	args = appendPositionalPackages(args, opts.Packages)
+	return args
+}
+
+// buildMakeTestArgs builds make test arguments. Packages are extra targets.
+func (r *CppRunner) buildMakeTestArgs(opts application.RunOptions) []string {
+	args := []string{"test"}
+	if opts.BuildFlags.Verbose {
+		args = append(args, "V=1")
+	}
+	args = appendPositionalPackages(args, opts.Packages)
+	return args
 }
 
 // runCppCommand executes a C/C++ build command via cmdrun for forensic logging.

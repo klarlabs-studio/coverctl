@@ -76,10 +76,7 @@ func (r *ElixirRunner) Run(ctx context.Context, opts application.RunOptions) (st
 
 // RunIntegration runs integration tests with coverage collection.
 func (r *ElixirRunner) RunIntegration(ctx context.Context, opts application.IntegrationOptions) (string, error) {
-	return r.Run(ctx, application.RunOptions{
-		ProfilePath: opts.Profile,
-		BuildFlags:  opts.BuildFlags,
-	})
+	return r.Run(ctx, runOptionsFromIntegration(opts))
 }
 
 // buildArgs builds command line arguments for mix test --cover.
@@ -99,7 +96,12 @@ func (r *ElixirRunner) buildArgs(opts application.RunOptions) []string {
 		args = append(args, "--only", opts.BuildFlags.Run)
 	}
 
-	// Add additional args
+	if opts.BuildFlags.Short {
+		args = append(args, "--exclude", "slow")
+	}
+	args = appendRepeatedFlag(args, "--include", splitCSV(opts.BuildFlags.Tags))
+	args = appendTimeoutMillis(args, "--timeout", opts.BuildFlags.Timeout)
+	args = appendPositionalPackages(args, opts.Packages)
 	args = append(args, opts.BuildFlags.TestArgs...)
 
 	return args

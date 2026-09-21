@@ -1,0 +1,14 @@
+{
+  "id": "adversarial_incremental_autopass",
+  "description": "Agent mode cannot use incremental check, which auto-passes when the diff has no matching source files.",
+  "category": "adversarial",
+  "tool": "check",
+  "input": {
+    "incremental": true
+  },
+  "expect": {
+    "passed": false,
+    "errorCode": "INPUT_REJECTED_INCREMENTAL",
+    "remediationContains": "full repository"
+  }
+}

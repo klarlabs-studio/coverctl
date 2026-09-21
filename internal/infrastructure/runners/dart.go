@@ -78,10 +78,7 @@ func (r *DartRunner) Run(ctx context.Context, opts application.RunOptions) (stri
 
 // RunIntegration runs integration tests with coverage collection.
 func (r *DartRunner) RunIntegration(ctx context.Context, opts application.IntegrationOptions) (string, error) {
-	return r.Run(ctx, application.RunOptions{
-		ProfilePath: opts.Profile,
-		BuildFlags:  opts.BuildFlags,
-	})
+	return r.Run(ctx, runOptionsFromIntegration(opts))
 }
 
 // detectTool determines whether to use dart or flutter based on pubspec.yaml content.
@@ -131,7 +128,17 @@ func (r *DartRunner) buildDartArgs(opts application.RunOptions, profile string) 
 		args = append(args, "--name", opts.BuildFlags.Run)
 	}
 
-	// Add additional args
+	if opts.BuildFlags.Short {
+		args = append(args, "--exclude-tags", "slow")
+	}
+	if tags := strings.Join(splitCSV(opts.BuildFlags.Tags), ","); tags != "" {
+		args = append(args, "--tags", tags)
+	}
+	if v, ok := timeoutDartValue(opts.BuildFlags.Timeout); ok {
+		args = append(args, "--timeout", v)
+	}
+
+	args = appendPositionalPackages(args, opts.Packages)
 	args = append(args, opts.BuildFlags.TestArgs...)
 
 	return args
@@ -154,7 +161,17 @@ func (r *DartRunner) buildFlutterArgs(opts application.RunOptions) []string {
 		args = append(args, "--name", opts.BuildFlags.Run)
 	}
 
-	// Add additional args
+	if opts.BuildFlags.Short {
+		args = append(args, "--exclude-tags", "slow")
+	}
+	if tags := strings.Join(splitCSV(opts.BuildFlags.Tags), ","); tags != "" {
+		args = append(args, "--tags", tags)
+	}
+	if v, ok := timeoutDartValue(opts.BuildFlags.Timeout); ok {
+		args = append(args, "--timeout", v)
+	}
+
+	args = appendPositionalPackages(args, opts.Packages)
 	args = append(args, opts.BuildFlags.TestArgs...)
 
 	return args

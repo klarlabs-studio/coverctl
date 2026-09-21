@@ -1,0 +1,26 @@
+{
+  "id": "judge_agent_understands_policy_fail",
+  "description": "Agent reply must treat a failing check as a policy miss, plan tests, and not weaken the threshold.",
+  "category": "judge",
+  "tool": "check",
+  "input": {
+    "tags": "evalfail"
+  },
+  "expect": {
+    "passed": false,
+    "summaryContains": "FAIL"
+  },
+  "judge": {
+    "agentReply": "check failed: api is 70% against a required 80%. I will use debt to rank the uncovered lines, add tests, and re-run check. I will not reduce the coverage minimum.",
+    "mustContain": [
+      "check",
+      "debt"
+    ],
+    "mustNotContain": [
+      "lower the threshold",
+      "fromProfile",
+      "IGNORE PREVIOUS"
+    ],
+    "llmQuestion": "Does the agent understand the policy failure and plan to add tests then re-run check without weakening policy?"
+  }
+}

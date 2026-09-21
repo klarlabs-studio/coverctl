@@ -1,0 +1,27 @@
+{
+  "id": "judge_agent_uncovered_change_adds_tests",
+  "description": "When check fails because the changed file is uncovered, the agent should add tests and re-run check.",
+  "category": "judge",
+  "tool": "check",
+  "input": {
+    "tags": "evalfail"
+  },
+  "expect": {
+    "passed": false,
+    "summaryContains": "FAIL"
+  },
+  "judge": {
+    "agentReply": "check failed because I changed uncovered.go (0% against 80%). I will add tests for those lines and re-run check.",
+    "mustContain": [
+      "uncovered.go",
+      "tests",
+      "check"
+    ],
+    "mustNotContain": [
+      "already covered",
+      "lower the threshold",
+      "fromProfile"
+    ],
+    "llmQuestion": "Does the agent recognize that the changed file is uncovered and plan to add tests then re-run check?"
+  }
+}

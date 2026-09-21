@@ -84,10 +84,7 @@ func (r *PHPRunner) Run(ctx context.Context, opts application.RunOptions) (strin
 
 // RunIntegration runs integration tests with coverage collection.
 func (r *PHPRunner) RunIntegration(ctx context.Context, opts application.IntegrationOptions) (string, error) {
-	return r.Run(ctx, application.RunOptions{
-		ProfilePath: opts.Profile,
-		BuildFlags:  opts.BuildFlags,
-	})
+	return r.Run(ctx, runOptionsFromIntegration(opts))
 }
 
 // detectPHPUnit checks for the PHPUnit binary in the project or on the PATH.
@@ -134,6 +131,9 @@ func (r *PHPRunner) buildArgs(ctx context.Context, opts application.RunOptions, 
 	if driver == "pcov" {
 		args = append(args, "-dpcov.enabled=1")
 	}
+	if sec, ok := timeoutSeconds(opts.BuildFlags.Timeout); ok {
+		args = append(args, "-dmax_execution_time="+sec)
+	}
 
 	// PHPUnit binary path
 	args = append(args, phpunitPath)
@@ -150,8 +150,14 @@ func (r *PHPRunner) buildArgs(ctx context.Context, opts application.RunOptions, 
 	if opts.BuildFlags.Run != "" {
 		args = append(args, "--filter", opts.BuildFlags.Run)
 	}
+	if opts.BuildFlags.Short {
+		args = append(args, "--exclude-group", "slow")
+	}
+	if tags := strings.Join(splitCSV(opts.BuildFlags.Tags), ","); tags != "" {
+		args = append(args, "--group", tags)
+	}
 
-	// Add additional test args
+	args = appendPositionalPackages(args, opts.Packages)
 	args = append(args, opts.BuildFlags.TestArgs...)
 
 	return args

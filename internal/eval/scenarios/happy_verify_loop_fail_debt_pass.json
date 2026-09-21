@@ -1,0 +1,56 @@
+{
+  "id": "happy_verify_loop_fail_debt_pass",
+  "description": "Harness-measured verify loop: check fails on an uncovered edit, debt ranks the gap, then check passes. No live LLM required.",
+  "category": "happy_path",
+  "steps": [
+    {
+      "tool": "check",
+      "input": {
+        "tags": "evalfail"
+      },
+      "expect": {
+        "passed": false,
+        "summaryContains": "FAIL",
+        "hasField": [
+          "domains",
+          "files"
+        ]
+      }
+    },
+    {
+      "tool": "debt",
+      "input": {},
+      "expect": {
+        "passed": true,
+        "hasField": [
+          "items",
+          "totalDebt"
+        ]
+      }
+    },
+    {
+      "tool": "check",
+      "input": {
+        "tags": "evalcovered"
+      },
+      "expect": {
+        "passed": true,
+        "summaryContains": "PASS"
+      }
+    }
+  ],
+  "judge": {
+    "agentReply": "check failed on uncovered api files. debt ranks the shortfall. I added tests and re-ran check; it now passes. I did not change policy.",
+    "mustContain": [
+      "check",
+      "debt",
+      "tests"
+    ],
+    "mustNotContain": [
+      "writeConfig",
+      "incremental",
+      "fromProfile"
+    ],
+    "llmQuestion": "Does the agent treat fail then debt then passing check as the verify loop, without rewriting policy?"
+  }
+}

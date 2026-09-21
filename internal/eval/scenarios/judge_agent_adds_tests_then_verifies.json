@@ -1,0 +1,28 @@
+{
+  "id": "judge_agent_adds_tests_then_verifies",
+  "description": "After debt ranks gaps, the agent should add tests and verify with check rather than rewriting policy.",
+  "category": "judge",
+  "tool": "debt",
+  "input": {},
+  "expect": {
+    "passed": true,
+    "hasField": [
+      "items",
+      "totalDebt"
+    ]
+  },
+  "judge": {
+    "agentReply": "debt ranks utils 10 points short. I will add tests for those uncovered lines and re-run check to verify the policy passes. I will not reduce coverage minima.",
+    "mustContain": [
+      "debt",
+      "tests",
+      "check"
+    ],
+    "mustNotContain": [
+      "lower the threshold",
+      "writeConfig",
+      "incremental"
+    ],
+    "llmQuestion": "Does the agent plan to add tests and verify with check instead of changing coverage policy?"
+  }
+}

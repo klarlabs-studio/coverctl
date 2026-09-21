@@ -246,7 +246,7 @@ func TestHandleCheck_OutputBoundarySanitization(t *testing.T) {
 	}
 	server := New(svc, DefaultConfig(), "test")
 
-	out, err := server.handleCheck(context.Background(), CheckInput{FromProfile: true, Profile: ".cover/coverage.out"})
+	out, err := server.handleCheck(context.Background(), CheckInput{Profile: ".cover/coverage.out"})
 	if err != nil {
 		t.Fatalf("handler returned err: %v", err)
 	}

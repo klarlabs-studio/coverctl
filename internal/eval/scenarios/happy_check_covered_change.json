@@ -1,0 +1,19 @@
+{
+  "id": "happy_check_covered_change",
+  "description": "check passes when the changed file is already at policy, so the agent can tell covered edits from uncovered ones.",
+  "category": "happy_path",
+  "tool": "check",
+  "input": {
+    "tags": "evalcovered"
+  },
+  "expect": {
+    "passed": true,
+    "summaryContains": "PASS",
+    "hasField": [
+      "passed",
+      "summary",
+      "domains",
+      "files"
+    ]
+  }
+}

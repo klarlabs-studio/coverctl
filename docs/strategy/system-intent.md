@@ -230,9 +230,17 @@ The preferred interface is a set of typed capabilities such as:
 * timeout
 * race detection
 * short mode
-* coverage scope
+* coverage scope (CI/human only)
 
 Each runner translates those capabilities into tool-specific arguments.
+
+Coverage scope is policy-derived in agent mode: the agent cannot
+supply it, and empty scope keeps the runner default (project-wide
+measurement) so profile paths still match domain globs. Mapping
+`src/**` onto pytest `--cov=src` is unsafe — coverage.py strips the
+source-dir prefix and policy attribution fails. Go `coverpkg` stays
+derived from domain Match patterns, which `go test` understands
+natively.
 
 For example:
 
@@ -347,7 +355,8 @@ into:
 minimum coverage = 0%
 ```
 
-through tool arguments.
+through tool arguments, a `domains` filter, or a narrowed
+`coverageScope`.
 
 Configuration precedence and mutation rules must preserve this principle.
 
@@ -459,6 +468,8 @@ Important questions include:
 * Did it correctly understand the failure?
 * Did `suggest` lead it toward useful tests?
 * Did it distinguish existing debt from new regression?
+  (`check` exposes `failureKind`: `new_regression` | `existing_debt` |
+  `policy_fail` — deterministic, not LLM-judged)
 * Did it successfully verify its remediation?
 * Could repository-controlled content manipulate the agent through
   coverctl output?

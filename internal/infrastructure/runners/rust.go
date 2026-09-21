@@ -78,10 +78,7 @@ func (r *RustRunner) Run(ctx context.Context, opts application.RunOptions) (stri
 
 // RunIntegration runs integration tests with coverage collection.
 func (r *RustRunner) RunIntegration(ctx context.Context, opts application.IntegrationOptions) (string, error) {
-	return r.Run(ctx, application.RunOptions{
-		ProfilePath: opts.Profile,
-		BuildFlags:  opts.BuildFlags,
-	})
+	return r.Run(ctx, runOptionsFromIntegration(opts))
 }
 
 // detectCoverageTool determines which Rust coverage tool is available. Each
@@ -138,6 +135,9 @@ func (r *RustRunner) buildLlvmCovArgs(opts application.RunOptions, profile strin
 		args = append(args, "--verbose")
 	}
 
+	args = appendFlaggedPackages(args, "-p", opts.Packages)
+	args = appendTimeoutSeconds(args, opts.BuildFlags.Timeout)
+
 	// Add test name filter
 	if opts.BuildFlags.Run != "" {
 		args = append(args, "--", opts.BuildFlags.Run)
@@ -175,12 +175,8 @@ func (r *RustRunner) buildTarpaulinArgs(opts application.RunOptions, profile str
 		args = append(args, "--test-name", opts.BuildFlags.Run)
 	}
 
-	// Add timeout
-	if opts.BuildFlags.Timeout != "" {
-		args = append(args, "--timeout", opts.BuildFlags.Timeout)
-	}
-
-	// Add additional args
+	args = appendTimeoutSeconds(args, opts.BuildFlags.Timeout)
+	args = appendFlaggedPackages(args, "-p", opts.Packages)
 	args = append(args, opts.BuildFlags.TestArgs...)
 
 	return args

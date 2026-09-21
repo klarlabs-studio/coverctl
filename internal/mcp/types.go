@@ -98,22 +98,25 @@ func DefaultConfig() Config {
 type CheckInput struct {
 	ConfigPath  string   `json:"configPath,omitempty" jsonschema:"description=Path to .coverctl.yaml config file"`
 	Profile     string   `json:"profile,omitempty" jsonschema:"description=Coverage profile output path"`
-	FromProfile bool     `json:"fromProfile,omitempty" jsonschema:"description=Use existing coverage profile instead of running tests"`
-	Domains     []string `json:"domains,omitempty" jsonschema:"description=Filter to specific domains"`
+	FromProfile bool     `json:"fromProfile,omitempty" jsonschema:"description=CI/human only. Use an existing coverage profile instead of running tests. Rejected in agent mode so verification cannot be satisfied by a planted profile."`
+	Domains     []string `json:"domains,omitempty" jsonschema:"description=CI/human only. Filter to specific domains. Rejected in agent mode; repository policy evaluates every domain."`
 	FailUnder   *float64 `json:"failUnder,omitempty" jsonschema:"description=Optional extra overall floor. Cannot lower or replace repository domain minima from .coverctl.yaml"`
 	Ratchet     bool     `json:"ratchet,omitempty" jsonschema:"description=Fail if coverage decreases"`
 	// Typed capabilities forwarded to the detected language's test runner.
 	// Agent mode accepts these fields and rejects arbitrary testArgs.
 	Packages []string `json:"packages,omitempty" jsonschema:"description=Package or path patterns to test (typed capability). Example: ['./internal/...']. Runners map these to native arguments."`
-	Tags     string   `json:"tags,omitempty" jsonschema:"description=Build tags forwarded to the test runner (Go: -tags; other runners may ignore)"`
-	Race     bool     `json:"race,omitempty" jsonschema:"description=Enable race detector (Go-specific; ignored by other runners)"`
-	Short    bool     `json:"short,omitempty" jsonschema:"description=Skip long-running tests (Go: -short; other runners may have analogous flags)"`
-	Verbose  bool     `json:"verbose,omitempty" jsonschema:"description=Verbose test output"`
-	Run      string   `json:"run,omitempty" jsonschema:"description=Run only tests matching pattern (Go: -run regex; pytest: -k expression; mapped per runner)"`
-	Timeout  string   `json:"timeout,omitempty" jsonschema:"description=Test timeout in Go duration syntax (e.g. '10m', '1h', '500ms')"`
-	TestArgs []string `json:"testArgs,omitempty" jsonschema:"description=CI/human only. Additional arguments forwarded to the test runner after sanitization. Rejected in agent mode; use typed capabilities (packages, tags, race, short, run, timeout) instead."`
+	// CoverageScope is CI/human only. Narrowing measurement can hide untested
+	// policy domains; agent mode rejects it. Repository policy domains define scope.
+	CoverageScope []string `json:"coverageScope,omitempty" jsonschema:"description=CI/human only. Narrow coverage measurement (pytest --cov). Rejected in agent mode; repository policy domains define measurement scope."`
+	Tags          string   `json:"tags,omitempty" jsonschema:"description=Build tags forwarded to the test runner (Go: -tags; pytest -m; PHPUnit --group; mapped per runner)"`
+	Race          bool     `json:"race,omitempty" jsonschema:"description=Enable race detector (Go-specific; ignored by other runners)"`
+	Short         bool     `json:"short,omitempty" jsonschema:"description=Skip long-running tests (Go: -short; pytest/dart/phpunit/rspec/elixir/maven/gradle analogous excludes)"`
+	Verbose       bool     `json:"verbose,omitempty" jsonschema:"description=Verbose test output"`
+	Run           string   `json:"run,omitempty" jsonschema:"description=Run only tests matching pattern (Go: -run regex; pytest: -k expression; mapped per runner)"`
+	Timeout       string   `json:"timeout,omitempty" jsonschema:"description=Test timeout in Go duration syntax (e.g. '10m', '1h', '500ms')"`
+	TestArgs      []string `json:"testArgs,omitempty" jsonschema:"description=CI/human only. Additional arguments forwarded to the test runner after sanitization. Rejected in agent mode; use typed capabilities (packages, tags, race, short, run, timeout) instead."`
 	// Incremental mode
-	Incremental    bool   `json:"incremental,omitempty" jsonschema:"description=Only test packages with changed files"`
+	Incremental    bool   `json:"incremental,omitempty" jsonschema:"description=CI/human only. Only test packages with changed files. Rejected in agent mode; an empty diff auto-passes without evaluating repository policy."`
 	IncrementalRef string `json:"incrementalRef,omitempty" jsonschema:"description=Git ref to compare against for incremental mode (default: HEAD~1)"`
 	// Output budget
 	Verbosity string `json:"verbosity,omitempty" jsonschema:"description=Output detail: 'brief' (failing rows only, capped) | 'normal' (default, soft cap) | 'verbose' (no truncation)"`
@@ -163,6 +166,7 @@ type InitInput struct {
 type ToolOutput struct {
 	Passed            bool                  `json:"passed"`
 	Summary           string                `json:"summary,omitempty"`
+	FailureKind       string                `json:"failureKind,omitempty"`
 	Domains           []domain.DomainResult `json:"domains,omitempty"`
 	Files             []domain.FileResult   `json:"files,omitempty"`
 	Warnings          []string              `json:"warnings,omitempty"`
@@ -303,5 +307,12 @@ func generateSummary(result domain.Result) string {
 	if result.Passed {
 		return fmt.Sprintf("PASS | %.1f%% overall | %d/%d domains passing", overallPercent, passing, total)
 	}
-	return fmt.Sprintf("FAIL | %.1f%% overall | %d/%d domains passing", overallPercent, passing, total)
+	switch result.OverallFailureKind() {
+	case domain.FailureKindNewRegression:
+		return fmt.Sprintf("FAIL | new regression | %.1f%% overall | %d/%d domains passing", overallPercent, passing, total)
+	case domain.FailureKindExistingDebt:
+		return fmt.Sprintf("FAIL | existing debt | %.1f%% overall | %d/%d domains passing", overallPercent, passing, total)
+	default:
+		return fmt.Sprintf("FAIL | %.1f%% overall | %d/%d domains passing", overallPercent, passing, total)
+	}
 }

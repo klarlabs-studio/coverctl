@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"go.klarlabs.de/coverctl/internal/application"
 	"go.klarlabs.de/coverctl/internal/infrastructure/cmdrun"
@@ -75,10 +76,7 @@ func (r *JavaRunner) Run(ctx context.Context, opts application.RunOptions) (stri
 // RunIntegration runs integration tests with coverage collection.
 func (r *JavaRunner) RunIntegration(ctx context.Context, opts application.IntegrationOptions) (string, error) {
 	// For Java, integration tests may use a different phase
-	runOpts := application.RunOptions{
-		ProfilePath: opts.Profile,
-		BuildFlags:  opts.BuildFlags,
-	}
+	runOpts := runOptionsFromIntegration(opts)
 	// Add integration test flags
 	runOpts.BuildFlags.TestArgs = append(runOpts.BuildFlags.TestArgs, "-Dskip.unit.tests=true")
 	return r.Run(ctx, runOpts)
@@ -145,6 +143,14 @@ func (r *JavaRunner) buildMavenArgs(opts application.RunOptions) []string {
 		args = append(args, "-Dskip.slow.tests=true")
 	}
 
+	args = appendFlaggedPackages(args, "-pl", opts.Packages)
+	if tags := strings.Join(splitCSV(opts.BuildFlags.Tags), ","); tags != "" {
+		args = append(args, "-Dgroups="+tags)
+	}
+	if sec, ok := timeoutSeconds(opts.BuildFlags.Timeout); ok {
+		args = append(args, "-Dsurefire.timeout="+sec)
+	}
+
 	// Add additional args
 	args = append(args, opts.BuildFlags.TestArgs...)
 
@@ -153,10 +159,17 @@ func (r *JavaRunner) buildMavenArgs(opts application.RunOptions) []string {
 
 // buildGradleArgs builds command line arguments for Gradle with JaCoCo.
 func (r *JavaRunner) buildGradleArgs(opts application.RunOptions) []string {
-	args := []string{
-		"clean",
-		"test",
-		"jacocoTestReport",
+	args := []string{"clean"}
+	if len(opts.Packages) > 0 {
+		for _, p := range opts.Packages {
+			name := p
+			if name == "" || name[0] != ':' {
+				name = ":" + name
+			}
+			args = append(args, name+":test", name+":jacocoTestReport")
+		}
+	} else {
+		args = append(args, "test", "jacocoTestReport")
 	}
 
 	// Add quiet mode unless verbose
@@ -167,6 +180,12 @@ func (r *JavaRunner) buildGradleArgs(opts application.RunOptions) []string {
 	// Add test filter
 	if opts.BuildFlags.Run != "" {
 		args = append(args, "--tests", opts.BuildFlags.Run)
+	}
+	if opts.BuildFlags.Short {
+		args = append(args, "-Pskip.slow.tests=true")
+	}
+	if tags := strings.Join(splitCSV(opts.BuildFlags.Tags), ","); tags != "" {
+		args = append(args, "-Pgroups="+tags)
 	}
 
 	// Add additional args

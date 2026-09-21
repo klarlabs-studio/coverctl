@@ -134,6 +134,14 @@ func TestPythonRunnerBuildPytestArgs(t *testing.T) {
 			profile:  "/tmp/coverage.xml",
 			contains: []string{"tests/unit"},
 		},
+		{
+			name: "coverage scope replaces default --cov=.",
+			opts: application.RunOptions{
+				CoverageScope: []string{"./src/api"},
+			},
+			profile:  "/tmp/coverage.xml",
+			contains: []string{"--cov=./src/api", "--cov-report=xml:/tmp/coverage.xml"},
+		},
 	}
 
 	for _, tt := range tests {

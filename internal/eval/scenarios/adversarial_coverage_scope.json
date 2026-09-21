@@ -1,0 +1,16 @@
+{
+  "id": "adversarial_coverage_scope",
+  "description": "Agent mode cannot narrow coverage measurement; shrinking --cov can hide untested policy domains.",
+  "category": "adversarial",
+  "tool": "check",
+  "input": {
+    "coverageScope": [
+      "./internal/api"
+    ]
+  },
+  "expect": {
+    "passed": false,
+    "errorCode": "INPUT_REJECTED_PARTIAL_POLICY",
+    "remediationContains": "coverageScope"
+  }
+}

@@ -59,6 +59,17 @@ type Scenario struct {
 	// is available (rule-only CI). Must match ExpectedTools for the
 	// scenario to pass without COVERCTL_EVAL_LLM_JUDGE.
 	SelectedTools []string `json:"selectedTools,omitempty"`
+	// Steps, when set, dispatch multiple tools in order (fail → debt →
+	// pass). Expect on the scenario itself is unused; each step has its
+	// own Expect. Judge still scores the last response.
+	Steps []ScenarioStep `json:"steps,omitempty"`
+}
+
+// ScenarioStep is one dispatch in a multi-tool verify loop.
+type ScenarioStep struct {
+	Tool   string         `json:"tool"`
+	Input  map[string]any `json:"input"`
+	Expect Expect         `json:"expect"`
 }
 
 // ScenarioJudge encodes a JSON-serializable JudgeCriteria plus the
@@ -101,6 +112,9 @@ type Expect struct {
 	RemediationContains string `json:"remediationContains,omitempty"`
 	// SummaryContains asserts `summary` contains the given substring.
 	SummaryContains string `json:"summaryContains,omitempty"`
+	// FailureKind asserts top-level `failureKind` exactly
+	// (pass, policy_fail, existing_debt, new_regression).
+	FailureKind string `json:"failureKind,omitempty"`
 	// HasField asserts the named top-level field exists in the response.
 	HasField []string `json:"hasField,omitempty"`
 }

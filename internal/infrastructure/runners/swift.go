@@ -115,10 +115,7 @@ func (r *SwiftRunner) Run(ctx context.Context, opts application.RunOptions) (str
 
 // RunIntegration runs integration tests with coverage collection.
 func (r *SwiftRunner) RunIntegration(ctx context.Context, opts application.IntegrationOptions) (string, error) {
-	return r.Run(ctx, application.RunOptions{
-		ProfilePath: opts.Profile,
-		BuildFlags:  opts.BuildFlags,
-	})
+	return r.Run(ctx, runOptionsFromIntegration(opts))
 }
 
 // buildTestArgs builds command line arguments for swift test.
@@ -134,6 +131,8 @@ func (r *SwiftRunner) buildTestArgs(opts application.RunOptions) []string {
 	if opts.BuildFlags.Run != "" {
 		args = append(args, "--filter", opts.BuildFlags.Run)
 	}
+
+	args = appendFlaggedPackages(args, "--filter", opts.Packages)
 
 	// Add additional test args
 	args = append(args, opts.BuildFlags.TestArgs...)

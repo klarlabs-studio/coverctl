@@ -104,10 +104,7 @@ func (r *CSharpRunner) Run(ctx context.Context, opts application.RunOptions) (st
 
 // RunIntegration runs integration tests with coverage collection.
 func (r *CSharpRunner) RunIntegration(ctx context.Context, opts application.IntegrationOptions) (string, error) {
-	return r.Run(ctx, application.RunOptions{
-		ProfilePath: opts.Profile,
-		BuildFlags:  opts.BuildFlags,
-	})
+	return r.Run(ctx, runOptionsFromIntegration(opts))
 }
 
 // buildArgs builds command line arguments for dotnet test with coverage collection.
@@ -128,7 +125,7 @@ func (r *CSharpRunner) buildArgs(opts application.RunOptions, resultsDir string)
 		args = append(args, "--filter", opts.BuildFlags.Run)
 	}
 
-	// Add additional args
+	args = appendPositionalPackages(args, opts.Packages)
 	args = append(args, opts.BuildFlags.TestArgs...)
 
 	// Append data collector configuration for Cobertura format
@@ -136,6 +133,9 @@ func (r *CSharpRunner) buildArgs(opts application.RunOptions, resultsDir string)
 		"--",
 		"DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=cobertura",
 	)
+	if ms, ok := timeoutMillis(opts.BuildFlags.Timeout); ok {
+		args = append(args, "RunConfiguration.TestSessionTimeout="+ms)
+	}
 
 	return args
 }

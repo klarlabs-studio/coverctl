@@ -1,0 +1,18 @@
+{
+  "id": "happy_check_new_regression",
+  "description": "check labels a coverage drop versus history as new_regression so the agent can tell it from existing debt.",
+  "category": "happy_path",
+  "tool": "check",
+  "input": {
+    "tags": "evalregress"
+  },
+  "expect": {
+    "passed": false,
+    "failureKind": "new_regression",
+    "summaryContains": "new regression",
+    "hasField": [
+      "failureKind",
+      "domains"
+    ]
+  }
+}

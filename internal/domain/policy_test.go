@@ -405,3 +405,56 @@ func TestRound1(t *testing.T) {
 		}
 	}
 }
+
+func TestClassifyFailureKinds(t *testing.T) {
+	neg := -5.0
+	zero := 0.0
+	pos := 2.0
+	cases := []struct {
+		name string
+		d    DomainResult
+		want string
+	}{
+		{"pass", DomainResult{Status: StatusPass}, ""},
+		{"fail no baseline", DomainResult{Status: StatusFail}, FailureKindPolicyFail},
+		{"drop vs history", DomainResult{Status: StatusFail, Delta: &neg}, FailureKindNewRegression},
+		{"stable fail", DomainResult{Status: StatusFail, Delta: &zero}, FailureKindExistingDebt},
+		{"improved but still fail", DomainResult{Status: StatusFail, Delta: &pos}, FailureKindExistingDebt},
+	}
+	for _, tc := range cases {
+		if got := ClassifyFailure(tc.d); got != tc.want {
+			t.Errorf("%s: got %q want %q", tc.name, got, tc.want)
+		}
+	}
+}
+
+func TestOverallFailureKind_RegressionWins(t *testing.T) {
+	neg := -3.0
+	r := Result{
+		Passed: false,
+		Domains: []DomainResult{
+			{Status: StatusFail, FailureKind: FailureKindExistingDebt},
+			{Status: StatusFail, Delta: &neg},
+		},
+	}
+	if got := r.OverallFailureKind(); got != FailureKindNewRegression {
+		t.Fatalf("got %q, want %q", got, FailureKindNewRegression)
+	}
+}
+
+func TestApplyDeltasClassifiesNewRegression(t *testing.T) {
+	min := 80.0
+	result := Evaluate(Policy{
+		DefaultMin: 80,
+		Domains:    []Domain{{Name: "api", Min: &min}},
+	}, map[string]CoverageStat{"api": {Covered: 70, Total: 100}})
+	if result.Domains[0].FailureKind != FailureKindPolicyFail {
+		t.Fatalf("before history: got %q", result.Domains[0].FailureKind)
+	}
+	result.ApplyDeltas(History{Entries: []HistoryEntry{{
+		Domains: map[string]DomainEntry{"api": {Name: "api", Percent: 85}},
+	}}})
+	if result.Domains[0].FailureKind != FailureKindNewRegression {
+		t.Fatalf("after drop vs history: got %q", result.Domains[0].FailureKind)
+	}
+}

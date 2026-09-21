@@ -203,7 +203,18 @@ func (s *Server) handleCheck(ctx context.Context, input CheckInput) (map[string]
 		s.telemetry.RecordToolCall("check", time.Since(start), err, true)
 		return rejectionResponse(err), nil
 	}
-	if err := enforceAgentCapabilities(s.config.Mode, input.TestArgs, input.ConfigPath, s.config.ConfigPath); err != nil {
+	if err := SanitizePackages(input.CoverageScope); err != nil {
+		s.telemetry.RecordToolCall("check", time.Since(start), err, true)
+		return rejectionResponse(err), nil
+	}
+	if err := enforceAgentCapabilities(s.config.Mode, agentInvocation{
+		TestArgs:      input.TestArgs,
+		ConfigPath:    input.ConfigPath,
+		Domains:       input.Domains,
+		CoverageScope: input.CoverageScope,
+		FromProfile:   input.FromProfile,
+		Incremental:   input.Incremental,
+	}, s.config.ConfigPath); err != nil {
 		s.telemetry.RecordToolCall("check", time.Since(start), err, true)
 		return rejectionResponse(err), nil
 	}
@@ -219,6 +230,7 @@ func (s *Server) handleCheck(ctx context.Context, input CheckInput) (map[string]
 		Incremental:    input.Incremental,
 		IncrementalRef: input.IncrementalRef,
 		Packages:       input.Packages,
+		CoverageScope:  input.CoverageScope,
 		BuildFlags: application.BuildFlags{
 			Tags:     input.Tags,
 			Race:     input.Race,
@@ -230,8 +242,10 @@ func (s *Server) handleCheck(ctx context.Context, input CheckInput) (map[string]
 		},
 	}
 
-	// Add history store if ratchet is enabled
-	if input.Ratchet {
+	// Load history whenever a path is configured so check can classify
+	// new_regression vs existing_debt. Ratchet still uses the same store
+	// as a no-regression gate; missing files load as empty history.
+	if s.config.HistoryPath != "" {
 		opts.HistoryStore = &history.FileStore{Path: s.config.HistoryPath}
 	}
 
@@ -281,15 +295,17 @@ func (s *Server) handleCheck(ctx context.Context, input CheckInput) (map[string]
 		s.telemetry.RecordToolCall("check", time.Since(start), nil, false)
 	}
 
+	result.ClassifyFailures()
 	v := resolveVerbosity(input.Verbosity)
 	domains, domainCursor := applyDomainBudget(result.Domains, v)
 	files, fileCursor := applyFileBudget(result.Files, v)
 	output := map[string]any{
-		"passed":   result.Passed,
-		"summary":  sanitizeOutputString(generateSummary(result)),
-		"domains":  sanitizeDomainResults(domains),
-		"files":    sanitizeFileResults(files),
-		"warnings": sanitizeWarnings(result.Warnings),
+		"passed":      result.Passed,
+		"summary":     sanitizeOutputString(generateSummary(result)),
+		"failureKind": result.OverallFailureKind(),
+		"domains":     sanitizeDomainResults(domains),
+		"files":       sanitizeFileResults(files),
+		"warnings":    sanitizeWarnings(result.Warnings),
 	}
 	if domainCursor != "" {
 		output["domainsNextCursor"] = domainCursor
@@ -605,7 +621,7 @@ func (s *Server) handleSuggest(ctx context.Context, input SuggestInput) (map[str
 		s.telemetry.RecordToolCall("suggest", time.Since(start), err, true)
 		return rejectionResponse(err), nil
 	}
-	if err := enforceAgentCapabilities(s.config.Mode, nil, input.ConfigPath, s.config.ConfigPath); err != nil {
+	if err := enforceAgentCapabilities(s.config.Mode, agentInvocation{ConfigPath: input.ConfigPath}, s.config.ConfigPath); err != nil {
 		s.telemetry.RecordToolCall("suggest", time.Since(start), err, true)
 		return rejectionResponse(err), nil
 	}
@@ -708,7 +724,7 @@ func (s *Server) handleDebt(ctx context.Context, input DebtInput) (map[string]an
 		s.telemetry.RecordToolCall("debt", time.Since(start), err, true)
 		return rejectionResponse(err), nil
 	}
-	if err := enforceAgentCapabilities(s.config.Mode, nil, input.ConfigPath, s.config.ConfigPath); err != nil {
+	if err := enforceAgentCapabilities(s.config.Mode, agentInvocation{ConfigPath: input.ConfigPath}, s.config.ConfigPath); err != nil {
 		s.telemetry.RecordToolCall("debt", time.Since(start), err, true)
 		return rejectionResponse(err), nil
 	}

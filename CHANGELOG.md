@@ -11,9 +11,44 @@ All notable changes to `coverctl` will be documented here. Relicta manages this 
 - Typed `packages` capability on MCP `check`; agent mode rejects arbitrary
   `testArgs` (`INPUT_REJECTED_ARBITRARY_ARGS`) and alternate policy files
   (`INPUT_REJECTED_POLICY_OVERRIDE`).
+- Agent mode rejects a `domains` filter (`INPUT_REJECTED_PARTIAL_POLICY`),
+  `coverageScope` (same code — shrinking measurement can hide untested
+  domains), `fromProfile` (`INPUT_REJECTED_SKIP_VERIFICATION`), and
+  `incremental` (`INPUT_REJECTED_INCREMENTAL`) so check cannot hide
+  failing policy slices, skip the test run, or auto-pass on an empty
+  diff. CI/human mode still forwards `coverageScope` (pytest `--cov`,
+  coverage.py `--source`, c8/nyc `--include`, jest
+  `--collectCoverageFrom`). Go `coverpkg` stays policy-domain-derived.
+- Typed `short` and `tags` are mapped on remaining runners: pytest `-m`,
+  mix `--exclude/--include`, dart/flutter `--exclude-tags/--tags`,
+  PHPUnit `--exclude-group/--group`, rspec `--tag`, Maven
+  `-Dskip.slow.tests`/`-Dgroups`, Gradle `-Pskip.slow.tests`/`-Pgroups`.
+- Eval harness `Scenario.Steps` measures the fail → debt → pass verify
+  loop without a live LLM (`happy_verify_loop_fail_debt_pass`). Live
+  `HTTPLLMJudge` / tool-selection still run when
+  `COVERCTL_EVAL_LLM_JUDGE=1`.
+- `check` classifies failures as `new_regression`, `existing_debt`, or
+  `policy_fail` (per domain and top-level `failureKind`) so agents can
+  distinguish a coverage drop from prior debt without an LLM. MCP check
+  loads history whenever a history path is configured, not only when
+  ratchet is on.
+- Empty `coverageScope` stays the runner default (`--cov=.`) rather than
+  being derived from domain Match globs. coverage.py/`--cov=src` strips
+  the source-dir prefix so `src/**` no longer matches profile paths
+  (python smoke). Go `coverpkg` remains policy-domain-derived.
+- Typed `packages` capability is forwarded by every language runner:
+  positional paths (pytest, mix, dart, phpunit, rspec, minitest, bats,
+  meson, make, jest, npm), flagged modules (cargo `-p`, maven `-pl`,
+  swift `--filter`), Gradle `:module:test`, sbt `module/test`, mill
+  `module.test`, ctest `--tests-regex`, and c8/nyc `npm test --`.
+  Integration runs copy `Packages` through instead of dropping them.
 - macOS/Windows **platform smoke** workflow (CLI + process + path tests).
-- Eval scenarios for capability rejection, policy override, existing-debt
-  vs new regression, and malicious coverage metadata.
+- Eval scenarios for covered vs uncovered edits (pass on already-covered
+  files, fail on uncovered files, judges, and tool-selection that still
+  calls `check`).
+- Typed `timeout` is converted from Go duration (`2m`) into each runner's
+  native unit (seconds, milliseconds, or dart `2m`) instead of being
+  forwarded as a raw string.
 
 ### Fixed
 - Windows path scope: POSIX/DOS rooted paths (`/etc/passwd`, `\Windows\…`)

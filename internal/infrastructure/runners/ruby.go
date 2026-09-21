@@ -80,10 +80,7 @@ func (r *RubyRunner) Run(ctx context.Context, opts application.RunOptions) (stri
 
 // RunIntegration runs integration tests with coverage collection.
 func (r *RubyRunner) RunIntegration(ctx context.Context, opts application.IntegrationOptions) (string, error) {
-	return r.Run(ctx, application.RunOptions{
-		ProfilePath: opts.Profile,
-		BuildFlags:  opts.BuildFlags,
-	})
+	return r.Run(ctx, runOptionsFromIntegration(opts))
 }
 
 // detectTestFramework determines which Ruby test framework is used.
@@ -120,13 +117,12 @@ func (r *RubyRunner) buildRspecArgs(opts application.RunOptions) []string {
 	if opts.BuildFlags.Run != "" {
 		args = append(args, "--pattern", opts.BuildFlags.Run)
 	}
-
-	// Add specific packages/directories to test
-	if len(opts.Packages) > 0 {
-		args = append(args, opts.Packages...)
+	if opts.BuildFlags.Short {
+		args = append(args, "--tag", "~slow")
 	}
+	args = appendRepeatedFlag(args, "--tag", splitCSV(opts.BuildFlags.Tags))
 
-	// Add additional test args
+	args = appendPositionalPackages(args, opts.Packages)
 	args = append(args, opts.BuildFlags.TestArgs...)
 
 	return args
@@ -146,7 +142,7 @@ func (r *RubyRunner) buildMinitestArgs(opts application.RunOptions) []string {
 		args = append(args, "--pattern", opts.BuildFlags.Run)
 	}
 
-	// Add additional test args
+	args = appendPositionalPackages(args, opts.Packages)
 	args = append(args, opts.BuildFlags.TestArgs...)
 
 	return args

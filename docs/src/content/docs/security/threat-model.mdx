@@ -47,7 +47,15 @@ Scoped path validation applied to MCP path inputs before use. Rejected
 inputs return a structured rejection response (`passed=false`, explicit
 error, safe summary, agent-actionable `remediation`).
 
-### 2) Build-flag sanitisation
+### 2) Capability-based execution (agent mode)
+
+Agent mode accepts typed capabilities (`packages`, `tags`, `race`,
+`short`, `run`, `timeout`) and rejects `testArgs`, alternate
+`configPath`, `domains` filters, `coverageScope`, `fromProfile`, and
+`incremental`. Narrowing measurement or evaluation can hide untested
+policy domains. CI/human mode still forwards sanitized extras.
+
+### 3) Build-flag sanitisation
 
 `internal/mcp/sanitize.go` blocks dangerous argument classes for
 MCP-originated inputs:
@@ -59,7 +67,7 @@ MCP-originated inputs:
 - Shell metacharacters and control characters in free-form arg inputs.
 - Invalid tag and timeout formats.
 
-### 3) Stable rejection schema
+### 4) Stable rejection schema
 
 Every input rejection emits the same JSON shape:
 

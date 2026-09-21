@@ -82,7 +82,17 @@ type DomainResult struct {
 	RequiredInherited bool     `json:"required_inherited,omitempty"`
 	Status            Status   `json:"status"`
 	Delta             *float64 `json:"delta,omitempty"` // Change from previous run
+	// FailureKind classifies a failing domain so agents can distinguish a
+	// new regression from existing debt without an LLM. Empty when passing.
+	FailureKind string `json:"failureKind,omitempty"`
 }
+
+const (
+	FailureKindPass          = "pass"
+	FailureKindPolicyFail    = "policy_fail"
+	FailureKindExistingDebt  = "existing_debt"
+	FailureKindNewRegression = "new_regression"
+)
 
 // IsPassing returns true if this domain meets its coverage requirement.
 func (d DomainResult) IsPassing() bool {
@@ -245,6 +255,7 @@ func (r *Result) ApplyDeltas(history History) {
 			r.Domains[i].Delta = &delta
 		}
 	}
+	r.ClassifyFailures()
 }
 
 // WithDeltas returns a copy of the Result with deltas applied from history.
@@ -344,7 +355,66 @@ func Evaluate(policy Policy, coverage map[string]CoverageStat) Result {
 		})
 	}
 
-	return Result{Domains: results, Passed: passed}
+	result := Result{Domains: results, Passed: passed}
+	result.ClassifyFailures()
+	return result
+}
+
+// ClassifyFailure returns the agent-facing kind for one domain result.
+func ClassifyFailure(d DomainResult) string {
+	if d.Status != StatusFail {
+		return ""
+	}
+	if d.Delta != nil && *d.Delta < 0 {
+		return FailureKindNewRegression
+	}
+	if d.Delta != nil {
+		return FailureKindExistingDebt
+	}
+	return FailureKindPolicyFail
+}
+
+// ClassifyFailures sets FailureKind on every domain. Safe to call more
+// than once; later deltas overwrite a prior policy_fail classification.
+func (r *Result) ClassifyFailures() {
+	for i := range r.Domains {
+		r.Domains[i].FailureKind = ClassifyFailure(r.Domains[i])
+	}
+}
+
+// OverallFailureKind is the single agent-actionable label for the result.
+// A new regression wins over an unexplained policy fail, which wins over
+// existing debt — so a change that made coverage worse is never hidden
+// behind prior shortfalls.
+func (r Result) OverallFailureKind() string {
+	if r.Passed {
+		return FailureKindPass
+	}
+	hasRegress, hasPolicy, hasDebt := false, false, false
+	for _, d := range r.Domains {
+		kind := d.FailureKind
+		if kind == "" {
+			kind = ClassifyFailure(d)
+		}
+		switch kind {
+		case FailureKindNewRegression:
+			hasRegress = true
+		case FailureKindPolicyFail:
+			hasPolicy = true
+		case FailureKindExistingDebt:
+			hasDebt = true
+		}
+	}
+	switch {
+	case hasRegress:
+		return FailureKindNewRegression
+	case hasPolicy:
+		return FailureKindPolicyFail
+	case hasDebt:
+		return FailureKindExistingDebt
+	default:
+		return FailureKindPolicyFail
+	}
 }
 
 // Round1 rounds a float64 to one decimal place.
