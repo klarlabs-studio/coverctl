@@ -22,7 +22,7 @@ jobs:
       # Pin the release so install-warden.sh skips api.github.com/releases/latest
       # (unauthenticated "latest" lookups 403 under runner rate limits). Pass the
       # token so any remaining API/download auth uses the job's contents:read scope.
-      - uses: klarlabs-studio/warden/.github/actions/warden-verify@main
+      - uses: klarlabs-studio/warden/.github/actions/warden-verify@31beb4d1d928be66f02929e4452258071acf3162
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:

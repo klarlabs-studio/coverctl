@@ -80,6 +80,29 @@ func TestCanonicalizePath_PreservesSafeChars(t *testing.T) {
 	}
 }
 
+func TestCanonicalizePath_PreservesSemanticIdentity(t *testing.T) {
+	// Destructive replacement (`ü` → `?`) would collapse these three
+	// names into one identifier. Percent-encoding must keep them distinct
+	// so an agent can still tell which file failed policy.
+	uber := canonicalizePath("src/uber.go")
+	ueber := canonicalizePath("src/über.go")
+	qber := canonicalizePath("src/?ber.go")
+	if uber == ueber || ueber == qber || uber == qber {
+		t.Fatalf("distinct names collapsed: uber=%q ueber=%q qber=%q", uber, ueber, qber)
+	}
+	if ueber != "src/über.go" {
+		t.Errorf("Unicode letter should be preserved, got %q", ueber)
+	}
+	if strings.Contains(ueber, "?") {
+		t.Errorf("must not destructively replace ü with ?: %q", ueber)
+	}
+	// A literal percent-encoded name must not collide with the letter form.
+	literal := canonicalizePath("src/%C3%BCber.go")
+	if literal == ueber {
+		t.Fatalf("literal %%C3%%BC collided with ü: %q", literal)
+	}
+}
+
 func TestCanonicalizePath_EmptyInput(t *testing.T) {
 	if got := canonicalizePath(""); got != "" {
 		t.Errorf("empty input should round-trip; got %q", got)

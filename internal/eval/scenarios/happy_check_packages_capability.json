@@ -1,0 +1,22 @@
+{
+  "id": "happy_check_packages_capability",
+  "description": "check accepts typed packages capability and still returns the policy result shape.",
+  "category": "happy_path",
+  "tool": "check",
+  "input": {
+    "packages": [
+      "./internal/..."
+    ],
+    "race": true,
+    "timeout": "2m"
+  },
+  "expect": {
+    "passed": true,
+    "summaryContains": "PASS",
+    "hasField": [
+      "passed",
+      "summary",
+      "domains"
+    ]
+  }
+}

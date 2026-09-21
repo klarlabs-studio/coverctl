@@ -47,9 +47,9 @@ Coverage governance moves into the loop where decisions are made.
   substrate for tool integration in AI coding clients.
 - Local-first execution. Agents and developers get the same fast feedback
   on the same machine, without round-tripping a SaaS dashboard.
-- Security at the input boundary: untrusted MCP arguments are sanitized
-  before they reach language toolchains, and untrusted output (filenames,
-  test names, profile contents) is canonicalized before flowing back into
+- Security at both MCP boundaries: untrusted arguments are validated as
+  typed capabilities before they reach language toolchains, and untrusted
+  output identifiers are reversibly escaped before flowing back into
   agent context.
 
 In this world, the question is not "what is our coverage percentage?" — it

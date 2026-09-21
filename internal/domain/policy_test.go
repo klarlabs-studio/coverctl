@@ -28,6 +28,50 @@ func TestEvaluatePolicy(t *testing.T) {
 	}
 }
 
+// TestEvaluatePolicy_RepositoryMinimaAreAuthoritative records that domain
+// Required values come from the repository policy, not from an invocation
+// parameter. FailUnder lives on CheckOptions as an extra overall gate and
+// cannot silently transform a 90% domain min into 0%.
+func TestEvaluatePolicy_RepositoryMinimaAreAuthoritative(t *testing.T) {
+	min := 90.0
+	policy := Policy{
+		DefaultMin: 80,
+		Domains:    []Domain{{Name: "core", Min: &min}},
+	}
+	result := Evaluate(policy, map[string]CoverageStat{
+		"core": {Covered: 50, Total: 100},
+	})
+	if result.Passed {
+		t.Fatal("50% vs 90% min must fail")
+	}
+	if got := result.Domains[0].Required; got != 90 {
+		t.Fatalf("Required = %v, want 90 from repository policy", got)
+	}
+
+	again := Evaluate(policy, map[string]CoverageStat{
+		"core": {Covered: 50, Total: 100},
+	})
+	if again.Domains[0].Required != result.Domains[0].Required || again.Passed != result.Passed {
+		t.Fatal("policy evaluation must be deterministic for the same coverage and policy")
+	}
+}
+
+// TestEvaluatePolicy_LanguageAgnosticPaths documents that the policy engine
+// evaluates normalized coverage stats keyed by domain name — it does not
+// inspect language, runner, or file-extension syntax.
+func TestEvaluatePolicy_LanguageAgnosticPaths(t *testing.T) {
+	policy := Policy{
+		DefaultMin: 80,
+		Domains:    []Domain{{Name: "web"}},
+	}
+	result := Evaluate(policy, map[string]CoverageStat{
+		"web": {Covered: 90, Total: 100},
+	})
+	if !result.Passed {
+		t.Fatal("language-agnostic coverage stats must evaluate without runner metadata")
+	}
+}
+
 // TestEvaluateRoundingDoesNotPassSubThreshold ensures the threshold comparison
 // uses the raw percentage, not the display-rounded one: 79.95% rounds to 80.0
 // for display but must still FAIL an 80% gate.

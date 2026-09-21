@@ -1,0 +1,16 @@
+{
+  "id": "adversarial_arbitrary_testargs",
+  "description": "Agent mode rejects arbitrary testArgs even when the flags are otherwise benign; typed capabilities are the interface.",
+  "category": "adversarial",
+  "tool": "check",
+  "input": {
+    "testArgs": [
+      "-count=1"
+    ]
+  },
+  "expect": {
+    "passed": false,
+    "errorCode": "INPUT_REJECTED_ARBITRARY_ARGS",
+    "remediationContains": "typed"
+  }
+}

@@ -56,7 +56,7 @@ docs-site IA, and deeper polyglot CI smoke — see Still open in
 ### MCP security
 
 - Documented Lethal Trifecta threat model.
-- Input sanitization with stable `error_code` + remediation (16 codes).
+- Input sanitization with stable `error_code` + remediation (18 codes).
 - Output canonicalization on check/report/compare/debt/**suggest**/
   **pr-comment**/resources.
 - Rate limit on `pr-comment`; opt-in telemetry; `writeConfig` CI-gated.

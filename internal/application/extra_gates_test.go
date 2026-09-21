@@ -42,6 +42,25 @@ func TestEnforceExtraGates_FailUnder(t *testing.T) {
 	}
 }
 
+// TestEnforceExtraGates_FailUnderCannotReplaceDomainMinima documents that
+// FailUnder is an extra overall floor. A 0% fail-under does not rewrite
+// domain Required values — repository policy remains authoritative.
+func TestEnforceExtraGates_FailUnderCannotReplaceDomainMinima(t *testing.T) {
+	svc := &Service{}
+	result := domain.Result{
+		Passed: false,
+		Domains: []domain.DomainResult{
+			{Domain: "core", Covered: 50, Total: 100, Percent: 50, Required: 90, Status: domain.StatusFail},
+		},
+	}
+	if err := svc.EnforceExtraGates(result, CheckOptions{FailUnder: ptr(0)}); err != nil {
+		t.Fatalf("0%% fail-under is a no-op extra gate, got %v", err)
+	}
+	if result.Domains[0].Required != 90 {
+		t.Fatalf("FailUnder must not mutate domain Required, got %v", result.Domains[0].Required)
+	}
+}
+
 func TestEnforceExtraGates_RatchetRegression(t *testing.T) {
 	svc := &Service{}
 	store := &fakeHistoryStore{hist: domain.History{Entries: []domain.HistoryEntry{{Overall: 95}}}}

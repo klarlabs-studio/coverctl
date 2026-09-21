@@ -57,7 +57,9 @@ func (h *CheckHandler) CheckResult(ctx context.Context, opts CheckOptions) (doma
 
 		// Handle incremental mode: only test affected packages
 		var packages []string
-		if opts.Incremental && h.DiffProvider != nil {
+		if len(opts.Packages) > 0 {
+			packages = opts.Packages
+		} else if opts.Incremental && h.DiffProvider != nil {
 			ref := opts.IncrementalRef
 			if ref == "" {
 				ref = "HEAD~1"

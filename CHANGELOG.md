@@ -4,6 +4,25 @@ All notable changes to `coverctl` will be documented here. Relicta manages this 
 
 ## [Unreleased]
 
+### Added
+- Canonical **system intent** (`docs/strategy/system-intent.md`) for the
+  agent-native coverage-governance loop, capability-based execution,
+  policy authority, and bidirectional MCP trust boundary.
+- Typed `packages` capability on MCP `check`; agent mode rejects arbitrary
+  `testArgs` (`INPUT_REJECTED_ARBITRARY_ARGS`) and alternate policy files
+  (`INPUT_REJECTED_POLICY_OVERRIDE`).
+- macOS/Windows **platform smoke** workflow (CLI + process + path tests).
+- Eval scenarios for capability rejection, policy override, existing-debt
+  vs new regression, and malicious coverage metadata.
+
+### Changed
+- MCP output identifiers use reversible percent-encoding instead of `?`
+  replacement, so distinct names (`src/über.go` vs `src/uber.go`) stay
+  distinct.
+- Reusable CI workflows and third-party actions pinned to immutable
+  revisions; `secrets: inherit` removed from the Go CI caller (the
+  reusable workflow declares no secrets).
+
 ## [1.20.0] - 2026-08-15
 
 Agent-loop coverage governance: polyglot smoke, MCP telemetry, blog/RSS,

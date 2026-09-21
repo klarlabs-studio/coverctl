@@ -1,7 +1,8 @@
 # Thin caller for the shared klarlabs-studio Go CI bar.
 # All gate logic (race tests, lint+gocritic, nox security scan, build,
 # dependency review) lives in the reusable workflow — bump versions / add
-# jobs there, once, org-wide.
+# jobs there, once, org-wide. Pin the reusable workflow to a commit SHA
+# (not @main) so CI is immutable supply-chain infrastructure.
 #
 # coverage: false here is deliberate. The reusable's coverage gate installs
 # `go.klarlabs.de/coverctl@latest` (a released binary) to gate a repo. coverctl
@@ -31,12 +32,11 @@ concurrency:
 
 jobs:
   ci:
-    uses: klarlabs-studio/.github/.github/workflows/go-ci.yml@main
+    uses: klarlabs-studio/.github/.github/workflows/go-ci.yml@75edaf97c1274c4036460d3895dd85f9d7dbc021
     permissions:
       contents: read
       security-events: write
       pull-requests: write
-    secrets: inherit
     with:
       coverage: false        # coverctl dogfoods its own gate from source (coverage.yml)
-      cross-platform: false  # pure Go CLI — ubuntu suffices
+      cross-platform: false  # full suite stays on Linux; macOS/Windows smoke is platform-smoke.yml

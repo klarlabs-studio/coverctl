@@ -18,6 +18,8 @@ const (
 	CodeInvalidTimeout     RejectionCode = "INPUT_REJECTED_INVALID_TIMEOUT"
 	CodeInvalidRunPattern  RejectionCode = "INPUT_REJECTED_INVALID_RUN_PATTERN"
 	CodePathScope          RejectionCode = "INPUT_REJECTED_PATH_SCOPE"
+	CodeArbitraryArgs      RejectionCode = "INPUT_REJECTED_ARBITRARY_ARGS"
+	CodePolicyOverride     RejectionCode = "INPUT_REJECTED_POLICY_OVERRIDE"
 	CodeInputRejectedOther RejectionCode = "INPUT_REJECTED_OTHER"
 )
 
@@ -31,6 +33,8 @@ var remediationFor = map[RejectionCode]string{
 	CodeInvalidTimeout:     "Use Go time.Duration syntax for timeout, e.g. 30s, 10m, 1h30s, 500ms.",
 	CodeInvalidRunPattern:  "Test-name filter must not contain shell-injection markers (backtick, $(...), ;, &). Plain regex, alternation (|), and lookarounds (<...>) are allowed.",
 	CodePathScope:          "Path must resolve inside the current working directory. Use relative paths or absolute paths under the project root; out-of-tree paths are denied from MCP input.",
+	CodeArbitraryArgs:      "Do not pass testArgs from agent mode. Express intent with typed capabilities: packages, tags, race, short, run, timeout. Arbitrary runner argv is reserved for trusted CLI/CI workflows.",
+	CodePolicyOverride:     "Omit configPath and use the repository .coverctl.yaml. Agent mode cannot point policy evaluation at a different file.",
 	CodeInputRejectedOther: "Inspect the error field for details and adjust the input shape.",
 }
 
@@ -332,6 +336,33 @@ func SanitizeBuildFlagsInput(tags, run, timeout string, testArgs []string) error
 	}
 	if err := SanitizeTestArgs(testArgs); err != nil {
 		return err
+	}
+	return nil
+}
+
+// SanitizePackages validates typed package/path patterns from MCP input.
+// Patterns are capability values (e.g. "./internal/..."), not free-form
+// argv; traversal and shell metacharacters are rejected so they cannot be
+// turned into extra runner arguments.
+func SanitizePackages(pkgs []string) error {
+	for i, raw := range pkgs {
+		field := fmt.Sprintf("packages[%d]", i)
+		if raw == "" {
+			continue
+		}
+		if strings.ContainsAny(raw, "\x00\n\r") {
+			return &SanitizationError{Field: field, Value: raw, Reason: "contains control characters", Code: CodeControlCharacters}
+		}
+		if shellMetaPattern.MatchString(raw) {
+			return &SanitizationError{Field: field, Value: raw, Reason: "contains shell metacharacter", Code: CodeShellMetacharacter}
+		}
+		// Clean with slash semantics so Go/pytest-style patterns stay portable.
+		cleaned := strings.ReplaceAll(raw, "\\", "/")
+		for _, part := range strings.Split(cleaned, "/") {
+			if part == ".." {
+				return &SanitizationError{Field: field, Value: raw, Reason: "package pattern must not traverse parent directories", Code: CodePathScope}
+			}
+		}
 	}
 	return nil
 }

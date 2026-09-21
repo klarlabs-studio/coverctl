@@ -126,9 +126,10 @@ func TestLayerBoundary_ApplicationStaysClean(t *testing.T) {
 	}
 }
 
-// fileSizeCeiling is the contract: a god-file is acknowledged debt with a
-// stated ceiling. Hitting the ceiling means the next change to that file
-// must be preceded by extraction work, not piled on top.
+// fileSizeCeiling is a maintenance signal, not an architectural boundary.
+// Hitting the ceiling means the next change to that file should extract
+// before piling on; it does not encode a domain invariant. Dependency
+// direction and forbidden coupling are the architectural tests above.
 //
 // Ceilings are set 5-10% above current line counts so this commit doesn't
 // trip the test, but any growth fails immediately. Lower the ceiling
@@ -174,6 +175,49 @@ func TestFileSizeCeilings(t *testing.T) {
 					c.relpath, loc, c.maxLOC, c.reason)
 			}
 		})
+	}
+}
+
+// TestLayerBoundary_DomainImportsStayStdlib asserts production domain code
+// only imports the Go standard library. Language runners, MCP, CLI
+// frameworks, and infrastructure adapters must not leak into the policy
+// engine — adding a language should not require domain changes.
+func TestLayerBoundary_DomainImportsStayStdlib(t *testing.T) {
+	root := repoRoot(t)
+	imports := importsOf(t, filepath.Join(root, "internal", "domain"))
+	for file, paths := range imports {
+		for _, p := range paths {
+			if strings.Contains(p, ".") {
+				t.Errorf("internal/domain/%s imports %q; domain must stay language-agnostic (stdlib only)", file, p)
+			}
+			if p == "os/exec" || p == "net/http" || p == "plugin" {
+				t.Errorf("internal/domain/%s imports %q; domain must not reach process/network/plugin surfaces", file, p)
+			}
+		}
+	}
+}
+
+// TestLayerBoundary_ApplicationHasNoRunnerOrParserImports is belt-and-
+// suspenders on the existing application-stays-clean rule: even a relative
+// or renamed import of a language runner/parser into application would
+// let toolchain details leak into orchestration.
+func TestLayerBoundary_ApplicationHasNoRunnerOrParserImports(t *testing.T) {
+	root := repoRoot(t)
+	imports := importsOf(t, filepath.Join(root, "internal", "application"))
+	forbidden := []string{
+		"/runners",
+		"/parsers",
+		"/gotool",
+		"os/exec",
+	}
+	for file, paths := range imports {
+		for _, p := range paths {
+			for _, f := range forbidden {
+				if strings.Contains(p, f) {
+					t.Errorf("internal/application/%s imports %q; runners/parsers/exec belong in infrastructure", file, p)
+				}
+			}
+		}
 	}
 }
 

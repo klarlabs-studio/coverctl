@@ -42,6 +42,7 @@ type CheckOptions struct {
 	BuildFlags     BuildFlags   // Build and test flags
 	Incremental    bool         // Only test packages with changed files
 	IncrementalRef string       // Git ref to compare against (default: HEAD~1)
+	Packages       []string     // Typed capability: limit the test run to these package/path patterns
 	Language       Language     // Override language auto-detection (empty = auto)
 	FromProfile    bool         // Use existing coverage profile instead of running tests (policy still evaluates every domain)
 }
@@ -176,7 +177,9 @@ func (s *Service) CheckResult(ctx context.Context, opts CheckOptions) (domain.Re
 
 		// Handle incremental mode: only test affected packages
 		var packages []string
-		if opts.Incremental && s.DiffProvider != nil {
+		if len(opts.Packages) > 0 {
+			packages = opts.Packages
+		} else if opts.Incremental && s.DiffProvider != nil {
 			ref := opts.IncrementalRef
 			if ref == "" {
 				ref = "HEAD~1"

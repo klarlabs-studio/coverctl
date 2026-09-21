@@ -199,6 +199,14 @@ func (s *Server) handleCheck(ctx context.Context, input CheckInput) (map[string]
 		s.telemetry.RecordToolCall("check", time.Since(start), err, true)
 		return rejectionResponse(err), nil
 	}
+	if err := SanitizePackages(input.Packages); err != nil {
+		s.telemetry.RecordToolCall("check", time.Since(start), err, true)
+		return rejectionResponse(err), nil
+	}
+	if err := enforceAgentCapabilities(s.config.Mode, input.TestArgs, input.ConfigPath, s.config.ConfigPath); err != nil {
+		s.telemetry.RecordToolCall("check", time.Since(start), err, true)
+		return rejectionResponse(err), nil
+	}
 
 	opts := application.CheckOptions{
 		ConfigPath:     s.resolveConfigPath(input.ConfigPath),
@@ -210,6 +218,7 @@ func (s *Server) handleCheck(ctx context.Context, input CheckInput) (map[string]
 		Ratchet:        input.Ratchet,
 		Incremental:    input.Incremental,
 		IncrementalRef: input.IncrementalRef,
+		Packages:       input.Packages,
 		BuildFlags: application.BuildFlags{
 			Tags:     input.Tags,
 			Race:     input.Race,
@@ -596,6 +605,10 @@ func (s *Server) handleSuggest(ctx context.Context, input SuggestInput) (map[str
 		s.telemetry.RecordToolCall("suggest", time.Since(start), err, true)
 		return rejectionResponse(err), nil
 	}
+	if err := enforceAgentCapabilities(s.config.Mode, nil, input.ConfigPath, s.config.ConfigPath); err != nil {
+		s.telemetry.RecordToolCall("suggest", time.Since(start), err, true)
+		return rejectionResponse(err), nil
+	}
 
 	strategy := application.SuggestCurrent
 	switch input.Strategy {
@@ -692,6 +705,10 @@ func (s *Server) handleDebt(ctx context.Context, input DebtInput) (map[string]an
 		namedPath{"configPath", input.ConfigPath},
 		namedPath{"profile", input.Profile},
 	); err != nil {
+		s.telemetry.RecordToolCall("debt", time.Since(start), err, true)
+		return rejectionResponse(err), nil
+	}
+	if err := enforceAgentCapabilities(s.config.Mode, nil, input.ConfigPath, s.config.ConfigPath); err != nil {
 		s.telemetry.RecordToolCall("debt", time.Since(start), err, true)
 		return rejectionResponse(err), nil
 	}

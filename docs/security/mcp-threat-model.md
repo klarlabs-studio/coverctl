@@ -35,7 +35,21 @@ Prompt injection in upstream text (PR description, issue body, fetched page) inf
 - Scoped path validation is applied to MCP path inputs before use.
 - Rejected inputs return a structured rejection response (`passed=false`, explicit error, safe summary).
 
-### 2) Build-flag sanitization
+### 2) Capability-based execution (agent mode)
+
+Agent mode does not expose arbitrary subprocess argument construction.
+The agent expresses typed capabilities (`packages`, `tags`, `race`,
+`short`, `run`, `timeout`); each runner maps those to tool-specific
+argv. Non-empty `testArgs` is rejected with
+`INPUT_REJECTED_ARBITRARY_ARGS`. Alternate `configPath` values are
+rejected with `INPUT_REJECTED_POLICY_OVERRIDE` so an agent cannot point
+evaluation at a weaker policy file.
+
+CI mode still accepts sanitized `testArgs` for trusted human/automation
+workflows. The denylist in `sanitize.go` remains defense in depth for
+that path.
+
+### 3) Build-flag sanitization
 
 `internal/mcp/sanitize.go` blocks dangerous argument classes for MCP-originated inputs, including:
 
@@ -44,7 +58,7 @@ Prompt injection in upstream text (PR description, issue body, fetched page) inf
 - Shell metacharacters and control characters in free-form arg inputs.
 - Invalid tag and timeout formats.
 
-### 3) Output boundary canonicalization
+### 4) Output boundary encoding
 
 MCP responses flow back into the agent's context window. If a coverage
 profile contains attacker-controlled strings (a malicious filename in a
@@ -55,25 +69,31 @@ combine.
 
 To close this surface:
 
-- File paths in tool outputs (`files[].file`, `improved[].file`,
-  `regressed[].file`, `items[].name`, `domainDeltas` keys, `domains[].domain`)
-  are canonicalized to `[A-Za-z0-9._/-]`. Any other character is replaced
-  with `?`. Paths over 256 characters are truncated.
+- File paths, domain names, and similar identifiers in tool outputs
+  (`files[].file`, `improved[].file`, `regressed[].file`, `items[].name`,
+  `domainDeltas` keys, `domains[].domain`) are percent-encoded. ASCII
+  letters/digits plus `. _ / -` and Unicode letters/marks/numbers are
+  preserved so `src/über.go` stays distinct from `src/uber.go`. Control
+  characters, BIDI overrides, backticks, and markdown metacharacters
+  become `%XX`. Paths over 256 bytes are truncated on an escape boundary.
 - Free-form strings (`summary`, `error`, `warnings[]`) have control
   characters (NUL, CR, LF, tabs) replaced with a single space, backticks
   rewritten to single quotes, and length capped at 1024 bytes.
-- Sanitization is idempotent and applied at every handler that emits
+- Encoding is applied at every handler that emits
   user-controlled strings: `check`, `report`, `compare`, `debt`,
   `suggest`, `pr-comment` (`commentBody`), and MCP resources
   (`debt`, `trend`, `suggest`, `config`). The helpers live in
-  `internal/mcp/sanitize_output.go`.
+  `internal/mcp/sanitize_output.go`. Identifiers are encoded once at
+  the output boundary; `%` itself is encoded (`%25`) so a literal
+  percent-sequence cannot collide with an escaped character.
 
-This is the Output-side complement to the input-side controls in §1
-and §2. Together they guarantee that no attacker-controlled byte from a
+This is the Output-side complement to the input-side controls in §1–
+§3. Together they guarantee that no attacker-controlled byte from a
 coverage profile can render as markdown or be smuggled as a fenced code
-block in the agent's prompt window.
+block in the agent's prompt window, without collapsing distinct
+repository identifiers.
 
-### 4) Fail-closed behavior
+### 5) Fail-closed behavior
 
 - Any failed sanitization returns a rejection; tool execution does not proceed.
 - Rejection responses are deterministic and machine-readable for CI/agent handling.
