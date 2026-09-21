@@ -113,7 +113,7 @@ type CheckInput struct {
 	Timeout  string   `json:"timeout,omitempty" jsonschema:"description=Test timeout in Go duration syntax (e.g. '10m', '1h', '500ms')"`
 	TestArgs []string `json:"testArgs,omitempty" jsonschema:"description=CI/human only. Additional arguments forwarded to the test runner after sanitization. Rejected in agent mode; use typed capabilities (packages, tags, race, short, run, timeout) instead."`
 	// Incremental mode
-	Incremental    bool   `json:"incremental,omitempty" jsonschema:"description=Only test packages with changed files"`
+	Incremental    bool   `json:"incremental,omitempty" jsonschema:"description=CI/human only. Only test packages with changed files. Rejected in agent mode; an empty diff auto-passes without evaluating repository policy."`
 	IncrementalRef string `json:"incrementalRef,omitempty" jsonschema:"description=Git ref to compare against for incremental mode (default: HEAD~1)"`
 	// Output budget
 	Verbosity string `json:"verbosity,omitempty" jsonschema:"description=Output detail: 'brief' (failing rows only, capped) | 'normal' (default, soft cap) | 'verbose' (no truncation)"`

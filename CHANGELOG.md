@@ -11,13 +11,14 @@ All notable changes to `coverctl` will be documented here. Relicta manages this 
 - Typed `packages` capability on MCP `check`; agent mode rejects arbitrary
   `testArgs` (`INPUT_REJECTED_ARBITRARY_ARGS`) and alternate policy files
   (`INPUT_REJECTED_POLICY_OVERRIDE`).
-- Agent mode rejects a `domains` filter (`INPUT_REJECTED_PARTIAL_POLICY`)
-  and `fromProfile` (`INPUT_REJECTED_SKIP_VERIFICATION`) so check cannot
-  hide failing policy slices or skip the test run.
+- Agent mode rejects a `domains` filter (`INPUT_REJECTED_PARTIAL_POLICY`),
+  `fromProfile` (`INPUT_REJECTED_SKIP_VERIFICATION`), and `incremental`
+  (`INPUT_REJECTED_INCREMENTAL`) so check cannot hide failing policy
+  slices, skip the test run, or auto-pass on an empty diff.
 - macOS/Windows **platform smoke** workflow (CLI + process + path tests).
 - Eval scenarios for capability rejection, policy override, existing-debt
   vs new regression, malicious coverage metadata, partial-policy domain
-  filters, and fromProfile skip-verification.
+  filters, fromProfile skip-verification, and incremental auto-pass.
 
 ### Fixed
 - Windows path scope: POSIX/DOS rooted paths (`/etc/passwd`, `\Windows\…`)

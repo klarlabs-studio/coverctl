@@ -20,13 +20,14 @@ type agentInvocation struct {
 	ConfigPath  string
 	Domains     []string
 	FromProfile bool
+	Incremental bool
 }
 
 // enforceAgentCapabilities rejects agent-mode inputs that would express
 // arbitrary execution, evaluate a weaker or partial policy, or skip the
 // test run that check exists to perform. CI mode is unchanged: sanitized
-// testArgs, alternate configPath, domain filters, and fromProfile remain
-// available for human/automation workflows.
+// testArgs, alternate configPath, domain filters, fromProfile, and
+// incremental remain available for human/automation workflows.
 func enforceAgentCapabilities(mode Mode, inv agentInvocation, serverConfigPath string) error {
 	if mode == ModeCI {
 		return nil
@@ -61,6 +62,14 @@ func enforceAgentCapabilities(mode Mode, inv agentInvocation, serverConfigPath s
 			Value:  "true",
 			Reason: "agent mode cannot skip the test run; check must execute tests so verification cannot be satisfied by a planted profile",
 			Code:   CodeSkipVerification,
+		}
+	}
+	if inv.Incremental {
+		return &SanitizationError{
+			Field:  "incremental",
+			Value:  "true",
+			Reason: "agent mode cannot run incremental check; an empty diff auto-passes without evaluating repository policy",
+			Code:   CodeIncremental,
 		}
 	}
 	return nil

@@ -22,6 +22,7 @@ const (
 	CodePolicyOverride     RejectionCode = "INPUT_REJECTED_POLICY_OVERRIDE"
 	CodePartialPolicy      RejectionCode = "INPUT_REJECTED_PARTIAL_POLICY"
 	CodeSkipVerification   RejectionCode = "INPUT_REJECTED_SKIP_VERIFICATION"
+	CodeIncremental        RejectionCode = "INPUT_REJECTED_INCREMENTAL"
 	CodeInputRejectedOther RejectionCode = "INPUT_REJECTED_OTHER"
 )
 
@@ -39,6 +40,7 @@ var remediationFor = map[RejectionCode]string{
 	CodePolicyOverride:     "Omit configPath and use the repository .coverctl.yaml. Agent mode cannot point policy evaluation at a different file.",
 	CodePartialPolicy:      "Omit domains so check evaluates every domain in the repository policy. Agent mode cannot pass by filtering to a subset of domains.",
 	CodeSkipVerification:   "Omit fromProfile so check runs tests. Agent mode cannot satisfy verification from an existing or planted coverage profile.",
+	CodeIncremental:        "Omit incremental so check tests the full repository and evaluates every domain. Agent mode cannot auto-pass when a diff is empty.",
 	CodeInputRejectedOther: "Inspect the error field for details and adjust the input shape.",
 }
 

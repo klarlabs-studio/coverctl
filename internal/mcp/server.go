@@ -208,6 +208,7 @@ func (s *Server) handleCheck(ctx context.Context, input CheckInput) (map[string]
 		ConfigPath:  input.ConfigPath,
 		Domains:     input.Domains,
 		FromProfile: input.FromProfile,
+		Incremental: input.Incremental,
 	}, s.config.ConfigPath); err != nil {
 		s.telemetry.RecordToolCall("check", time.Since(start), err, true)
 		return rejectionResponse(err), nil

@@ -197,6 +197,27 @@ func TestHandleCheck_AgentModeRejectsFromProfile(t *testing.T) {
 	}
 }
 
+func TestHandleCheck_AgentModeRejectsIncremental(t *testing.T) {
+	svc := &mockService{checkResult: passingCheckResult()}
+	server := New(svc, DefaultConfig(), "test")
+
+	out, err := server.handleCheck(context.Background(), CheckInput{
+		Incremental: true,
+	})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if passed, _ := out["passed"].(bool); passed {
+		t.Fatal("expected passed=false when agent uses incremental check")
+	}
+	if got, _ := out["error_code"].(string); got != string(CodeIncremental) {
+		t.Errorf("error_code = %q, want %q", got, CodeIncremental)
+	}
+	if svc.checkOpts.Incremental {
+		t.Error("rejected incremental must not reach the application service")
+	}
+}
+
 func TestHandleCheck_CIModeAllowsDomainFilterAndFromProfile(t *testing.T) {
 	svc := &mockService{checkResult: passingCheckResult()}
 	server := New(svc, Config{Mode: ModeCI}, "test")
@@ -204,12 +225,16 @@ func TestHandleCheck_CIModeAllowsDomainFilterAndFromProfile(t *testing.T) {
 	_, err := server.handleCheck(context.Background(), CheckInput{
 		Domains:     []string{"cmd"},
 		FromProfile: true,
+		Incremental: true,
 	})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
 	if !svc.checkOpts.FromProfile {
 		t.Error("CI mode should forward fromProfile")
+	}
+	if !svc.checkOpts.Incremental {
+		t.Error("CI mode should forward incremental")
 	}
 	if len(svc.checkOpts.Domains) != 1 || svc.checkOpts.Domains[0] != "cmd" {
 		t.Errorf("CI mode should forward domains, got %v", svc.checkOpts.Domains)
@@ -222,6 +247,7 @@ func TestEnforceAgentCapabilities_CIAllowsTestArgs(t *testing.T) {
 		ConfigPath:  "other.yaml",
 		Domains:     []string{"cmd"},
 		FromProfile: true,
+		Incremental: true,
 	}, ".coverctl.yaml")
 	if err != nil {
 		t.Fatalf("CI mode should allow sanitized extras, got %v", err)
