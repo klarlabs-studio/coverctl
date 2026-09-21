@@ -32,9 +32,10 @@ All notable changes to `coverctl` will be documented here. Relicta manages this 
   distinguish a coverage drop from prior debt without an LLM. MCP check
   loads history whenever a history path is configured, not only when
   ratchet is on.
-- Empty `coverageScope` is derived from repository policy domain Match
-  patterns (pytest `--cov`, c8 `--include`) so non-Go measurement
-  follows policy the way Go `coverpkg` already does.
+- Empty `coverageScope` stays the runner default (`--cov=.`) rather than
+  being derived from domain Match globs. coverage.py/`--cov=src` strips
+  the source-dir prefix so `src/**` no longer matches profile paths
+  (python smoke). Go `coverpkg` remains policy-domain-derived.
 - Typed `packages` capability is forwarded by every language runner:
   positional paths (pytest, mix, dart, phpunit, rspec, minitest, bats,
   meson, make, jest, npm), flagged modules (cargo `-p`, maven `-pl`,

@@ -413,7 +413,7 @@ type RunOptions struct {
 	ProfilePath   string
 	BuildFlags    BuildFlags // Build and test flags
 	Packages      []string   // Specific packages to test (empty = all packages via ./...)
-	CoverageScope []string   // CI/human only: measurement paths (pytest --cov). Empty = runner default / policy domains.
+	CoverageScope []string   // CI/human only: measurement paths (pytest --cov). Empty = runner default. Not derived from domain globs (coverage.py strips source-dir prefixes).
 }
 
 // BuildFlags contains options passed to go test

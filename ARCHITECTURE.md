@@ -67,9 +67,9 @@ documents:
   (`INPUT_REJECTED_SKIP_VERIFICATION`), and `incremental`
   (`INPUT_REJECTED_INCREMENTAL`). Typed
   capabilities (`packages`, `tags`, `race`, `short`, `run`, `timeout`)
-  are the agent execution interface. `coverageScope` is CI/human only;
-  empty scope is derived from policy domain Match patterns so non-Go
-  measurement follows policy the way Go `coverpkg` does.
+  are the agent execution interface. `coverageScope` is CI/human only.
+  Empty scope keeps the runner default so profile paths still match
+  domain globs; Go `coverpkg` stays derived from policy domains.
 - **Failure classification:** `check` sets `failureKind`
   (`new_regression` | `existing_debt` | `policy_fail` | `pass`) from
   history deltas so agents can distinguish a coverage drop from prior

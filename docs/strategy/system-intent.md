@@ -234,12 +234,13 @@ The preferred interface is a set of typed capabilities such as:
 
 Each runner translates those capabilities into tool-specific arguments.
 
-Coverage scope is policy-derived in agent mode. An agent must not
-narrow measurement (pytest `--cov`, coverage.py `--source`, c8/nyc
-`--include`, jest `--collectCoverageFrom`) because shrinking the
-instrumented set can hide untested policy domains. Repository policy
-domains define what is measured. Go `coverpkg` stays derived from
-those domains rather than from a caller-supplied path list.
+Coverage scope is policy-derived in agent mode: the agent cannot
+supply it, and empty scope keeps the runner default (project-wide
+measurement) so profile paths still match domain globs. Mapping
+`src/**` onto pytest `--cov=src` is unsafe — coverage.py strips the
+source-dir prefix and policy attribution fails. Go `coverpkg` stays
+derived from domain Match patterns, which `go test` understands
+natively.
 
 For example:
 

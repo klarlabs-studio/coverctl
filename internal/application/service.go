@@ -204,7 +204,7 @@ func (s *Service) CheckResult(ctx context.Context, opts CheckOptions) (domain.Re
 			ProfilePath:   opts.Profile,
 			BuildFlags:    opts.BuildFlags,
 			Packages:      packages,
-			CoverageScope: coverageScopeFromDomains(domains, opts.CoverageScope),
+			CoverageScope: opts.CoverageScope,
 		})
 		if err != nil {
 			return domain.Result{}, err
