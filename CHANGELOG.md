@@ -18,7 +18,8 @@ All notable changes to `coverctl` will be documented here. Relicta manages this 
 - macOS/Windows **platform smoke** workflow (CLI + process + path tests).
 - Eval scenarios for capability rejection, policy override, existing-debt
   vs new regression, malicious coverage metadata, partial-policy domain
-  filters, fromProfile skip-verification, and incremental auto-pass.
+  filters, fromProfile skip-verification, incremental auto-pass, and
+  agent-loop policy-fail / add-tests-then-verify happy paths.
 
 ### Fixed
 - Windows path scope: POSIX/DOS rooted paths (`/etc/passwd`, `\Windows\…`)

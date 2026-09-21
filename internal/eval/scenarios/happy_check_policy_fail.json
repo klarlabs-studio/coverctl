@@ -1,0 +1,19 @@
+{
+  "id": "happy_check_policy_fail",
+  "description": "check returns passed=false with failing domain and uncovered file when coverage is below policy.",
+  "category": "happy_path",
+  "tool": "check",
+  "input": {
+    "tags": "evalfail"
+  },
+  "expect": {
+    "passed": false,
+    "summaryContains": "FAIL",
+    "hasField": [
+      "passed",
+      "summary",
+      "domains",
+      "files"
+    ]
+  }
+}

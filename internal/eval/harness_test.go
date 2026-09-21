@@ -17,7 +17,30 @@ import (
 // circuit before these methods run.
 type stubService struct{}
 
-func (stubService) CheckResult(context.Context, application.CheckOptions) (domain.Result, error) {
+func (stubService) CheckResult(_ context.Context, opts application.CheckOptions) (domain.Result, error) {
+	// tags=evalfail is an eval-only fixture switch so happy-path scenarios
+	// can exercise the policy-fail response shape without a toolchain.
+	if opts.BuildFlags.Tags == "evalfail" {
+		return domain.Result{
+			Passed: false,
+			Domains: []domain.DomainResult{{
+				Domain:   "api",
+				Covered:  70,
+				Total:    100,
+				Percent:  70.0,
+				Required: 80.0,
+				Status:   domain.StatusFail,
+			}},
+			Files: []domain.FileResult{{
+				File:     "internal/api/uncovered.go",
+				Covered:  0,
+				Total:    20,
+				Percent:  0.0,
+				Required: 80.0,
+				Status:   domain.StatusFail,
+			}},
+		}, nil
+	}
 	return domain.Result{
 		Passed: true,
 		Domains: []domain.DomainResult{{
