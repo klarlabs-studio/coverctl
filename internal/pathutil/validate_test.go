@@ -404,6 +404,42 @@ func TestValidateScopedPath_StillRejectsAbsoluteOutsideRoot(t *testing.T) {
 	}
 }
 
+// POSIX- and DOS-style rooted paths must not be joined onto the project tree.
+// On Windows filepath.IsAbs("/etc/passwd") is false (no volume), so a naive
+// Join would produce <root>\etc\passwd and incorrectly accept the path.
+func TestValidateScopedPath_SlashPrefixedNotJoinedIntoRoot(t *testing.T) {
+	root := t.TempDir()
+	for _, p := range []string{
+		"/etc/passwd",
+		"/etc/coverctl-evil.yaml",
+		`\Windows\System32\config\SAM`,
+		`/abs/evil.yaml`,
+	} {
+		if _, err := ValidateScopedPath(p, root); err != ErrPathEscapesBase {
+			t.Errorf("ValidateScopedPath(%q) = %v, want ErrPathEscapesBase", p, err)
+		}
+	}
+}
+
+func TestIsRooted(t *testing.T) {
+	if isRooted("") {
+		t.Error("empty path is not rooted")
+	}
+	if isRooted("relative/path") {
+		t.Error("relative path is not rooted")
+	}
+	if !isRooted("/etc/passwd") {
+		t.Error("POSIX absolute path is rooted")
+	}
+	if !isRooted(`\Windows\System32`) {
+		t.Error("DOS drive-relative path is rooted")
+	}
+	abs := filepath.Join(t.TempDir(), "file")
+	if !isRooted(abs) {
+		t.Errorf("filepath.Join absolute %q should be rooted", abs)
+	}
+}
+
 // A file that does not exist yet, under a root reached through a symlink, must
 // still be recognized as inside root — the case that motivated resolving the
 // deepest existing ancestor rather than the whole path.

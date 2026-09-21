@@ -47,7 +47,9 @@ func (g GitDiff) ChangedFiles(ctx context.Context, base string) ([]string, error
 		if field == "" {
 			continue
 		}
-		files = append(files, filepath.Clean(field))
+		// git -z emits forward slashes; filepath.Clean on Windows turns them
+		// into `\`. Coverage keys and callers compare slash-normalized paths.
+		files = append(files, filepath.ToSlash(filepath.Clean(field)))
 	}
 	return files, nil
 }

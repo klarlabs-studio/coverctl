@@ -15,6 +15,16 @@ All notable changes to `coverctl` will be documented here. Relicta manages this 
 - Eval scenarios for capability rejection, policy override, existing-debt
   vs new regression, and malicious coverage metadata.
 
+### Fixed
+- Windows path scope: POSIX/DOS rooted paths (`/etc/passwd`, `\Windows\…`)
+  were joined into the project tree because `filepath.IsAbs` is false
+  without a volume. Leading `/` and `\` are treated as rooted so MCP and
+  path checks reject them.
+- Git diff paths are slash-normalized after `Clean`, so Windows `\` output
+  matches coverage keys.
+- Nox VULN-001: `google.golang.org/grpc` 1.83.2, OpenTelemetry SDK 1.45.0,
+  and docs npm upgrades (astro, sharp, svgo, js-yaml, devalue).
+
 ### Changed
 - MCP output identifiers use reversible percent-encoding instead of `?`
   replacement, so distinct names (`src/über.go` vs `src/uber.go`) stay
