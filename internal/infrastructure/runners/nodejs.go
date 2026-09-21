@@ -162,6 +162,7 @@ func (r *NodeRunner) buildJestArgs(opts application.RunOptions, profile string) 
 	}
 
 	args = appendPositionalPackages(args, opts.Packages)
+	args = appendTimeoutMillis(args, "--testTimeout", opts.BuildFlags.Timeout)
 	args = append(args, opts.BuildFlags.TestArgs...)
 
 	return args
@@ -211,6 +212,7 @@ func (r *NodeRunner) buildNpmArgs(opts application.RunOptions, _ string) []strin
 	}
 
 	args = appendPositionalPackages(args, opts.Packages)
+	args = appendTimeoutMillis(args, "--testTimeout", opts.BuildFlags.Timeout)
 	args = append(args, opts.BuildFlags.TestArgs...)
 
 	return args

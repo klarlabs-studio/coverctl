@@ -1,0 +1,17 @@
+{
+  "id": "tool_select_covered_edit_still_check",
+  "description": "Even a well-covered edit should still run check; the agent must not skip verification because the file looked covered.",
+  "category": "tool_selection",
+  "prompt": "I refactored internal/api/handler.go, which already sits above the coverage minimum. Do I still need to verify policy before committing?",
+  "expectedTools": ["check"],
+  "allowedTools": ["check", "suggest", "debt"],
+  "selectedTools": ["check"],
+  "tool": "check",
+  "input": {
+    "tags": "evalcovered"
+  },
+  "expect": {
+    "passed": true,
+    "hasField": ["summary", "domains"]
+  }
+}

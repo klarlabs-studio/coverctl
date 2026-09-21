@@ -18,9 +18,11 @@ import (
 type stubService struct{}
 
 func (stubService) CheckResult(_ context.Context, opts application.CheckOptions) (domain.Result, error) {
-	// tags=evalfail is an eval-only fixture switch so happy-path scenarios
-	// can exercise the policy-fail response shape without a toolchain.
-	if opts.BuildFlags.Tags == "evalfail" {
+	// tags=evalfail / evalcovered are eval-only fixture switches so
+	// scenarios can distinguish uncovered vs already-covered edits
+	// without a language toolchain.
+	switch opts.BuildFlags.Tags {
+	case "evalfail":
 		return domain.Result{
 			Passed: false,
 			Domains: []domain.DomainResult{{
@@ -38,6 +40,26 @@ func (stubService) CheckResult(_ context.Context, opts application.CheckOptions)
 				Percent:  0.0,
 				Required: 80.0,
 				Status:   domain.StatusFail,
+			}},
+		}, nil
+	case "evalcovered":
+		return domain.Result{
+			Passed: true,
+			Domains: []domain.DomainResult{{
+				Domain:   "api",
+				Covered:  95,
+				Total:    100,
+				Percent:  95.0,
+				Required: 80.0,
+				Status:   domain.StatusPass,
+			}},
+			Files: []domain.FileResult{{
+				File:     "internal/api/handler.go",
+				Covered:  48,
+				Total:    50,
+				Percent:  96.0,
+				Required: 80.0,
+				Status:   domain.StatusPass,
 			}},
 		}, nil
 	}

@@ -143,6 +143,9 @@ func (r *JavaRunner) buildMavenArgs(opts application.RunOptions) []string {
 	}
 
 	args = appendFlaggedPackages(args, "-pl", opts.Packages)
+	if sec, ok := timeoutSeconds(opts.BuildFlags.Timeout); ok {
+		args = append(args, "-Dsurefire.timeout="+sec)
+	}
 
 	// Add additional args
 	args = append(args, opts.BuildFlags.TestArgs...)

@@ -143,10 +143,7 @@ func (r *PythonRunner) buildPytestArgs(opts application.RunOptions, profile stri
 		args = append(args, "-k", opts.BuildFlags.Run)
 	}
 
-	// Add timeout
-	if opts.BuildFlags.Timeout != "" {
-		args = append(args, "--timeout", opts.BuildFlags.Timeout)
-	}
+	args = appendTimeoutSeconds(args, "--timeout", opts.BuildFlags.Timeout)
 
 	// Add specific packages/directories to test
 	if len(opts.Packages) > 0 {
@@ -177,6 +174,8 @@ func (r *PythonRunner) buildCoverageArgs(opts application.RunOptions, _ string) 
 	if opts.BuildFlags.Run != "" {
 		args = append(args, "-k", opts.BuildFlags.Run)
 	}
+
+	args = appendTimeoutSeconds(args, "--timeout", opts.BuildFlags.Timeout)
 
 	// Add specific packages/directories
 	if len(opts.Packages) > 0 {

@@ -1,0 +1,17 @@
+{
+  "id": "tool_select_uncovered_edit_check",
+  "description": "After editing a file with no tests, the agent should call check before adding tests or changing policy.",
+  "category": "tool_selection",
+  "prompt": "I added a function to internal/api/uncovered.go with no tests. How do I know if coverage still meets policy?",
+  "expectedTools": ["check"],
+  "allowedTools": ["check", "suggest", "debt"],
+  "selectedTools": ["check"],
+  "tool": "check",
+  "input": {
+    "tags": "evalfail"
+  },
+  "expect": {
+    "passed": false,
+    "hasField": ["summary", "files"]
+  }
+}

@@ -128,6 +128,10 @@ func (r *DartRunner) buildDartArgs(opts application.RunOptions, profile string) 
 		args = append(args, "--name", opts.BuildFlags.Run)
 	}
 
+	if v, ok := timeoutDartValue(opts.BuildFlags.Timeout); ok {
+		args = append(args, "--timeout", v)
+	}
+
 	args = appendPositionalPackages(args, opts.Packages)
 	args = append(args, opts.BuildFlags.TestArgs...)
 
@@ -149,6 +153,10 @@ func (r *DartRunner) buildFlutterArgs(opts application.RunOptions) []string {
 	// Add test name filter
 	if opts.BuildFlags.Run != "" {
 		args = append(args, "--name", opts.BuildFlags.Run)
+	}
+
+	if v, ok := timeoutDartValue(opts.BuildFlags.Timeout); ok {
+		args = append(args, "--timeout", v)
 	}
 
 	args = appendPositionalPackages(args, opts.Packages)

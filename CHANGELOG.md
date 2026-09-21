@@ -22,10 +22,12 @@ All notable changes to `coverctl` will be documented here. Relicta manages this 
   `module.test`, ctest `--tests-regex`, and c8/nyc `npm test --`.
   Integration runs copy `Packages` through instead of dropping them.
 - macOS/Windows **platform smoke** workflow (CLI + process + path tests).
-- Eval scenarios for capability rejection, policy override, existing-debt
-  vs new regression, malicious coverage metadata, partial-policy domain
-  filters, fromProfile skip-verification, incremental auto-pass, and
-  agent-loop policy-fail / add-tests-then-verify happy paths.
+- Eval scenarios for covered vs uncovered edits (pass on already-covered
+  files, fail on uncovered files, judges, and tool-selection that still
+  calls `check`).
+- Typed `timeout` is converted from Go duration (`2m`) into each runner's
+  native unit (seconds, milliseconds, or dart `2m`) instead of being
+  forwarded as a raw string.
 
 ### Fixed
 - Windows path scope: POSIX/DOS rooted paths (`/etc/passwd`, `\Windows\…`)

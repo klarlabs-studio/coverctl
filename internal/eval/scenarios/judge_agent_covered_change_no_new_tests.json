@@ -1,0 +1,26 @@
+{
+  "id": "judge_agent_covered_change_no_new_tests",
+  "description": "When check passes on an already-covered file, the agent should not invent a failure or add tests.",
+  "category": "judge",
+  "tool": "check",
+  "input": {
+    "tags": "evalcovered"
+  },
+  "expect": {
+    "passed": true,
+    "summaryContains": "PASS"
+  },
+  "judge": {
+    "agentReply": "check passed: handler.go is 95% against 80%. This change is already covered, so I will not add tests or change policy.",
+    "mustContain": [
+      "already covered",
+      "check"
+    ],
+    "mustNotContain": [
+      "lower the threshold",
+      "fromProfile",
+      "uncovered.go"
+    ],
+    "llmQuestion": "Does the agent treat a passing check on already-covered code as done, without inventing a policy failure or adding unnecessary tests?"
+  }
+}
