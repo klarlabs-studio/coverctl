@@ -234,7 +234,7 @@ func (r *CppRunner) buildCTestArgs(opts application.RunOptions) []string {
 	if len(filters) > 0 {
 		args = append(args, "--tests-regex", strings.Join(filters, "|"))
 	}
-	args = appendTimeoutSeconds(args, "--timeout", opts.BuildFlags.Timeout)
+	args = appendTimeoutSeconds(args, opts.BuildFlags.Timeout)
 	return args
 }
 

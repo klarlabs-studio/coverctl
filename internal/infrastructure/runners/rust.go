@@ -136,7 +136,7 @@ func (r *RustRunner) buildLlvmCovArgs(opts application.RunOptions, profile strin
 	}
 
 	args = appendFlaggedPackages(args, "-p", opts.Packages)
-	args = appendTimeoutSeconds(args, "--timeout", opts.BuildFlags.Timeout)
+	args = appendTimeoutSeconds(args, opts.BuildFlags.Timeout)
 
 	// Add test name filter
 	if opts.BuildFlags.Run != "" {
@@ -175,7 +175,7 @@ func (r *RustRunner) buildTarpaulinArgs(opts application.RunOptions, profile str
 		args = append(args, "--test-name", opts.BuildFlags.Run)
 	}
 
-	args = appendTimeoutSeconds(args, "--timeout", opts.BuildFlags.Timeout)
+	args = appendTimeoutSeconds(args, opts.BuildFlags.Timeout)
 	args = appendFlaggedPackages(args, "-p", opts.Packages)
 	args = append(args, opts.BuildFlags.TestArgs...)
 

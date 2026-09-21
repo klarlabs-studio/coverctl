@@ -63,12 +63,12 @@ func timeoutDartValue(raw string) (string, bool) {
 	return "", false
 }
 
-func appendTimeoutSeconds(args []string, flag, raw string) []string {
+func appendTimeoutSeconds(args []string, raw string) []string {
 	sec, ok := timeoutSeconds(raw)
 	if !ok {
 		return args
 	}
-	return append(args, flag, sec)
+	return append(args, "--timeout", sec)
 }
 
 func appendTimeoutMillis(args []string, flag, raw string) []string {
