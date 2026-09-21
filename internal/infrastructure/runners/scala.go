@@ -84,11 +84,7 @@ func (r *ScalaRunner) Run(ctx context.Context, opts application.RunOptions) (str
 
 // RunIntegration runs integration tests with coverage collection.
 func (r *ScalaRunner) RunIntegration(ctx context.Context, opts application.IntegrationOptions) (string, error) {
-	runOpts := application.RunOptions{
-		ProfilePath: opts.Profile,
-		BuildFlags:  opts.BuildFlags,
-	}
-	return r.Run(ctx, runOpts)
+	return r.Run(ctx, runOptionsFromIntegration(opts))
 }
 
 // detectBuildTool determines which Scala build tool is used.
@@ -128,12 +124,15 @@ func (r *ScalaRunner) buildArgs(tool string, opts application.RunOptions) []stri
 
 // buildSbtArgs builds command line arguments for sbt with sbt-scoverage.
 func (r *ScalaRunner) buildSbtArgs(opts application.RunOptions) []string {
-	args := []string{
-		"clean",
-		"coverage",
-		"test",
-		"coverageReport",
+	args := []string{"clean", "coverage"}
+	if len(opts.Packages) > 0 {
+		for _, p := range opts.Packages {
+			args = append(args, p+"/test")
+		}
+	} else {
+		args = append(args, "test")
 	}
+	args = append(args, "coverageReport")
 
 	// Add test filter
 	if opts.BuildFlags.Run != "" {
@@ -148,8 +147,13 @@ func (r *ScalaRunner) buildSbtArgs(opts application.RunOptions) []string {
 
 // buildMillArgs builds command line arguments for Mill.
 func (r *ScalaRunner) buildMillArgs(opts application.RunOptions) []string {
-	args := []string{
-		"__.test",
+	var args []string
+	if len(opts.Packages) > 0 {
+		for _, p := range opts.Packages {
+			args = append(args, p+".test")
+		}
+	} else {
+		args = []string{"__.test"}
 	}
 
 	// Add additional args

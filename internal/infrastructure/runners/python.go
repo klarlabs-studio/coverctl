@@ -90,10 +90,7 @@ func (r *PythonRunner) Run(ctx context.Context, opts application.RunOptions) (st
 func (r *PythonRunner) RunIntegration(ctx context.Context, opts application.IntegrationOptions) (string, error) {
 	// For Python, integration tests are typically run the same way as unit tests
 	// but may target different directories or use different markers
-	return r.Run(ctx, application.RunOptions{
-		ProfilePath: opts.Profile,
-		BuildFlags:  opts.BuildFlags,
-	})
+	return r.Run(ctx, runOptionsFromIntegration(opts))
 }
 
 // detectCoverageTool determines which Python coverage tool is available. Each

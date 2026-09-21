@@ -134,10 +134,7 @@ func (r *ShellRunner) Run(ctx context.Context, opts application.RunOptions) (str
 
 // RunIntegration runs integration tests with coverage collection.
 func (r *ShellRunner) RunIntegration(ctx context.Context, opts application.IntegrationOptions) (string, error) {
-	return r.Run(ctx, application.RunOptions{
-		ProfilePath: opts.Profile,
-		BuildFlags:  opts.BuildFlags,
-	})
+	return r.Run(ctx, runOptionsFromIntegration(opts))
 }
 
 // detectTestRunner determines which shell test runner to use.
@@ -166,33 +163,7 @@ func (r *ShellRunner) runBats(
 	coverageDir string,
 	execFn func(ctx context.Context, dir string, cmd string, args []string) error,
 ) error {
-	// Determine bats test directory
-	testDir := r.findBatsTestDir(dir)
-
-	args := []string{
-		"--cobertura-only",
-		coverageDir,
-	}
-
-	// Add include/exclude patterns from build tags
-	if opts.BuildFlags.Tags != "" {
-		args = append(args, "--include-pattern="+opts.BuildFlags.Tags)
-	}
-
-	// Add the bats command and test directory
-	args = append(args, "bats")
-
-	// Add specific test file or default test directory
-	if opts.BuildFlags.Run != "" {
-		args = append(args, opts.BuildFlags.Run)
-	} else {
-		args = append(args, testDir)
-	}
-
-	// Add additional test args after the separator
-	args = append(args, opts.BuildFlags.TestArgs...)
-
-	return execFn(ctx, dir, "kcov", args)
+	return execFn(ctx, dir, "kcov", r.buildBatsArgs(opts, coverageDir, r.findBatsTestDir(dir)))
 }
 
 // runGeneric executes generic shell test scripts with kcov coverage collection.
@@ -209,27 +180,52 @@ func (r *ShellRunner) runGeneric(
 		return fmt.Errorf("no test script found in project")
 	}
 
+	return execFn(ctx, dir, "kcov", r.buildGenericArgs(opts, coverageDir, testScript))
+}
+
+// buildBatsArgs builds kcov+bats arguments. Packages replace the default
+// test directory so the capability actually narrows the run.
+func (r *ShellRunner) buildBatsArgs(opts application.RunOptions, coverageDir, testDir string) []string {
 	args := []string{
 		"--cobertura-only",
 		coverageDir,
 	}
-
-	// Add include/exclude patterns from build tags
 	if opts.BuildFlags.Tags != "" {
 		args = append(args, "--include-pattern="+opts.BuildFlags.Tags)
 	}
+	args = append(args, "bats")
+	switch {
+	case len(opts.Packages) > 0:
+		if opts.BuildFlags.Run != "" {
+			args = append(args, opts.BuildFlags.Run)
+		}
+		args = appendPositionalPackages(args, opts.Packages)
+	case opts.BuildFlags.Run != "":
+		args = append(args, opts.BuildFlags.Run)
+	default:
+		args = append(args, testDir)
+	}
+	args = append(args, opts.BuildFlags.TestArgs...)
+	return args
+}
 
-	// Add the test script
+// buildGenericArgs builds kcov arguments for a generic test script.
+func (r *ShellRunner) buildGenericArgs(opts application.RunOptions, coverageDir, testScript string) []string {
+	args := []string{
+		"--cobertura-only",
+		coverageDir,
+	}
+	if opts.BuildFlags.Tags != "" {
+		args = append(args, "--include-pattern="+opts.BuildFlags.Tags)
+	}
 	if opts.BuildFlags.Run != "" {
 		args = append(args, opts.BuildFlags.Run)
 	} else {
 		args = append(args, testScript)
 	}
-
-	// Add additional test args
+	args = appendPositionalPackages(args, opts.Packages)
 	args = append(args, opts.BuildFlags.TestArgs...)
-
-	return execFn(ctx, dir, "kcov", args)
+	return args
 }
 
 // findBatsTestDir locates the bats test directory.

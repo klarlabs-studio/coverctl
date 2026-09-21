@@ -80,10 +80,7 @@ func (r *RubyRunner) Run(ctx context.Context, opts application.RunOptions) (stri
 
 // RunIntegration runs integration tests with coverage collection.
 func (r *RubyRunner) RunIntegration(ctx context.Context, opts application.IntegrationOptions) (string, error) {
-	return r.Run(ctx, application.RunOptions{
-		ProfilePath: opts.Profile,
-		BuildFlags:  opts.BuildFlags,
-	})
+	return r.Run(ctx, runOptionsFromIntegration(opts))
 }
 
 // detectTestFramework determines which Ruby test framework is used.

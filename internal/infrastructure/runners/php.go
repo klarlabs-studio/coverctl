@@ -84,10 +84,7 @@ func (r *PHPRunner) Run(ctx context.Context, opts application.RunOptions) (strin
 
 // RunIntegration runs integration tests with coverage collection.
 func (r *PHPRunner) RunIntegration(ctx context.Context, opts application.IntegrationOptions) (string, error) {
-	return r.Run(ctx, application.RunOptions{
-		ProfilePath: opts.Profile,
-		BuildFlags:  opts.BuildFlags,
-	})
+	return r.Run(ctx, runOptionsFromIntegration(opts))
 }
 
 // detectPHPUnit checks for the PHPUnit binary in the project or on the PATH.

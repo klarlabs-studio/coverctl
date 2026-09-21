@@ -78,10 +78,7 @@ func (r *RustRunner) Run(ctx context.Context, opts application.RunOptions) (stri
 
 // RunIntegration runs integration tests with coverage collection.
 func (r *RustRunner) RunIntegration(ctx context.Context, opts application.IntegrationOptions) (string, error) {
-	return r.Run(ctx, application.RunOptions{
-		ProfilePath: opts.Profile,
-		BuildFlags:  opts.BuildFlags,
-	})
+	return r.Run(ctx, runOptionsFromIntegration(opts))
 }
 
 // detectCoverageTool determines which Rust coverage tool is available. Each

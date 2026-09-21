@@ -85,10 +85,7 @@ func (r *NodeRunner) Run(ctx context.Context, opts application.RunOptions) (stri
 
 // RunIntegration runs integration tests with coverage collection.
 func (r *NodeRunner) RunIntegration(ctx context.Context, opts application.IntegrationOptions) (string, error) {
-	return r.Run(ctx, application.RunOptions{
-		ProfilePath: opts.Profile,
-		BuildFlags:  opts.BuildFlags,
-	})
+	return r.Run(ctx, runOptionsFromIntegration(opts))
 }
 
 // detectCoverageTool determines which Node.js coverage tool is available.
@@ -164,10 +161,7 @@ func (r *NodeRunner) buildJestArgs(opts application.RunOptions, profile string) 
 		args = append(args, "-t", opts.BuildFlags.Run)
 	}
 
-	if len(opts.Packages) > 0 {
-		args = append(args, opts.Packages...)
-	}
-
+	args = appendPositionalPackages(args, opts.Packages)
 	args = append(args, opts.BuildFlags.TestArgs...)
 
 	return args
@@ -184,6 +178,7 @@ func (r *NodeRunner) buildC8Args(opts application.RunOptions, profile string) []
 	}
 
 	args = append(args, opts.BuildFlags.TestArgs...)
+	args = appendSeparatedPackages(args, opts.Packages)
 
 	return args
 }
@@ -199,6 +194,7 @@ func (r *NodeRunner) buildNycArgs(opts application.RunOptions, profile string) [
 	}
 
 	args = append(args, opts.BuildFlags.TestArgs...)
+	args = appendSeparatedPackages(args, opts.Packages)
 
 	return args
 }
@@ -214,6 +210,7 @@ func (r *NodeRunner) buildNpmArgs(opts application.RunOptions, _ string) []strin
 		args = append(args, "--verbose")
 	}
 
+	args = appendPositionalPackages(args, opts.Packages)
 	args = append(args, opts.BuildFlags.TestArgs...)
 
 	return args

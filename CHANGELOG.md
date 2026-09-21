@@ -15,8 +15,12 @@ All notable changes to `coverctl` will be documented here. Relicta manages this 
   `fromProfile` (`INPUT_REJECTED_SKIP_VERIFICATION`), and `incremental`
   (`INPUT_REJECTED_INCREMENTAL`) so check cannot hide failing policy
   slices, skip the test run, or auto-pass on an empty diff.
-- Typed `packages` capability is forwarded by Elixir, Dart/Flutter, PHP,
-  Ruby minitest, C#, and Rust runners (positional paths or cargo `-p`).
+- Typed `packages` capability is forwarded by every language runner:
+  positional paths (pytest, mix, dart, phpunit, rspec, minitest, bats,
+  meson, make, jest, npm), flagged modules (cargo `-p`, maven `-pl`,
+  swift `--filter`), Gradle `:module:test`, sbt `module/test`, mill
+  `module.test`, ctest `--tests-regex`, and c8/nyc `npm test --`.
+  Integration runs copy `Packages` through instead of dropping them.
 - macOS/Windows **platform smoke** workflow (CLI + process + path tests).
 - Eval scenarios for capability rejection, policy override, existing-debt
   vs new regression, malicious coverage metadata, partial-policy domain

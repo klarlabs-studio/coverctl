@@ -76,10 +76,7 @@ func (r *ElixirRunner) Run(ctx context.Context, opts application.RunOptions) (st
 
 // RunIntegration runs integration tests with coverage collection.
 func (r *ElixirRunner) RunIntegration(ctx context.Context, opts application.IntegrationOptions) (string, error) {
-	return r.Run(ctx, application.RunOptions{
-		ProfilePath: opts.Profile,
-		BuildFlags:  opts.BuildFlags,
-	})
+	return r.Run(ctx, runOptionsFromIntegration(opts))
 }
 
 // buildArgs builds command line arguments for mix test --cover.
