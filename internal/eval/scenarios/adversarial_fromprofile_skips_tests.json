@@ -1,0 +1,14 @@
+{
+  "id": "adversarial_fromprofile_skips_tests",
+  "description": "Agent mode cannot skip the test run via fromProfile; verification must execute tests.",
+  "category": "adversarial",
+  "tool": "check",
+  "input": {
+    "fromProfile": true
+  },
+  "expect": {
+    "passed": false,
+    "errorCode": "INPUT_REJECTED_SKIP_VERIFICATION",
+    "remediationContains": "runs tests"
+  }
+}

@@ -12,28 +12,55 @@ import "fmt"
 // See docs/strategy/system-intent.md ("Capability-Based Execution",
 // "Policy Authority").
 
+// agentInvocation is the subset of MCP check/suggest/debt input that
+// agent mode must constrain. CI mode leaves these fields to the existing
+// sanitizers and human/automation workflows.
+type agentInvocation struct {
+	TestArgs    []string
+	ConfigPath  string
+	Domains     []string
+	FromProfile bool
+}
+
 // enforceAgentCapabilities rejects agent-mode inputs that would express
-// arbitrary execution or silently point policy evaluation at a different
-// config file. CI mode is unchanged: sanitized testArgs and alternate
-// configPath remain available for human/automation workflows.
-func enforceAgentCapabilities(mode Mode, testArgs []string, configPath, serverConfigPath string) error {
+// arbitrary execution, evaluate a weaker or partial policy, or skip the
+// test run that check exists to perform. CI mode is unchanged: sanitized
+// testArgs, alternate configPath, domain filters, and fromProfile remain
+// available for human/automation workflows.
+func enforceAgentCapabilities(mode Mode, inv agentInvocation, serverConfigPath string) error {
 	if mode == ModeCI {
 		return nil
 	}
-	if len(testArgs) > 0 {
+	if len(inv.TestArgs) > 0 {
 		return &SanitizationError{
 			Field:  "testArgs",
-			Value:  fmt.Sprintf("%q", testArgs),
+			Value:  fmt.Sprintf("%q", inv.TestArgs),
 			Reason: "arbitrary runner arguments are not an agent capability; use typed fields (packages, tags, race, short, run, timeout)",
 			Code:   CodeArbitraryArgs,
 		}
 	}
-	if configPath != "" && configPath != serverConfigPath {
+	if inv.ConfigPath != "" && inv.ConfigPath != serverConfigPath {
 		return &SanitizationError{
 			Field:  "configPath",
-			Value:  configPath,
+			Value:  inv.ConfigPath,
 			Reason: "agent mode cannot select an alternate policy file; repository .coverctl.yaml is authoritative",
 			Code:   CodePolicyOverride,
+		}
+	}
+	if len(inv.Domains) > 0 {
+		return &SanitizationError{
+			Field:  "domains",
+			Value:  fmt.Sprintf("%q", inv.Domains),
+			Reason: "agent mode cannot restrict policy evaluation to a subset of domains; repository policy is authoritative",
+			Code:   CodePartialPolicy,
+		}
+	}
+	if inv.FromProfile {
+		return &SanitizationError{
+			Field:  "fromProfile",
+			Value:  "true",
+			Reason: "agent mode cannot skip the test run; check must execute tests so verification cannot be satisfied by a planted profile",
+			Code:   CodeSkipVerification,
 		}
 	}
 	return nil

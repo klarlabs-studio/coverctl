@@ -60,8 +60,10 @@ documents:
   `rejectionResponse` and `errorResponse`. 18 stable `RejectionCode`
   constants (10 input + 8 operational) with operator-actionable
   remediation copy in `remediationFor` and inline at error sites.
-  Agent mode rejects arbitrary `testArgs` (`INPUT_REJECTED_ARBITRARY_ARGS`)
-  and alternate policy files (`INPUT_REJECTED_POLICY_OVERRIDE`). Typed
+  Agent mode rejects arbitrary `testArgs` (`INPUT_REJECTED_ARBITRARY_ARGS`),
+  alternate policy files (`INPUT_REJECTED_POLICY_OVERRIDE`), domain subset
+  filters (`INPUT_REJECTED_PARTIAL_POLICY`), and `fromProfile`
+  (`INPUT_REJECTED_SKIP_VERIFICATION`). Typed
   capabilities (`packages`, `tags`, `race`, `short`, `run`, `timeout`)
   are the agent execution interface.
 - **MCP output boundary:** `internal/mcp/sanitize_output.go`. Identifiers

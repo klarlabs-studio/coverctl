@@ -20,6 +20,8 @@ const (
 	CodePathScope          RejectionCode = "INPUT_REJECTED_PATH_SCOPE"
 	CodeArbitraryArgs      RejectionCode = "INPUT_REJECTED_ARBITRARY_ARGS"
 	CodePolicyOverride     RejectionCode = "INPUT_REJECTED_POLICY_OVERRIDE"
+	CodePartialPolicy      RejectionCode = "INPUT_REJECTED_PARTIAL_POLICY"
+	CodeSkipVerification   RejectionCode = "INPUT_REJECTED_SKIP_VERIFICATION"
 	CodeInputRejectedOther RejectionCode = "INPUT_REJECTED_OTHER"
 )
 
@@ -35,6 +37,8 @@ var remediationFor = map[RejectionCode]string{
 	CodePathScope:          "Path must resolve inside the current working directory. Use relative paths or absolute paths under the project root; out-of-tree paths are denied from MCP input.",
 	CodeArbitraryArgs:      "Do not pass testArgs from agent mode. Express intent with typed capabilities: packages, tags, race, short, run, timeout. Arbitrary runner argv is reserved for trusted CLI/CI workflows.",
 	CodePolicyOverride:     "Omit configPath and use the repository .coverctl.yaml. Agent mode cannot point policy evaluation at a different file.",
+	CodePartialPolicy:      "Omit domains so check evaluates every domain in the repository policy. Agent mode cannot pass by filtering to a subset of domains.",
+	CodeSkipVerification:   "Omit fromProfile so check runs tests. Agent mode cannot satisfy verification from an existing or planted coverage profile.",
 	CodeInputRejectedOther: "Inspect the error field for details and adjust the input shape.",
 }
 

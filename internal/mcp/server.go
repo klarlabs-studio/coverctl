@@ -203,7 +203,12 @@ func (s *Server) handleCheck(ctx context.Context, input CheckInput) (map[string]
 		s.telemetry.RecordToolCall("check", time.Since(start), err, true)
 		return rejectionResponse(err), nil
 	}
-	if err := enforceAgentCapabilities(s.config.Mode, input.TestArgs, input.ConfigPath, s.config.ConfigPath); err != nil {
+	if err := enforceAgentCapabilities(s.config.Mode, agentInvocation{
+		TestArgs:    input.TestArgs,
+		ConfigPath:  input.ConfigPath,
+		Domains:     input.Domains,
+		FromProfile: input.FromProfile,
+	}, s.config.ConfigPath); err != nil {
 		s.telemetry.RecordToolCall("check", time.Since(start), err, true)
 		return rejectionResponse(err), nil
 	}
@@ -605,7 +610,7 @@ func (s *Server) handleSuggest(ctx context.Context, input SuggestInput) (map[str
 		s.telemetry.RecordToolCall("suggest", time.Since(start), err, true)
 		return rejectionResponse(err), nil
 	}
-	if err := enforceAgentCapabilities(s.config.Mode, nil, input.ConfigPath, s.config.ConfigPath); err != nil {
+	if err := enforceAgentCapabilities(s.config.Mode, agentInvocation{ConfigPath: input.ConfigPath}, s.config.ConfigPath); err != nil {
 		s.telemetry.RecordToolCall("suggest", time.Since(start), err, true)
 		return rejectionResponse(err), nil
 	}
@@ -708,7 +713,7 @@ func (s *Server) handleDebt(ctx context.Context, input DebtInput) (map[string]an
 		s.telemetry.RecordToolCall("debt", time.Since(start), err, true)
 		return rejectionResponse(err), nil
 	}
-	if err := enforceAgentCapabilities(s.config.Mode, nil, input.ConfigPath, s.config.ConfigPath); err != nil {
+	if err := enforceAgentCapabilities(s.config.Mode, agentInvocation{ConfigPath: input.ConfigPath}, s.config.ConfigPath); err != nil {
 		s.telemetry.RecordToolCall("debt", time.Since(start), err, true)
 		return rejectionResponse(err), nil
 	}

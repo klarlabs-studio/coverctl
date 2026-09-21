@@ -43,7 +43,11 @@ The agent expresses typed capabilities (`packages`, `tags`, `race`,
 argv. Non-empty `testArgs` is rejected with
 `INPUT_REJECTED_ARBITRARY_ARGS`. Alternate `configPath` values are
 rejected with `INPUT_REJECTED_POLICY_OVERRIDE` so an agent cannot point
-evaluation at a weaker policy file.
+evaluation at a weaker policy file. A `domains` filter is rejected with
+`INPUT_REJECTED_PARTIAL_POLICY` so an agent cannot pass by evaluating
+only a subset of policy. `fromProfile` is rejected with
+`INPUT_REJECTED_SKIP_VERIFICATION` so an agent cannot skip the test run
+and satisfy check from a planted coverage profile.
 
 CI mode still accepts sanitized `testArgs` for trusted human/automation
 workflows. The denylist in `sanitize.go` remains defense in depth for

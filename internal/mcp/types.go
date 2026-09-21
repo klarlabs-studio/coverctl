@@ -98,8 +98,8 @@ func DefaultConfig() Config {
 type CheckInput struct {
 	ConfigPath  string   `json:"configPath,omitempty" jsonschema:"description=Path to .coverctl.yaml config file"`
 	Profile     string   `json:"profile,omitempty" jsonschema:"description=Coverage profile output path"`
-	FromProfile bool     `json:"fromProfile,omitempty" jsonschema:"description=Use existing coverage profile instead of running tests"`
-	Domains     []string `json:"domains,omitempty" jsonschema:"description=Filter to specific domains"`
+	FromProfile bool     `json:"fromProfile,omitempty" jsonschema:"description=CI/human only. Use an existing coverage profile instead of running tests. Rejected in agent mode so verification cannot be satisfied by a planted profile."`
+	Domains     []string `json:"domains,omitempty" jsonschema:"description=CI/human only. Filter to specific domains. Rejected in agent mode; repository policy evaluates every domain."`
 	FailUnder   *float64 `json:"failUnder,omitempty" jsonschema:"description=Optional extra overall floor. Cannot lower or replace repository domain minima from .coverctl.yaml"`
 	Ratchet     bool     `json:"ratchet,omitempty" jsonschema:"description=Fail if coverage decreases"`
 	// Typed capabilities forwarded to the detected language's test runner.

@@ -7,6 +7,6 @@
   "allowedTools": ["check", "suggest", "debt"],
   "selectedTools": ["check", "suggest"],
   "tool": "check",
-  "input": { "fromProfile": true },
+  "input": {},
   "expect": { "passed": true, "hasField": ["summary"] }
 }

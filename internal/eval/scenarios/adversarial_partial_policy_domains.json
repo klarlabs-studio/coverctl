@@ -1,0 +1,16 @@
+{
+  "id": "adversarial_partial_policy_domains",
+  "description": "Agent mode cannot restrict check to a subset of domains to hide failing policy slices.",
+  "category": "adversarial",
+  "tool": "check",
+  "input": {
+    "domains": [
+      "cmd"
+    ]
+  },
+  "expect": {
+    "passed": false,
+    "errorCode": "INPUT_REJECTED_PARTIAL_POLICY",
+    "remediationContains": "every domain"
+  }
+}
