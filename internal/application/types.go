@@ -409,10 +409,11 @@ type Reporter interface {
 }
 
 type RunOptions struct {
-	Domains     []domain.Domain
-	ProfilePath string
-	BuildFlags  BuildFlags // Build and test flags
-	Packages    []string   // Specific packages to test (empty = all packages via ./...)
+	Domains       []domain.Domain
+	ProfilePath   string
+	BuildFlags    BuildFlags // Build and test flags
+	Packages      []string   // Specific packages to test (empty = all packages via ./...)
+	CoverageScope []string   // CI/human only: measurement paths (pytest --cov). Empty = runner default / policy domains.
 }
 
 // BuildFlags contains options passed to go test

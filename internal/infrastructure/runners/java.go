@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"go.klarlabs.de/coverctl/internal/application"
 	"go.klarlabs.de/coverctl/internal/infrastructure/cmdrun"
@@ -143,6 +144,9 @@ func (r *JavaRunner) buildMavenArgs(opts application.RunOptions) []string {
 	}
 
 	args = appendFlaggedPackages(args, "-pl", opts.Packages)
+	if tags := strings.Join(splitCSV(opts.BuildFlags.Tags), ","); tags != "" {
+		args = append(args, "-Dgroups="+tags)
+	}
 	if sec, ok := timeoutSeconds(opts.BuildFlags.Timeout); ok {
 		args = append(args, "-Dsurefire.timeout="+sec)
 	}
@@ -176,6 +180,12 @@ func (r *JavaRunner) buildGradleArgs(opts application.RunOptions) []string {
 	// Add test filter
 	if opts.BuildFlags.Run != "" {
 		args = append(args, "--tests", opts.BuildFlags.Run)
+	}
+	if opts.BuildFlags.Short {
+		args = append(args, "-Pskip.slow.tests=true")
+	}
+	if tags := strings.Join(splitCSV(opts.BuildFlags.Tags), ","); tags != "" {
+		args = append(args, "-Pgroups="+tags)
 	}
 
 	// Add additional args

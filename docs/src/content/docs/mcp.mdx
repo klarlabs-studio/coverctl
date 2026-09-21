@@ -129,6 +129,7 @@ MCP input flows from LLM output, which can be downstream of arbitrary text (PR d
 
 Concrete defenses applied to every MCP tool call:
 
+- **Capability-based execution (agent mode).** Agents express typed capabilities (`packages`, `tags`, `race`, `short`, `run`, `timeout`). Arbitrary `testArgs`, alternate `configPath`, `domains` filters, `coverageScope`, `fromProfile`, and `incremental` are rejected so check cannot hide failing policy, skip tests, or shrink measurement. `coverageScope` remains available in CI/human mode.
 - **Argument sanitization.** Test-runner flags that load arbitrary code are rejected: `--rootdir`, `--cov-config`, `--require`, `--init-script`, `--node-options`, `--manifest-path`, `--target-dir`, `-D`, `-I`, `-P`, and others. Shell metacharacters in arguments are rejected.
 - **Path scope enforcement.** Every path input (`configPath`, `profile`, `historyPath`, `output`, `baseProfile`, `headProfile`) is validated to stay within the working directory. Absolute paths, parent escapes, and symlinks that resolve outside the scope are rejected.
 - **Rate limit on `pr-comment`.** Five calls per five minutes per pull request. Stops agent loops from burning GitHub abuse quota.
@@ -183,7 +184,7 @@ Every rejected MCP tool call returns a stable JSON shape. Agents can pattern-mat
 | `INPUT_REJECTED_PATH_SCOPE` | A path input resolves outside the working directory. | Use a path inside the project root. |
 | `INPUT_REJECTED_ARBITRARY_ARGS` | Agent mode received `testArgs`. | Use typed capabilities (`packages`, `tags`, `race`, `short`, `run`, `timeout`). |
 | `INPUT_REJECTED_POLICY_OVERRIDE` | Agent mode received a non-repository `configPath`. | Omit `configPath`; `.coverctl.yaml` is authoritative. |
-| `INPUT_REJECTED_PARTIAL_POLICY` | Agent mode received a `domains` filter. | Omit `domains`; check evaluates every domain in the repository policy. |
+| `INPUT_REJECTED_PARTIAL_POLICY` | Agent mode received a `domains` filter or `coverageScope`. | Omit `domains` and `coverageScope`; check measures and evaluates every domain in the repository policy. |
 | `INPUT_REJECTED_SKIP_VERIFICATION` | Agent mode received `fromProfile: true`. | Omit `fromProfile` so check runs tests. |
 | `INPUT_REJECTED_INCREMENTAL` | Agent mode received `incremental: true`. | Omit `incremental`; check tests the full repository. |
 | `OP_CONFIG_EXISTS` | `init` called when `.coverctl.yaml` already exists. | Pass `force: true` to overwrite. |

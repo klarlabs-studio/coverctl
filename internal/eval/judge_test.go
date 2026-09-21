@@ -133,6 +133,34 @@ func TestRunOne_AppliesJudge(t *testing.T) {
 	}
 }
 
+func TestRunOne_MultiStep(t *testing.T) {
+	ctx := context.Background()
+	stub := &seqDispatcher{
+		resps: []map[string]any{
+			{"passed": false, "summary": "FAIL | 70.0% overall"},
+			{"passed": true, "items": []any{}, "totalDebt": 10.0},
+			{"passed": true, "summary": "PASS | 95.0% overall"},
+		},
+	}
+	falseVal := false
+	trueVal := true
+	scenario := Scenario{
+		ID: "verify_loop",
+		Steps: []ScenarioStep{
+			{Tool: "check", Expect: Expect{Passed: &falseVal, SummaryContains: "FAIL"}},
+			{Tool: "debt", Expect: Expect{Passed: &trueVal, HasField: []string{"items"}}},
+			{Tool: "check", Expect: Expect{Passed: &trueVal, SummaryContains: "PASS"}},
+		},
+	}
+	r := runOne(ctx, stub, scenario, RuleJudge{}, nil, ErrSkipped, nil, ErrToolSelectSkipped)
+	if !r.Passed {
+		t.Fatalf("expected multi-step verify loop to pass, reasons: %v", r.Reasons)
+	}
+	if len(stub.tools) != 3 || stub.tools[0] != "check" || stub.tools[1] != "debt" || stub.tools[2] != "check" {
+		t.Errorf("dispatch order = %v, want [check debt check]", stub.tools)
+	}
+}
+
 type stubDispatcher struct {
 	response map[string]any
 	err      error
@@ -140,4 +168,18 @@ type stubDispatcher struct {
 
 func (s stubDispatcher) Dispatch(_ context.Context, _ string, _ map[string]any) (map[string]any, error) {
 	return s.response, s.err
+}
+
+type seqDispatcher struct {
+	tools []string
+	resps []map[string]any
+}
+
+func (s *seqDispatcher) Dispatch(_ context.Context, tool string, _ map[string]any) (map[string]any, error) {
+	i := len(s.tools)
+	s.tools = append(s.tools, tool)
+	if i >= len(s.resps) {
+		return nil, nil
+	}
+	return s.resps[i], nil
 }

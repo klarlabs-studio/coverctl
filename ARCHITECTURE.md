@@ -57,16 +57,18 @@ documents:
 
 - **MCP input boundary:** `internal/mcp/sanitize.go` plus
   `internal/mcp/capabilities.go`. Stable rejection schema in
-  `rejectionResponse` and `errorResponse`. 18 stable `RejectionCode`
-  constants (10 input + 8 operational) with operator-actionable
+  `rejectionResponse` and `errorResponse`. 21 stable `RejectionCode`
+  constants (13 input + 8 operational) with operator-actionable
   remediation copy in `remediationFor` and inline at error sites.
   Agent mode rejects arbitrary `testArgs` (`INPUT_REJECTED_ARBITRARY_ARGS`),
   alternate policy files (`INPUT_REJECTED_POLICY_OVERRIDE`), domain subset
-  filters (`INPUT_REJECTED_PARTIAL_POLICY`), `fromProfile`
+  filters and `coverageScope` (`INPUT_REJECTED_PARTIAL_POLICY` — shrinking
+  evaluation or measurement can hide untested domains), `fromProfile`
   (`INPUT_REJECTED_SKIP_VERIFICATION`), and `incremental`
   (`INPUT_REJECTED_INCREMENTAL`). Typed
   capabilities (`packages`, `tags`, `race`, `short`, `run`, `timeout`)
-  are the agent execution interface.
+  are the agent execution interface. `coverageScope` is CI/human only;
+  Go `coverpkg` stays derived from repository policy domains.
 - **MCP output boundary:** `internal/mcp/sanitize_output.go`. Identifiers
   (paths, domain names, filenames) are percent-encoded so distinct
   names stay distinct (`src/über.go` does not collapse into another

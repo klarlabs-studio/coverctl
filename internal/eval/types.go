@@ -59,6 +59,17 @@ type Scenario struct {
 	// is available (rule-only CI). Must match ExpectedTools for the
 	// scenario to pass without COVERCTL_EVAL_LLM_JUDGE.
 	SelectedTools []string `json:"selectedTools,omitempty"`
+	// Steps, when set, dispatch multiple tools in order (fail → debt →
+	// pass). Expect on the scenario itself is unused; each step has its
+	// own Expect. Judge still scores the last response.
+	Steps []ScenarioStep `json:"steps,omitempty"`
+}
+
+// ScenarioStep is one dispatch in a multi-tool verify loop.
+type ScenarioStep struct {
+	Tool   string         `json:"tool"`
+	Input  map[string]any `json:"input"`
+	Expect Expect         `json:"expect"`
 }
 
 // ScenarioJudge encodes a JSON-serializable JudgeCriteria plus the

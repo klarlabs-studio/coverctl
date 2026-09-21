@@ -128,6 +128,12 @@ func (r *DartRunner) buildDartArgs(opts application.RunOptions, profile string) 
 		args = append(args, "--name", opts.BuildFlags.Run)
 	}
 
+	if opts.BuildFlags.Short {
+		args = append(args, "--exclude-tags", "slow")
+	}
+	if tags := strings.Join(splitCSV(opts.BuildFlags.Tags), ","); tags != "" {
+		args = append(args, "--tags", tags)
+	}
 	if v, ok := timeoutDartValue(opts.BuildFlags.Timeout); ok {
 		args = append(args, "--timeout", v)
 	}
@@ -155,6 +161,12 @@ func (r *DartRunner) buildFlutterArgs(opts application.RunOptions) []string {
 		args = append(args, "--name", opts.BuildFlags.Run)
 	}
 
+	if opts.BuildFlags.Short {
+		args = append(args, "--exclude-tags", "slow")
+	}
+	if tags := strings.Join(splitCSV(opts.BuildFlags.Tags), ","); tags != "" {
+		args = append(args, "--tags", tags)
+	}
 	if v, ok := timeoutDartValue(opts.BuildFlags.Timeout); ok {
 		args = append(args, "--timeout", v)
 	}

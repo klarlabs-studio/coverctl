@@ -218,6 +218,42 @@ func TestHandleCheck_AgentModeRejectsIncremental(t *testing.T) {
 	}
 }
 
+func TestHandleCheck_AgentModeRejectsCoverageScope(t *testing.T) {
+	svc := &mockService{checkResult: passingCheckResult()}
+	server := New(svc, DefaultConfig(), "test")
+
+	out, err := server.handleCheck(context.Background(), CheckInput{
+		CoverageScope: []string{"./internal/api"},
+	})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if passed, _ := out["passed"].(bool); passed {
+		t.Fatal("expected passed=false when agent narrows coverage scope")
+	}
+	if got, _ := out["error_code"].(string); got != string(CodePartialPolicy) {
+		t.Errorf("error_code = %q, want %q", got, CodePartialPolicy)
+	}
+	if len(svc.checkOpts.CoverageScope) != 0 {
+		t.Error("rejected coverageScope must not reach the application service")
+	}
+}
+
+func TestHandleCheck_CIModeForwardsCoverageScope(t *testing.T) {
+	svc := &mockService{checkResult: passingCheckResult()}
+	server := New(svc, Config{Mode: ModeCI}, "test")
+
+	_, err := server.handleCheck(context.Background(), CheckInput{
+		CoverageScope: []string{"./internal/api"},
+	})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if len(svc.checkOpts.CoverageScope) != 1 || svc.checkOpts.CoverageScope[0] != "./internal/api" {
+		t.Errorf("CI mode should forward coverageScope, got %v", svc.checkOpts.CoverageScope)
+	}
+}
+
 func TestHandleCheck_CIModeAllowsDomainFilterAndFromProfile(t *testing.T) {
 	svc := &mockService{checkResult: passingCheckResult()}
 	server := New(svc, Config{Mode: ModeCI}, "test")
@@ -243,11 +279,12 @@ func TestHandleCheck_CIModeAllowsDomainFilterAndFromProfile(t *testing.T) {
 
 func TestEnforceAgentCapabilities_CIAllowsTestArgs(t *testing.T) {
 	err := enforceAgentCapabilities(ModeCI, agentInvocation{
-		TestArgs:    []string{"-count=1"},
-		ConfigPath:  "other.yaml",
-		Domains:     []string{"cmd"},
-		FromProfile: true,
-		Incremental: true,
+		TestArgs:      []string{"-count=1"},
+		ConfigPath:    "other.yaml",
+		Domains:       []string{"cmd"},
+		CoverageScope: []string{"./internal/api"},
+		FromProfile:   true,
+		Incremental:   true,
 	}, ".coverctl.yaml")
 	if err != nil {
 		t.Fatalf("CI mode should allow sanitized extras, got %v", err)

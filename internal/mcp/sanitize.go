@@ -38,7 +38,7 @@ var remediationFor = map[RejectionCode]string{
 	CodePathScope:          "Path must resolve inside the current working directory. Use relative paths or absolute paths under the project root; out-of-tree paths are denied from MCP input.",
 	CodeArbitraryArgs:      "Do not pass testArgs from agent mode. Express intent with typed capabilities: packages, tags, race, short, run, timeout. Arbitrary runner argv is reserved for trusted CLI/CI workflows.",
 	CodePolicyOverride:     "Omit configPath and use the repository .coverctl.yaml. Agent mode cannot point policy evaluation at a different file.",
-	CodePartialPolicy:      "Omit domains so check evaluates every domain in the repository policy. Agent mode cannot pass by filtering to a subset of domains.",
+	CodePartialPolicy:      "Omit domains and coverageScope so check measures and evaluates every domain in the repository policy. Agent mode cannot pass by shrinking the evaluation or measurement set.",
 	CodeSkipVerification:   "Omit fromProfile so check runs tests. Agent mode cannot satisfy verification from an existing or planted coverage profile.",
 	CodeIncremental:        "Omit incremental so check tests the full repository and evaluates every domain. Agent mode cannot auto-pass when a diff is empty.",
 	CodeInputRejectedOther: "Inspect the error field for details and adjust the input shape.",

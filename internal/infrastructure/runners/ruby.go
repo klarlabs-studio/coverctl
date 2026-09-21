@@ -117,6 +117,10 @@ func (r *RubyRunner) buildRspecArgs(opts application.RunOptions) []string {
 	if opts.BuildFlags.Run != "" {
 		args = append(args, "--pattern", opts.BuildFlags.Run)
 	}
+	if opts.BuildFlags.Short {
+		args = append(args, "--tag", "~slow")
+	}
+	args = appendRepeatedFlag(args, "--tag", splitCSV(opts.BuildFlags.Tags))
 
 	args = appendPositionalPackages(args, opts.Packages)
 	args = append(args, opts.BuildFlags.TestArgs...)

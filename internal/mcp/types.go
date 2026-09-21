@@ -105,13 +105,16 @@ type CheckInput struct {
 	// Typed capabilities forwarded to the detected language's test runner.
 	// Agent mode accepts these fields and rejects arbitrary testArgs.
 	Packages []string `json:"packages,omitempty" jsonschema:"description=Package or path patterns to test (typed capability). Example: ['./internal/...']. Runners map these to native arguments."`
-	Tags     string   `json:"tags,omitempty" jsonschema:"description=Build tags forwarded to the test runner (Go: -tags; other runners may ignore)"`
-	Race     bool     `json:"race,omitempty" jsonschema:"description=Enable race detector (Go-specific; ignored by other runners)"`
-	Short    bool     `json:"short,omitempty" jsonschema:"description=Skip long-running tests (Go: -short; other runners may have analogous flags)"`
-	Verbose  bool     `json:"verbose,omitempty" jsonschema:"description=Verbose test output"`
-	Run      string   `json:"run,omitempty" jsonschema:"description=Run only tests matching pattern (Go: -run regex; pytest: -k expression; mapped per runner)"`
-	Timeout  string   `json:"timeout,omitempty" jsonschema:"description=Test timeout in Go duration syntax (e.g. '10m', '1h', '500ms')"`
-	TestArgs []string `json:"testArgs,omitempty" jsonschema:"description=CI/human only. Additional arguments forwarded to the test runner after sanitization. Rejected in agent mode; use typed capabilities (packages, tags, race, short, run, timeout) instead."`
+	// CoverageScope is CI/human only. Narrowing measurement can hide untested
+	// policy domains; agent mode rejects it. Repository policy domains define scope.
+	CoverageScope []string `json:"coverageScope,omitempty" jsonschema:"description=CI/human only. Narrow coverage measurement (pytest --cov). Rejected in agent mode; repository policy domains define measurement scope."`
+	Tags          string   `json:"tags,omitempty" jsonschema:"description=Build tags forwarded to the test runner (Go: -tags; pytest -m; PHPUnit --group; mapped per runner)"`
+	Race          bool     `json:"race,omitempty" jsonschema:"description=Enable race detector (Go-specific; ignored by other runners)"`
+	Short         bool     `json:"short,omitempty" jsonschema:"description=Skip long-running tests (Go: -short; pytest/dart/phpunit/rspec/elixir/maven/gradle analogous excludes)"`
+	Verbose       bool     `json:"verbose,omitempty" jsonschema:"description=Verbose test output"`
+	Run           string   `json:"run,omitempty" jsonschema:"description=Run only tests matching pattern (Go: -run regex; pytest: -k expression; mapped per runner)"`
+	Timeout       string   `json:"timeout,omitempty" jsonschema:"description=Test timeout in Go duration syntax (e.g. '10m', '1h', '500ms')"`
+	TestArgs      []string `json:"testArgs,omitempty" jsonschema:"description=CI/human only. Additional arguments forwarded to the test runner after sanitization. Rejected in agent mode; use typed capabilities (packages, tags, race, short, run, timeout) instead."`
 	// Incremental mode
 	Incremental    bool   `json:"incremental,omitempty" jsonschema:"description=CI/human only. Only test packages with changed files. Rejected in agent mode; an empty diff auto-passes without evaluating repository policy."`
 	IncrementalRef string `json:"incrementalRef,omitempty" jsonschema:"description=Git ref to compare against for incremental mode (default: HEAD~1)"`

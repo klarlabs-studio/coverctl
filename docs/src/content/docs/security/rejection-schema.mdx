@@ -34,7 +34,7 @@ next-action signal — no natural-language parsing required.
 | `INPUT_REJECTED_PATH_SCOPE` | Path input resolves outside the working directory. | Use a path inside the project root. |
 | `INPUT_REJECTED_ARBITRARY_ARGS` | Agent mode received `testArgs`. | Use typed capabilities (`packages`, `tags`, `race`, `short`, `run`, `timeout`). |
 | `INPUT_REJECTED_POLICY_OVERRIDE` | Agent mode received a non-repository `configPath`. | Omit `configPath`; `.coverctl.yaml` is authoritative. |
-| `INPUT_REJECTED_PARTIAL_POLICY` | Agent mode received a `domains` filter. | Omit `domains`; check evaluates every domain in the repository policy. |
+| `INPUT_REJECTED_PARTIAL_POLICY` | Agent mode received a `domains` filter or `coverageScope`. | Omit `domains` and `coverageScope`; check measures and evaluates every domain in the repository policy. |
 | `INPUT_REJECTED_SKIP_VERIFICATION` | Agent mode received `fromProfile: true`. | Omit `fromProfile` so check runs tests. |
 | `INPUT_REJECTED_INCREMENTAL` | Agent mode received `incremental: true`. | Omit `incremental`; check tests the full repository. |
 | `OP_CONFIG_EXISTS` | `init` called when `.coverctl.yaml` already exists. | Pass `force: true` to overwrite. |

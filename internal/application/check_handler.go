@@ -89,10 +89,11 @@ func (h *CheckHandler) CheckResult(ctx context.Context, opts CheckOptions) (doma
 		}
 
 		profile, err := runner.Run(ctx, RunOptions{
-			Domains:     domains,
-			ProfilePath: opts.Profile,
-			BuildFlags:  opts.BuildFlags,
-			Packages:    packages,
+			Domains:       domains,
+			ProfilePath:   opts.Profile,
+			BuildFlags:    opts.BuildFlags,
+			Packages:      packages,
+			CoverageScope: opts.CoverageScope,
 		})
 		if err != nil {
 			return domain.Result{}, err

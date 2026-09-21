@@ -12,9 +12,21 @@ All notable changes to `coverctl` will be documented here. Relicta manages this 
   `testArgs` (`INPUT_REJECTED_ARBITRARY_ARGS`) and alternate policy files
   (`INPUT_REJECTED_POLICY_OVERRIDE`).
 - Agent mode rejects a `domains` filter (`INPUT_REJECTED_PARTIAL_POLICY`),
-  `fromProfile` (`INPUT_REJECTED_SKIP_VERIFICATION`), and `incremental`
-  (`INPUT_REJECTED_INCREMENTAL`) so check cannot hide failing policy
-  slices, skip the test run, or auto-pass on an empty diff.
+  `coverageScope` (same code — shrinking measurement can hide untested
+  domains), `fromProfile` (`INPUT_REJECTED_SKIP_VERIFICATION`), and
+  `incremental` (`INPUT_REJECTED_INCREMENTAL`) so check cannot hide
+  failing policy slices, skip the test run, or auto-pass on an empty
+  diff. CI/human mode still forwards `coverageScope` (pytest `--cov`,
+  coverage.py `--source`, c8/nyc `--include`, jest
+  `--collectCoverageFrom`). Go `coverpkg` stays policy-domain-derived.
+- Typed `short` and `tags` are mapped on remaining runners: pytest `-m`,
+  mix `--exclude/--include`, dart/flutter `--exclude-tags/--tags`,
+  PHPUnit `--exclude-group/--group`, rspec `--tag`, Maven
+  `-Dskip.slow.tests`/`-Dgroups`, Gradle `-Pskip.slow.tests`/`-Pgroups`.
+- Eval harness `Scenario.Steps` measures the fail → debt → pass verify
+  loop without a live LLM (`happy_verify_loop_fail_debt_pass`). Live
+  `HTTPLLMJudge` / tool-selection still run when
+  `COVERCTL_EVAL_LLM_JUDGE=1`.
 - Typed `packages` capability is forwarded by every language runner:
   positional paths (pytest, mix, dart, phpunit, rspec, minitest, bats,
   meson, make, jest, npm), flagged modules (cargo `-p`, maven `-pl`,

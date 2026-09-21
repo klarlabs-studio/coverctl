@@ -43,17 +43,20 @@ The agent expresses typed capabilities (`packages`, `tags`, `race`,
 argv. Non-empty `testArgs` is rejected with
 `INPUT_REJECTED_ARBITRARY_ARGS`. Alternate `configPath` values are
 rejected with `INPUT_REJECTED_POLICY_OVERRIDE` so an agent cannot point
-evaluation at a weaker policy file. A `domains` filter is rejected with
-`INPUT_REJECTED_PARTIAL_POLICY` so an agent cannot pass by evaluating
-only a subset of policy. `fromProfile` is rejected with
-`INPUT_REJECTED_SKIP_VERIFICATION` so an agent cannot skip the test run
-and satisfy check from a planted coverage profile. `incremental` is
-rejected with `INPUT_REJECTED_INCREMENTAL` because an empty diff
-auto-passes without evaluating repository policy.
+evaluation at a weaker policy file. A `domains` filter or
+`coverageScope` is rejected with `INPUT_REJECTED_PARTIAL_POLICY` so an
+agent cannot pass by evaluating or measuring only a subset of policy
+(narrowing `--cov` / `--include` can hide untested domains).
+`fromProfile` is rejected with `INPUT_REJECTED_SKIP_VERIFICATION` so an
+agent cannot skip the test run and satisfy check from a planted
+coverage profile. `incremental` is rejected with
+`INPUT_REJECTED_INCREMENTAL` because an empty diff auto-passes without
+evaluating repository policy.
 
-CI mode still accepts sanitized `testArgs` for trusted human/automation
-workflows. The denylist in `sanitize.go` remains defense in depth for
-that path.
+CI mode still accepts sanitized `testArgs` and `coverageScope` for
+trusted human/automation workflows. The denylist in `sanitize.go`
+remains defense in depth for that path. Go `coverpkg` stays derived
+from repository policy domains.
 
 ### 3) Build-flag sanitization
 

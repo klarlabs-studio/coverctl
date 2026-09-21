@@ -96,6 +96,10 @@ func (r *ElixirRunner) buildArgs(opts application.RunOptions) []string {
 		args = append(args, "--only", opts.BuildFlags.Run)
 	}
 
+	if opts.BuildFlags.Short {
+		args = append(args, "--exclude", "slow")
+	}
+	args = appendRepeatedFlag(args, "--include", splitCSV(opts.BuildFlags.Tags))
 	args = appendTimeoutMillis(args, "--timeout", opts.BuildFlags.Timeout)
 	args = appendPositionalPackages(args, opts.Packages)
 	args = append(args, opts.BuildFlags.TestArgs...)

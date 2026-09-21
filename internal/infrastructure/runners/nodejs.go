@@ -161,6 +161,7 @@ func (r *NodeRunner) buildJestArgs(opts application.RunOptions, profile string) 
 		args = append(args, "-t", opts.BuildFlags.Run)
 	}
 
+	args = appendEqualsFlag(args, "--collectCoverageFrom=", opts.CoverageScope)
 	args = appendPositionalPackages(args, opts.Packages)
 	args = appendTimeoutMillis(args, "--testTimeout", opts.BuildFlags.Timeout)
 	args = append(args, opts.BuildFlags.TestArgs...)
@@ -175,11 +176,12 @@ func (r *NodeRunner) buildC8Args(opts application.RunOptions, profile string) []
 		"--reporter=lcov",
 		"--reporter=text",
 		"--report-dir=" + coverageDir,
-		"npm", "test",
 	}
+	args = appendEqualsFlag(args, "--include=", opts.CoverageScope)
+	args = append(args, "npm", "test")
 
 	args = append(args, opts.BuildFlags.TestArgs...)
-	args = appendSeparatedPackages(args, opts.Packages)
+	args = appendNpmForwarded(args, opts.BuildFlags.Timeout, opts.Packages)
 
 	return args
 }
@@ -191,11 +193,12 @@ func (r *NodeRunner) buildNycArgs(opts application.RunOptions, profile string) [
 		"--reporter=lcov",
 		"--reporter=text",
 		"--report-dir=" + coverageDir,
-		"npm", "test",
 	}
+	args = appendEqualsFlag(args, "--include=", opts.CoverageScope)
+	args = append(args, "npm", "test")
 
 	args = append(args, opts.BuildFlags.TestArgs...)
-	args = appendSeparatedPackages(args, opts.Packages)
+	args = appendNpmForwarded(args, opts.BuildFlags.Timeout, opts.Packages)
 
 	return args
 }

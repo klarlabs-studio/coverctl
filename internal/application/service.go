@@ -43,6 +43,7 @@ type CheckOptions struct {
 	Incremental    bool         // Only test packages with changed files
 	IncrementalRef string       // Git ref to compare against (default: HEAD~1)
 	Packages       []string     // Typed capability: limit the test run to these package/path patterns
+	CoverageScope  []string     // CI/human only: narrow coverage measurement. Agent mode rejects this.
 	Language       Language     // Override language auto-detection (empty = auto)
 	FromProfile    bool         // Use existing coverage profile instead of running tests (policy still evaluates every domain)
 }
@@ -199,10 +200,11 @@ func (s *Service) CheckResult(ctx context.Context, opts CheckOptions) (domain.Re
 		}
 
 		profile, err := runner.Run(ctx, RunOptions{
-			Domains:     domains,
-			ProfilePath: opts.Profile,
-			BuildFlags:  opts.BuildFlags,
-			Packages:    packages,
+			Domains:       domains,
+			ProfilePath:   opts.Profile,
+			BuildFlags:    opts.BuildFlags,
+			Packages:      packages,
+			CoverageScope: opts.CoverageScope,
 		})
 		if err != nil {
 			return domain.Result{}, err

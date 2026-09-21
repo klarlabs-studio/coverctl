@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 
 	"go.klarlabs.de/coverctl/internal/application"
 	"go.klarlabs.de/coverctl/internal/infrastructure/cmdrun"
@@ -132,6 +133,13 @@ func (r *PythonRunner) buildPytestArgs(opts application.RunOptions, profile stri
 		"--cov=.",
 		"--cov-report=xml:" + profile,
 	}
+	if len(opts.CoverageScope) > 0 {
+		args = []string{"-m", "pytest"}
+		for _, scope := range opts.CoverageScope {
+			args = append(args, "--cov="+scope)
+		}
+		args = append(args, "--cov-report=xml:"+profile)
+	}
 
 	// Add verbose flag
 	if opts.BuildFlags.Verbose {
@@ -141,6 +149,10 @@ func (r *PythonRunner) buildPytestArgs(opts application.RunOptions, profile stri
 	// Add test pattern filter
 	if opts.BuildFlags.Run != "" {
 		args = append(args, "-k", opts.BuildFlags.Run)
+	}
+
+	if marker := pytestMarkerExpr(opts.BuildFlags.Short, opts.BuildFlags.Tags); marker != "" {
+		args = append(args, "-m", marker)
 	}
 
 	args = appendTimeoutSeconds(args, opts.BuildFlags.Timeout)
@@ -159,9 +171,13 @@ func (r *PythonRunner) buildPytestArgs(opts application.RunOptions, profile stri
 // buildCoverageArgs builds command line arguments for coverage.py.
 func (r *PythonRunner) buildCoverageArgs(opts application.RunOptions, _ string) []string {
 	// Using coverage.py with pytest
+	source := "."
+	if len(opts.CoverageScope) > 0 {
+		source = strings.Join(opts.CoverageScope, ",")
+	}
 	args := []string{
 		"-m", "coverage", "run",
-		"--source=.",
+		"--source=" + source,
 		"-m", "pytest",
 	}
 
@@ -173,6 +189,10 @@ func (r *PythonRunner) buildCoverageArgs(opts application.RunOptions, _ string) 
 	// Add test pattern filter
 	if opts.BuildFlags.Run != "" {
 		args = append(args, "-k", opts.BuildFlags.Run)
+	}
+
+	if marker := pytestMarkerExpr(opts.BuildFlags.Short, opts.BuildFlags.Tags); marker != "" {
+		args = append(args, "-m", marker)
 	}
 
 	args = appendTimeoutSeconds(args, opts.BuildFlags.Timeout)

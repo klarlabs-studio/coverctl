@@ -115,55 +115,43 @@ func runOne(ctx context.Context, d Dispatcher, s Scenario, rule Judge, llm Judge
 		}
 	}
 
-	resp, err := d.Dispatch(ctx, s.Tool, s.Input)
-	r.Response = resp
-	r.DispatchErr = err
+	var resp map[string]any
+	var err error
+	if len(s.Steps) > 0 {
+		for i, step := range s.Steps {
+			stepResp, stepErr := d.Dispatch(ctx, step.Tool, step.Input)
+			if stepErr != nil {
+				r.Reasons = append(r.Reasons, fmt.Sprintf("step %d (%s): dispatcher returned error: %v", i, step.Tool, stepErr))
+				r.DispatchErr = stepErr
+				r.Passed = false
+				return r
+			}
+			r.Reasons = append(r.Reasons, applyExpect(stepResp, step.Expect, fmt.Sprintf("step %d (%s)", i, step.Tool))...)
+			resp = stepResp
+		}
+		r.Response = resp
+	} else {
+		resp, err = d.Dispatch(ctx, s.Tool, s.Input)
+		r.Response = resp
+		r.DispatchErr = err
 
-	if err != nil {
-		r.Reasons = append(r.Reasons, fmt.Sprintf("dispatcher returned error: %v", err))
-		r.Passed = len(r.Reasons) == 0
-		return r
+		if err != nil {
+			r.Reasons = append(r.Reasons, fmt.Sprintf("dispatcher returned error: %v", err))
+			r.Passed = len(r.Reasons) == 0
+			return r
+		}
+		if resp == nil {
+			r.Reasons = append(r.Reasons, "response is nil")
+			r.Passed = false
+			return r
+		}
+		r.Reasons = append(r.Reasons, applyExpect(resp, s.Expect, "")...)
 	}
+
 	if resp == nil {
 		r.Reasons = append(r.Reasons, "response is nil")
 		r.Passed = false
 		return r
-	}
-
-	if s.Expect.Passed != nil {
-		got, _ := resp["passed"].(bool)
-		if got != *s.Expect.Passed {
-			r.Reasons = append(r.Reasons, fmt.Sprintf("passed: want %v, got %v", *s.Expect.Passed, got))
-		}
-	}
-	if s.Expect.ErrorCode != "" {
-		got, _ := resp["error_code"].(string)
-		if got != s.Expect.ErrorCode {
-			r.Reasons = append(r.Reasons, fmt.Sprintf("error_code: want %q, got %q", s.Expect.ErrorCode, got))
-		}
-	}
-	if s.Expect.ErrorContains != "" {
-		got, _ := resp["error"].(string)
-		if !strings.Contains(got, s.Expect.ErrorContains) {
-			r.Reasons = append(r.Reasons, fmt.Sprintf("error: want substring %q, got %q", s.Expect.ErrorContains, got))
-		}
-	}
-	if s.Expect.RemediationContains != "" {
-		got, _ := resp["remediation"].(string)
-		if !strings.Contains(got, s.Expect.RemediationContains) {
-			r.Reasons = append(r.Reasons, fmt.Sprintf("remediation: want substring %q, got %q", s.Expect.RemediationContains, got))
-		}
-	}
-	if s.Expect.SummaryContains != "" {
-		got, _ := resp["summary"].(string)
-		if !strings.Contains(got, s.Expect.SummaryContains) {
-			r.Reasons = append(r.Reasons, fmt.Sprintf("summary: want substring %q, got %q", s.Expect.SummaryContains, got))
-		}
-	}
-	for _, field := range s.Expect.HasField {
-		if _, ok := resp[field]; !ok {
-			r.Reasons = append(r.Reasons, fmt.Sprintf("missing field %q in response", field))
-		}
 	}
 
 	if s.Judge.AgentReply != "" {
@@ -186,4 +174,53 @@ func runOne(ctx context.Context, d Dispatcher, s Scenario, rule Judge, llm Judge
 
 	r.Passed = len(r.Reasons) == 0
 	return r
+}
+
+func applyExpect(resp map[string]any, exp Expect, prefix string) []string {
+	label := func(msg string) string {
+		if prefix == "" {
+			return msg
+		}
+		return prefix + ": " + msg
+	}
+	if resp == nil {
+		return []string{label("response is nil")}
+	}
+	var reasons []string
+	if exp.Passed != nil {
+		got, _ := resp["passed"].(bool)
+		if got != *exp.Passed {
+			reasons = append(reasons, label(fmt.Sprintf("passed: want %v, got %v", *exp.Passed, got)))
+		}
+	}
+	if exp.ErrorCode != "" {
+		got, _ := resp["error_code"].(string)
+		if got != exp.ErrorCode {
+			reasons = append(reasons, label(fmt.Sprintf("error_code: want %q, got %q", exp.ErrorCode, got)))
+		}
+	}
+	if exp.ErrorContains != "" {
+		got, _ := resp["error"].(string)
+		if !strings.Contains(got, exp.ErrorContains) {
+			reasons = append(reasons, label(fmt.Sprintf("error: want substring %q, got %q", exp.ErrorContains, got)))
+		}
+	}
+	if exp.RemediationContains != "" {
+		got, _ := resp["remediation"].(string)
+		if !strings.Contains(got, exp.RemediationContains) {
+			reasons = append(reasons, label(fmt.Sprintf("remediation: want substring %q, got %q", exp.RemediationContains, got)))
+		}
+	}
+	if exp.SummaryContains != "" {
+		got, _ := resp["summary"].(string)
+		if !strings.Contains(got, exp.SummaryContains) {
+			reasons = append(reasons, label(fmt.Sprintf("summary: want substring %q, got %q", exp.SummaryContains, got)))
+		}
+	}
+	for _, field := range exp.HasField {
+		if _, ok := resp[field]; !ok {
+			reasons = append(reasons, label(fmt.Sprintf("missing field %q in response", field)))
+		}
+	}
+	return reasons
 }

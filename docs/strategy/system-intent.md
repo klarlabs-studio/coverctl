@@ -230,9 +230,16 @@ The preferred interface is a set of typed capabilities such as:
 * timeout
 * race detection
 * short mode
-* coverage scope
+* coverage scope (CI/human only)
 
 Each runner translates those capabilities into tool-specific arguments.
+
+Coverage scope is policy-derived in agent mode. An agent must not
+narrow measurement (pytest `--cov`, coverage.py `--source`, c8/nyc
+`--include`, jest `--collectCoverageFrom`) because shrinking the
+instrumented set can hide untested policy domains. Repository policy
+domains define what is measured. Go `coverpkg` stays derived from
+those domains rather than from a caller-supplied path list.
 
 For example:
 
@@ -347,7 +354,8 @@ into:
 minimum coverage = 0%
 ```
 
-through tool arguments.
+through tool arguments, a `domains` filter, or a narrowed
+`coverageScope`.
 
 Configuration precedence and mutation rules must preserve this principle.
 

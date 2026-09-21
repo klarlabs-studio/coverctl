@@ -131,6 +131,9 @@ func (r *PHPRunner) buildArgs(ctx context.Context, opts application.RunOptions, 
 	if driver == "pcov" {
 		args = append(args, "-dpcov.enabled=1")
 	}
+	if sec, ok := timeoutSeconds(opts.BuildFlags.Timeout); ok {
+		args = append(args, "-dmax_execution_time="+sec)
+	}
 
 	// PHPUnit binary path
 	args = append(args, phpunitPath)
@@ -146,6 +149,12 @@ func (r *PHPRunner) buildArgs(ctx context.Context, opts application.RunOptions, 
 	// Add test filter pattern
 	if opts.BuildFlags.Run != "" {
 		args = append(args, "--filter", opts.BuildFlags.Run)
+	}
+	if opts.BuildFlags.Short {
+		args = append(args, "--exclude-group", "slow")
+	}
+	if tags := strings.Join(splitCSV(opts.BuildFlags.Tags), ","); tags != "" {
+		args = append(args, "--group", tags)
 	}
 
 	args = appendPositionalPackages(args, opts.Packages)

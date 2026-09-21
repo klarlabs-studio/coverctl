@@ -133,6 +133,9 @@ func (r *CSharpRunner) buildArgs(opts application.RunOptions, resultsDir string)
 		"--",
 		"DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=cobertura",
 	)
+	if ms, ok := timeoutMillis(opts.BuildFlags.Timeout); ok {
+		args = append(args, "RunConfiguration.TestSessionTimeout="+ms)
+	}
 
 	return args
 }

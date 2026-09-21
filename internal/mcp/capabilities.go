@@ -16,11 +16,12 @@ import "fmt"
 // agent mode must constrain. CI mode leaves these fields to the existing
 // sanitizers and human/automation workflows.
 type agentInvocation struct {
-	TestArgs    []string
-	ConfigPath  string
-	Domains     []string
-	FromProfile bool
-	Incremental bool
+	TestArgs      []string
+	ConfigPath    string
+	Domains       []string
+	CoverageScope []string
+	FromProfile   bool
+	Incremental   bool
 }
 
 // enforceAgentCapabilities rejects agent-mode inputs that would express
@@ -53,6 +54,14 @@ func enforceAgentCapabilities(mode Mode, inv agentInvocation, serverConfigPath s
 			Field:  "domains",
 			Value:  fmt.Sprintf("%q", inv.Domains),
 			Reason: "agent mode cannot restrict policy evaluation to a subset of domains; repository policy is authoritative",
+			Code:   CodePartialPolicy,
+		}
+	}
+	if len(inv.CoverageScope) > 0 {
+		return &SanitizationError{
+			Field:  "coverageScope",
+			Value:  fmt.Sprintf("%q", inv.CoverageScope),
+			Reason: "agent mode cannot narrow coverage measurement; repository policy domains define scope",
 			Code:   CodePartialPolicy,
 		}
 	}

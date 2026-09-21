@@ -203,12 +203,17 @@ func (s *Server) handleCheck(ctx context.Context, input CheckInput) (map[string]
 		s.telemetry.RecordToolCall("check", time.Since(start), err, true)
 		return rejectionResponse(err), nil
 	}
+	if err := SanitizePackages(input.CoverageScope); err != nil {
+		s.telemetry.RecordToolCall("check", time.Since(start), err, true)
+		return rejectionResponse(err), nil
+	}
 	if err := enforceAgentCapabilities(s.config.Mode, agentInvocation{
-		TestArgs:    input.TestArgs,
-		ConfigPath:  input.ConfigPath,
-		Domains:     input.Domains,
-		FromProfile: input.FromProfile,
-		Incremental: input.Incremental,
+		TestArgs:      input.TestArgs,
+		ConfigPath:    input.ConfigPath,
+		Domains:       input.Domains,
+		CoverageScope: input.CoverageScope,
+		FromProfile:   input.FromProfile,
+		Incremental:   input.Incremental,
 	}, s.config.ConfigPath); err != nil {
 		s.telemetry.RecordToolCall("check", time.Since(start), err, true)
 		return rejectionResponse(err), nil
@@ -225,6 +230,7 @@ func (s *Server) handleCheck(ctx context.Context, input CheckInput) (map[string]
 		Incremental:    input.Incremental,
 		IncrementalRef: input.IncrementalRef,
 		Packages:       input.Packages,
+		CoverageScope:  input.CoverageScope,
 		BuildFlags: application.BuildFlags{
 			Tags:     input.Tags,
 			Race:     input.Race,
