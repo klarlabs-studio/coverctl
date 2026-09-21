@@ -166,6 +166,7 @@ type InitInput struct {
 type ToolOutput struct {
 	Passed            bool                  `json:"passed"`
 	Summary           string                `json:"summary,omitempty"`
+	FailureKind       string                `json:"failureKind,omitempty"`
 	Domains           []domain.DomainResult `json:"domains,omitempty"`
 	Files             []domain.FileResult   `json:"files,omitempty"`
 	Warnings          []string              `json:"warnings,omitempty"`
@@ -306,5 +307,12 @@ func generateSummary(result domain.Result) string {
 	if result.Passed {
 		return fmt.Sprintf("PASS | %.1f%% overall | %d/%d domains passing", overallPercent, passing, total)
 	}
-	return fmt.Sprintf("FAIL | %.1f%% overall | %d/%d domains passing", overallPercent, passing, total)
+	switch result.OverallFailureKind() {
+	case domain.FailureKindNewRegression:
+		return fmt.Sprintf("FAIL | new regression | %.1f%% overall | %d/%d domains passing", overallPercent, passing, total)
+	case domain.FailureKindExistingDebt:
+		return fmt.Sprintf("FAIL | existing debt | %.1f%% overall | %d/%d domains passing", overallPercent, passing, total)
+	default:
+		return fmt.Sprintf("FAIL | %.1f%% overall | %d/%d domains passing", overallPercent, passing, total)
+	}
 }

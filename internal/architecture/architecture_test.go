@@ -10,6 +10,7 @@ package architecture_test
 
 import (
 	"encoding/json"
+	"go/ast"
 	"go/parser"
 	"go/token"
 	"io/fs"
@@ -404,5 +405,74 @@ func TestNoDuplicatePRCommentDispatch(t *testing.T) {
 		t.Errorf("internal/application/service.go references s.PRClients[...] directly, " +
 			"which is the marker of the duplicate PR-comment dispatch path. " +
 			"Service.PRComment must delegate to PRCommentHandler.PRComment.")
+	}
+}
+
+// TestAgentInvocationConstrainsPolicyWeakeningFields is a fitness function
+// for system-intent Policy Authority: every field that can hide failing
+// domains, skip verification, or shrink measurement must appear on
+// agentInvocation so enforceAgentCapabilities can reject it.
+func TestAgentInvocationConstrainsPolicyWeakeningFields(t *testing.T) {
+	root := repoRoot(t)
+	path := filepath.Join(root, "internal", "mcp", "capabilities.go")
+	fset := token.NewFileSet()
+	f, err := parser.ParseFile(fset, path, nil, 0)
+	if err != nil {
+		t.Fatalf("parse capabilities.go: %v", err)
+	}
+	required := []string{"TestArgs", "ConfigPath", "Domains", "CoverageScope", "FromProfile", "Incremental"}
+	var fields []string
+	for _, decl := range f.Decls {
+		gd, ok := decl.(*ast.GenDecl)
+		if !ok {
+			continue
+		}
+		for _, spec := range gd.Specs {
+			ts, ok := spec.(*ast.TypeSpec)
+			if !ok || ts.Name.Name != "agentInvocation" {
+				continue
+			}
+			st, ok := ts.Type.(*ast.StructType)
+			if !ok {
+				t.Fatal("agentInvocation is not a struct")
+			}
+			for _, field := range st.Fields.List {
+				for _, n := range field.Names {
+					fields = append(fields, n.Name)
+				}
+			}
+		}
+	}
+	if len(fields) == 0 {
+		t.Fatal("agentInvocation struct not found in capabilities.go")
+	}
+	have := map[string]bool{}
+	for _, f := range fields {
+		have[f] = true
+	}
+	for _, want := range required {
+		if !have[want] {
+			t.Errorf("agentInvocation missing %s; agent mode cannot enforce that policy-weakening input", want)
+		}
+	}
+}
+
+// TestAgentModeAdvertisesOnlyLoopTools keeps the agent surface at check,
+// suggest, and debt. Expanding it without an explicit product decision
+// regresses tool-selection reliability.
+func TestAgentModeAdvertisesOnlyLoopTools(t *testing.T) {
+	root := repoRoot(t)
+	data, err := os.ReadFile(filepath.Join(root, "internal", "mcp", "server.go"))
+	if err != nil {
+		t.Fatalf("read server.go: %v", err)
+	}
+	src := string(data)
+	if !strings.Contains(src, `s.server.Tool("check")`) ||
+		!strings.Contains(src, `s.server.Tool("suggest")`) ||
+		!strings.Contains(src, `s.server.Tool("debt")`) {
+		t.Error("agent-loop tools check/suggest/debt must stay registered")
+	}
+	if !strings.Contains(src, "if agent {\n\t\treturn") {
+		t.Error("registerTools must return after the agent-loop tools so CI-only tools stay hidden")
 	}
 }

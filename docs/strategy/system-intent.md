@@ -467,6 +467,8 @@ Important questions include:
 * Did it correctly understand the failure?
 * Did `suggest` lead it toward useful tests?
 * Did it distinguish existing debt from new regression?
+  (`check` exposes `failureKind`: `new_regression` | `existing_debt` |
+  `policy_fail` — deterministic, not LLM-judged)
 * Did it successfully verify its remediation?
 * Could repository-controlled content manipulate the agent through
   coverctl output?

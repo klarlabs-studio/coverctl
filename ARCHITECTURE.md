@@ -68,7 +68,12 @@ documents:
   (`INPUT_REJECTED_INCREMENTAL`). Typed
   capabilities (`packages`, `tags`, `race`, `short`, `run`, `timeout`)
   are the agent execution interface. `coverageScope` is CI/human only;
-  Go `coverpkg` stays derived from repository policy domains.
+  empty scope is derived from policy domain Match patterns so non-Go
+  measurement follows policy the way Go `coverpkg` does.
+- **Failure classification:** `check` sets `failureKind`
+  (`new_regression` | `existing_debt` | `policy_fail` | `pass`) from
+  history deltas so agents can distinguish a coverage drop from prior
+  debt without an LLM.
 - **MCP output boundary:** `internal/mcp/sanitize_output.go`. Identifiers
   (paths, domain names, filenames) are percent-encoded so distinct
   names stay distinct (`src/über.go` does not collapse into another

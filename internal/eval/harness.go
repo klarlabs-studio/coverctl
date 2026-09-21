@@ -217,6 +217,12 @@ func applyExpect(resp map[string]any, exp Expect, prefix string) []string {
 			reasons = append(reasons, label(fmt.Sprintf("summary: want substring %q, got %q", exp.SummaryContains, got)))
 		}
 	}
+	if exp.FailureKind != "" {
+		got, _ := resp["failureKind"].(string)
+		if got != exp.FailureKind {
+			reasons = append(reasons, label(fmt.Sprintf("failureKind: want %q, got %q", exp.FailureKind, got)))
+		}
+	}
 	for _, field := range exp.HasField {
 		if _, ok := resp[field]; !ok {
 			reasons = append(reasons, label(fmt.Sprintf("missing field %q in response", field)))

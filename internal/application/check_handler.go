@@ -93,7 +93,7 @@ func (h *CheckHandler) CheckResult(ctx context.Context, opts CheckOptions) (doma
 			ProfilePath:   opts.Profile,
 			BuildFlags:    opts.BuildFlags,
 			Packages:      packages,
-			CoverageScope: opts.CoverageScope,
+			CoverageScope: coverageScopeFromDomains(domains, opts.CoverageScope),
 		})
 		if err != nil {
 			return domain.Result{}, err

@@ -1,0 +1,18 @@
+{
+  "id": "happy_check_existing_debt",
+  "description": "check labels a failing domain that did not drop versus history as existing_debt.",
+  "category": "happy_path",
+  "tool": "check",
+  "input": {
+    "tags": "evaldebt"
+  },
+  "expect": {
+    "passed": false,
+    "failureKind": "existing_debt",
+    "summaryContains": "existing debt",
+    "hasField": [
+      "failureKind",
+      "domains"
+    ]
+  }
+}

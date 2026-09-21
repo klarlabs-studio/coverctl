@@ -27,6 +27,14 @@ All notable changes to `coverctl` will be documented here. Relicta manages this 
   loop without a live LLM (`happy_verify_loop_fail_debt_pass`). Live
   `HTTPLLMJudge` / tool-selection still run when
   `COVERCTL_EVAL_LLM_JUDGE=1`.
+- `check` classifies failures as `new_regression`, `existing_debt`, or
+  `policy_fail` (per domain and top-level `failureKind`) so agents can
+  distinguish a coverage drop from prior debt without an LLM. MCP check
+  loads history whenever a history path is configured, not only when
+  ratchet is on.
+- Empty `coverageScope` is derived from repository policy domain Match
+  patterns (pytest `--cov`, c8 `--include`) so non-Go measurement
+  follows policy the way Go `coverpkg` already does.
 - Typed `packages` capability is forwarded by every language runner:
   positional paths (pytest, mix, dart, phpunit, rspec, minitest, bats,
   meson, make, jest, npm), flagged modules (cargo `-p`, maven `-pl`,

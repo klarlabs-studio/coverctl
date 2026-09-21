@@ -8,10 +8,12 @@
   },
   "expect": {
     "passed": false,
+    "failureKind": "policy_fail",
     "summaryContains": "FAIL",
     "hasField": [
       "passed",
       "summary",
+      "failureKind",
       "domains",
       "files"
     ]

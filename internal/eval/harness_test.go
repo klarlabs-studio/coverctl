@@ -42,6 +42,34 @@ func (stubService) CheckResult(_ context.Context, opts application.CheckOptions)
 				Status:   domain.StatusFail,
 			}},
 		}, nil
+	case "evalregress":
+		neg := -5.0
+		return domain.Result{
+			Passed: false,
+			Domains: []domain.DomainResult{{
+				Domain:   "api",
+				Covered:  70,
+				Total:    100,
+				Percent:  70.0,
+				Required: 80.0,
+				Status:   domain.StatusFail,
+				Delta:    &neg,
+			}},
+		}, nil
+	case "evaldebt":
+		zero := 0.0
+		return domain.Result{
+			Passed: false,
+			Domains: []domain.DomainResult{{
+				Domain:   "api",
+				Covered:  70,
+				Total:    100,
+				Percent:  70.0,
+				Required: 80.0,
+				Status:   domain.StatusFail,
+				Delta:    &zero,
+			}},
+		}, nil
 	case "evalcovered":
 		return domain.Result{
 			Passed: true,

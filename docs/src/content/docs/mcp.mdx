@@ -100,7 +100,7 @@ tool.
 
 | Tool | Mode | Purpose |
 | --- | --- | --- |
-| `check` | agent + ci | Run tests with coverage and enforce policy. Returns per-domain pass/fail, files, warnings. |
+| `check` | agent + ci | Run tests with coverage and enforce policy. Returns per-domain pass/fail, `failureKind` (`new_regression` / `existing_debt` / `policy_fail` / `pass`), files, warnings. |
 | `suggest` | agent + ci | Recommend thresholds (`current` / `aggressive` / `conservative`). |
 | `debt` | agent + ci | Coverage gap per domain — where to spend effort, ranked. |
 | `init` | ci | Auto-detect project structure and create `.coverctl.yaml` with domain policies. |

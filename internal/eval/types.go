@@ -112,6 +112,9 @@ type Expect struct {
 	RemediationContains string `json:"remediationContains,omitempty"`
 	// SummaryContains asserts `summary` contains the given substring.
 	SummaryContains string `json:"summaryContains,omitempty"`
+	// FailureKind asserts top-level `failureKind` exactly
+	// (pass, policy_fail, existing_debt, new_regression).
+	FailureKind string `json:"failureKind,omitempty"`
 	// HasField asserts the named top-level field exists in the response.
 	HasField []string `json:"hasField,omitempty"`
 }
