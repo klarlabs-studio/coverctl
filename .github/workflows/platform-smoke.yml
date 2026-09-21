@@ -1,0 +1,51 @@
+# CLI + process + path smoke on macOS and Windows.
+#
+# Linux already runs the full suite (race tests, lint, nox) via ci.yml.
+# coverctl orchestrates OS-specific processes and filesystem behavior, so
+# representative smoke on the other two platforms is part of correctness.
+# This is intentionally not the full integration matrix — see
+# docs/strategy/system-intent.md ("Cross-Platform Intent").
+name: Platform smoke
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+    paths-ignore: ["**.md", "docs/**", "LICENSE"]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    name: Smoke (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Set up Go
+        uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6
+        with:
+          go-version: "1.25.x"
+          cache: true
+      # Subcommand --help exits 2 (flag-parse help path). Use `help <cmd>`
+      # and `version`, which return 0 on every platform.
+      - name: CLI smoke
+        shell: bash
+        run: |
+          set -euo pipefail
+          go run ./cmd/coverctl version
+          go run ./cmd/coverctl help check
+          go run ./cmd/coverctl help mcp
+      - name: Process and path tests
+        shell: bash
+        run: go test -count=1 ./internal/pathutil/... ./internal/infrastructure/cmdrun/... ./internal/infrastructure/diff/... ./internal/infrastructure/history/... ./internal/mcp/

@@ -1,8 +1,11 @@
 package mcp
 
 import (
+	"fmt"
 	"regexp"
 	"strings"
+	"unicode"
+	"unicode/utf8"
 
 	"go.klarlabs.de/coverctl/internal/application"
 	"go.klarlabs.de/coverctl/internal/domain"
@@ -27,21 +30,13 @@ import (
 //
 // # Approach
 //
-// Two helpers do most of the work. canonicalizePath constrains paths to a
-// restricted character set so a hostile filename cannot smuggle newlines,
-// backticks, or markdown. sanitizeOutputString does the same on free-form
-// strings (warning messages, summaries) where path canonicalization is too
-// strict. Both helpers truncate over-long strings — the goal is bounded,
-// agent-safe output, not lossless preservation of attacker-controlled data.
-
-// pathSafePattern is the allow-list character set for canonicalized paths.
-//
-// Why these characters: standard repo file paths use letters, digits, `.`
-// (extensions), `_` and `-` (separator alternatives), `/` (directory
-// separator). Anything else is replaced. Specifically excluded: backtick,
-// dollar, semicolon, newline, carriage return — all of which feature in
-// prompt-injection markdown payloads.
-var pathSafePattern = regexp.MustCompile(`[^A-Za-z0-9._/\-]`)
+// Identifiers (paths, domain names, filenames) are percent-encoded, not
+// destructively replaced, so distinct repository names stay distinct
+// (`src/über.go` does not collide with `src/uber.go`). Unsafe bytes become
+// `%XX`; letters and numbers — including non-ASCII — are preserved.
+// Free-form strings (warnings, summaries) still strip control characters
+// and rewrite backticks. Both helpers truncate over-long strings so output
+// stays bounded.
 
 // controlCharPattern matches NUL, newlines, carriage returns, and other
 // non-printing bytes that have no place in a JSON string echoed to an
@@ -57,22 +52,71 @@ const (
 	maxStringLen = 1024
 )
 
-// canonicalizePath constrains a file path to the path-safe character set,
-// replaces characters outside the allow-list with `?`, and truncates the
-// result to maxPathLen.
+// canonicalizePath percent-encodes bytes that are not path-identity runes
+// (ASCII A-Za-z0-9._/- plus Unicode letters, marks, and numbers). Control
+// characters, BIDI overrides, backticks, and markdown metacharacters become
+// `%XX` so they cannot render as instructions, while distinct identifiers
+// remain distinct and reversible.
 //
-// Empty input returns empty output. The function is idempotent and safe
-// to apply twice. It never returns an error — defensive escape is more
-// useful than failing the whole response.
+// Empty input returns empty output. The function never returns an error —
+// defensive escape is more useful than failing the whole response.
 func canonicalizePath(p string) string {
 	if p == "" {
 		return ""
 	}
-	cleaned := pathSafePattern.ReplaceAllString(p, "?")
+	var b strings.Builder
+	b.Grow(len(p))
+	for _, r := range p {
+		if isPathIdentityRune(r) {
+			b.WriteRune(r)
+			continue
+		}
+		var buf [utf8.UTFMax]byte
+		n := utf8.EncodeRune(buf[:], r)
+		for _, by := range buf[:n] {
+			fmt.Fprintf(&b, "%%%02X", by)
+		}
+	}
+	cleaned := b.String()
 	if len(cleaned) > maxPathLen {
-		cleaned = cleaned[:maxPathLen] + "...(truncated)"
+		cleaned = truncateEncoded(cleaned, maxPathLen) + "...(truncated)"
 	}
 	return cleaned
+}
+
+// isPathIdentityRune reports whether r is part of a filename's semantic
+// identity and is safe to echo unescaped. ASCII is restricted to the
+// historical path-safe set. Non-ASCII letters/marks/numbers are kept so
+// `über.go` stays distinguishable from `uber.go`. Format/control runes
+// (including BIDI overrides) are excluded and therefore encoded.
+func isPathIdentityRune(r rune) bool {
+	if r <= 0x7f {
+		switch {
+		case r >= 'A' && r <= 'Z', r >= 'a' && r <= 'z', r >= '0' && r <= '9':
+			return true
+		case r == '.' || r == '_' || r == '/' || r == '-':
+			return true
+		default:
+			return false
+		}
+	}
+	if unicode.Is(unicode.C, r) || unicode.Is(unicode.Z, r) {
+		return false
+	}
+	return unicode.IsLetter(r) || unicode.IsNumber(r) || unicode.IsMark(r)
+}
+
+// truncateEncoded cuts s to at most max bytes without splitting a `%XX`
+// escape sequence.
+func truncateEncoded(s string, max int) string {
+	if len(s) <= max {
+		return s
+	}
+	cut := s[:max]
+	if i := strings.LastIndexByte(cut, '%'); i >= 0 && i > max-3 {
+		cut = cut[:i]
+	}
+	return cut
 }
 
 // sanitizeOutputString strips control characters, normalizes prompt-injection

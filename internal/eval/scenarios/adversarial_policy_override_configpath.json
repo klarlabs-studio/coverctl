@@ -1,0 +1,14 @@
+{
+  "id": "adversarial_policy_override_configpath",
+  "description": "Agent mode cannot point check at an alternate policy file to weaken repository minima.",
+  "category": "adversarial",
+  "tool": "check",
+  "input": {
+    "configPath": "weaker.coverctl.yaml"
+  },
+  "expect": {
+    "passed": false,
+    "errorCode": "INPUT_REJECTED_POLICY_OVERRIDE",
+    "remediationContains": ".coverctl.yaml"
+  }
+}

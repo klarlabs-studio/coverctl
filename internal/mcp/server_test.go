@@ -393,13 +393,12 @@ func TestHandleCheck_BuildFlags(t *testing.T) {
 	server := New(svc, DefaultConfig(), "test")
 
 	input := CheckInput{
-		Tags:     "integration,e2e",
-		Race:     true,
-		Short:    true,
-		Verbose:  true,
-		Run:      "TestSpecific",
-		Timeout:  "30m",
-		TestArgs: []string{"-count=1", "-parallel=4"},
+		Tags:    "integration,e2e",
+		Race:    true,
+		Short:   true,
+		Verbose: true,
+		Run:     "TestSpecific",
+		Timeout: "30m",
 	}
 
 	_, err := server.handleCheck(context.Background(), input)
@@ -427,8 +426,8 @@ func TestHandleCheck_BuildFlags(t *testing.T) {
 	if flags.Timeout != "30m" {
 		t.Errorf("expected Timeout='30m', got %q", flags.Timeout)
 	}
-	if len(flags.TestArgs) != 2 || flags.TestArgs[0] != "-count=1" || flags.TestArgs[1] != "-parallel=4" {
-		t.Errorf("expected TestArgs=['-count=1', '-parallel=4'], got %v", flags.TestArgs)
+	if len(flags.TestArgs) != 0 {
+		t.Errorf("agent mode must not populate TestArgs, got %v", flags.TestArgs)
 	}
 }
 

@@ -1,5 +1,10 @@
 # Repository Guidelines
 
+**Intent.** Read `docs/strategy/system-intent.md` before adding features.
+New work should make the autonomous coverage-governance loop (check →
+explain → suggest/debt → edit tests → check again) safer, faster, more
+deterministic, or more useful. Feature count is not a goal.
+
 ## Project Structure & Module Organization
 - `cmd/coverctl/` hosts the CLI entry point and wires infrastructure to application services.
 - `internal/domain/`, `internal/application/`, `internal/infrastructure/` follow DDD: domain models contain rules, application orchestrates use cases, infrastructure provides adapters (config, Go tooling, reporting, coverprofile parsing).

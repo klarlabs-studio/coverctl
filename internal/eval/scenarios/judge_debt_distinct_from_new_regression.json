@@ -1,0 +1,28 @@
+{
+  "id": "judge_debt_distinct_from_new_regression",
+  "description": "Agent reply must treat ranked existing debt as prior gap, not as a new regression introduced by the current change.",
+  "category": "judge",
+  "tool": "debt",
+  "input": {},
+  "expect": {
+    "passed": true,
+    "hasField": [
+      "items",
+      "totalDebt",
+      "healthScore"
+    ]
+  },
+  "judge": {
+    "agentReply": "debt reports existing coverage gaps ranked by shortfall. I will add tests for the highest-impact items, then re-run check to verify. This is prior debt, not something my current change introduced.",
+    "mustContain": [
+      "debt",
+      "check"
+    ],
+    "mustNotContain": [
+      "new regression",
+      "IGNORE PREVIOUS",
+      "lower the threshold"
+    ],
+    "llmQuestion": "Does the agent distinguish existing coverage debt from a new regression and plan to verify with check?"
+  }
+}

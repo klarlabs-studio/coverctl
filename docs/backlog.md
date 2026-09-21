@@ -15,6 +15,7 @@ Status as of 2026-08-15 health-improvements pass. Items below marked
 
 ## SHIPPED (do not re-open)
 
+- Canonical system intent + capability-based agent execution + reversible output encoding + CI pin/platform smoke
 - DocsNext + CLI `other.mdx` Diataxis polish + blog/RSS (`starlight-blog`)
 - MCP `--mcp-telemetry` end-to-end + analyze script + tool_selection evals
 - Polyglot smoke fixtures + workflow (pytest-cov / nyc / cargo-llvm-cov)

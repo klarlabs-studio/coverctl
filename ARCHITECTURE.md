@@ -3,6 +3,10 @@
 Internal layout. Read this if you are contributing or auditing.
 End users do not need it.
 
+**Intent.** `docs/strategy/system-intent.md` is the canonical product and
+architecture contract. If another document contradicts it, the system
+intent wins.
+
 ## Layers
 
 Strict DDD with dependencies pointing inward:
@@ -24,14 +28,17 @@ Strict DDD with dependencies pointing inward:
   `remediation`.
 - `internal/eval` — agent-loop eval harness: scenario corpus,
   RuleJudge, optional HTTPLLMJudge, embed.FS-backed scenarios.
-- `internal/architecture` — ceiling tests preventing handler-file
-  growth past their documented limits.
+- `internal/architecture` — fitness tests for dependency direction and
+  forbidden coupling. File-size ceilings are a maintenance signal, not
+  an architectural boundary.
 
 ## Wedge artifacts
 
 The wedge is **agent-loop coverage governance**. Source-of-truth
 documents:
 
+- `docs/strategy/system-intent.md` — product, architecture, security,
+  and evaluation intent.
 - `docs/strategy/category-pov.md` — category narrative.
 - `docs/strategy/monetization-decision.md` — open-core path,
   stage gates.
@@ -48,14 +55,21 @@ documents:
 
 ## Boundaries
 
-- **MCP input boundary:** `internal/mcp/sanitize.go`. Stable rejection
-  schema in `rejectionResponse` and `errorResponse`. 16 stable
-  `RejectionCode` constants (8 input + 8 operational) with
-  operator-actionable remediation copy in `remediationFor` and
-  inline at error sites.
-- **MCP output boundary:** `internal/mcp/sanitize_output.go`. File
-  paths canonicalized to `[A-Za-z0-9._/-]`; free-form strings have
-  control characters stripped, backticks rewritten, length capped.
+- **MCP input boundary:** `internal/mcp/sanitize.go` plus
+  `internal/mcp/capabilities.go`. Stable rejection schema in
+  `rejectionResponse` and `errorResponse`. 18 stable `RejectionCode`
+  constants (10 input + 8 operational) with operator-actionable
+  remediation copy in `remediationFor` and inline at error sites.
+  Agent mode rejects arbitrary `testArgs` (`INPUT_REJECTED_ARBITRARY_ARGS`)
+  and alternate policy files (`INPUT_REJECTED_POLICY_OVERRIDE`). Typed
+  capabilities (`packages`, `tags`, `race`, `short`, `run`, `timeout`)
+  are the agent execution interface.
+- **MCP output boundary:** `internal/mcp/sanitize_output.go`. Identifiers
+  (paths, domain names, filenames) are percent-encoded so distinct
+  names stay distinct (`src/über.go` does not collapse into another
+  file). Control characters, backticks, and markdown metacharacters
+  become `%XX`. Free-form strings have control characters stripped,
+  backticks rewritten, length capped.
 - **Module-root resolution:** `internal/infrastructure/gotool/module.go`
   emits typed `ModuleRootError` with cwd and searched paths;
   `internal/mcp/runtime_errors.go` recognizes the error and emits
@@ -69,7 +83,10 @@ documents:
 
 - agent (default): advertises 3 tools — `check`, `suggest`, `debt`.
   Pruned for reliable agent tool selection inside the edit loop.
-- ci: advertises full 9-tool surface for non-agent callers.
+  Arbitrary runner argv is rejected; repository `.coverctl.yaml` is
+  authoritative.
+- ci: advertises full 9-tool surface for non-agent callers. Sanitized
+  `testArgs` remain available for trusted automation.
 - auto: env-var heuristic (`GITHUB_ACTIONS`, `GITLAB_CI`, `BUILDKITE`,
   `CIRCLECI`, `JENKINS_URL`, `TF_BUILD`, `CI`).
 

@@ -53,6 +53,9 @@ func ValidatePath(path string) (string, error) {
 //   - Path starts with `~` → ErrPathEscapesBase (no shell expansion happens;
 //     literal `~` rarely intended and a common attempt at home-dir pivot)
 //   - Absolute path outside root → ErrPathEscapesBase
+//   - Slash-prefixed path (`/…` or `\…`) treated as rooted even when
+//     filepath.IsAbs is false (Windows drive-relative), so it is not joined
+//     into the project tree
 //   - Cleaned path resolves outside root (via `..` or symlink) → ErrPathEscapesBase
 //
 // An absolute path INSIDE root is accepted. Being absolute is not itself an
@@ -83,7 +86,7 @@ func ValidateScopedPath(path, root string) (string, error) {
 	}
 
 	cleaned := filepath.Clean(path)
-	if !filepath.IsAbs(cleaned) {
+	if !isRooted(path) && !isRooted(cleaned) {
 		cleaned = filepath.Clean(filepath.Join(absRoot, path))
 	}
 
@@ -121,6 +124,25 @@ func resolveExistingPrefix(p string) string {
 		remainder = filepath.Join(filepath.Base(current), remainder)
 		current = parent
 	}
+}
+
+// isRooted reports whether p is already a filesystem-rooted path that must
+// not be joined onto another root. filepath.IsAbs is insufficient on
+// Windows: `/etc/passwd` and `\Windows\System32` are not IsAbs (no volume),
+// so Join would place them *inside* the project tree and incorrectly accept
+// them as in-scope.
+func isRooted(p string) bool {
+	if filepath.IsAbs(p) {
+		return true
+	}
+	if p == "" {
+		return false
+	}
+	switch p[0] {
+	case '/', '\\':
+		return true
+	}
+	return false
 }
 
 // pathHasPrefix reports whether path is equal to root or lies strictly within
