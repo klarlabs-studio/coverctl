@@ -128,7 +128,7 @@ func (r *CSharpRunner) buildArgs(opts application.RunOptions, resultsDir string)
 		args = append(args, "--filter", opts.BuildFlags.Run)
 	}
 
-	// Add additional args
+	args = appendPositionalPackages(args, opts.Packages)
 	args = append(args, opts.BuildFlags.TestArgs...)
 
 	// Append data collector configuration for Cobertura format

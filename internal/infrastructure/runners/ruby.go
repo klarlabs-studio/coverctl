@@ -121,12 +121,7 @@ func (r *RubyRunner) buildRspecArgs(opts application.RunOptions) []string {
 		args = append(args, "--pattern", opts.BuildFlags.Run)
 	}
 
-	// Add specific packages/directories to test
-	if len(opts.Packages) > 0 {
-		args = append(args, opts.Packages...)
-	}
-
-	// Add additional test args
+	args = appendPositionalPackages(args, opts.Packages)
 	args = append(args, opts.BuildFlags.TestArgs...)
 
 	return args
@@ -146,7 +141,7 @@ func (r *RubyRunner) buildMinitestArgs(opts application.RunOptions) []string {
 		args = append(args, "--pattern", opts.BuildFlags.Run)
 	}
 
-	// Add additional test args
+	args = appendPositionalPackages(args, opts.Packages)
 	args = append(args, opts.BuildFlags.TestArgs...)
 
 	return args

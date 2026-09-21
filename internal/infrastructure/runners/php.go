@@ -151,7 +151,7 @@ func (r *PHPRunner) buildArgs(ctx context.Context, opts application.RunOptions, 
 		args = append(args, "--filter", opts.BuildFlags.Run)
 	}
 
-	// Add additional test args
+	args = appendPositionalPackages(args, opts.Packages)
 	args = append(args, opts.BuildFlags.TestArgs...)
 
 	return args

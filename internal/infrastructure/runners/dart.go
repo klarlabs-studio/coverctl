@@ -131,7 +131,7 @@ func (r *DartRunner) buildDartArgs(opts application.RunOptions, profile string) 
 		args = append(args, "--name", opts.BuildFlags.Run)
 	}
 
-	// Add additional args
+	args = appendPositionalPackages(args, opts.Packages)
 	args = append(args, opts.BuildFlags.TestArgs...)
 
 	return args
@@ -154,7 +154,7 @@ func (r *DartRunner) buildFlutterArgs(opts application.RunOptions) []string {
 		args = append(args, "--name", opts.BuildFlags.Run)
 	}
 
-	// Add additional args
+	args = appendPositionalPackages(args, opts.Packages)
 	args = append(args, opts.BuildFlags.TestArgs...)
 
 	return args
