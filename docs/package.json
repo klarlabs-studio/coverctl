@@ -13,7 +13,8 @@
     "@astrojs/starlight": "^0.41.7",
     "astro": "^7.2.8",
     "sharp": "^0.35.4",
-    "starlight-blog": "^0.27.0"
+    "starlight-blog": "^0.27.0",
+    "undici": "^8.10.2"
   },
   "overrides": {
     "postcss": ">=8.5.18",
