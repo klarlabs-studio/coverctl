@@ -1,8 +1,6 @@
 module go.klarlabs.de/coverctl
 
-go 1.25.0
-
-toolchain go1.25.14
+go 1.26.0
 
 require (
 	github.com/charmbracelet/bubbletea v1.3.10
@@ -11,7 +9,7 @@ require (
 	github.com/mattn/go-isatty v0.0.24
 	github.com/stretchr/testify v1.11.1
 	go.klarlabs.de/mcp v1.27.0
-	golang.org/x/sys v0.47.0
+	golang.org/x/sys v0.48.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 
@@ -45,8 +43,8 @@ require (
 	go.opentelemetry.io/otel/sdk v1.45.0 // indirect
 	go.opentelemetry.io/otel/sdk/metric v1.45.0 // indirect
 	go.opentelemetry.io/otel/trace v1.45.0 // indirect
-	golang.org/x/net v0.58.0 // indirect
-	golang.org/x/text v0.41.0 // indirect
+	golang.org/x/net v0.60.0 // indirect
+	golang.org/x/text v0.42.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20260810153831-ec0a7760b754 // indirect
 	google.golang.org/grpc v1.83.2 // indirect
 	google.golang.org/protobuf v1.36.12 // indirect
