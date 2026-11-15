@@ -6,7 +6,7 @@ Works with **Python, TypeScript/JavaScript, Java, Rust, Go, C#, C/C++, PHP, Ruby
 
 [Get started ↓](#get-started) · [Languages ↓](#supported-languages) · [What it looks like ↓](#what-it-looks-like-in-the-agent-loop) · [MCP tools ↓](#mcp-tools) · [CLI reference ↓](#cli-reference) · [Why this exists ↓](#why-this-exists) · [Community ↓](#community)
 
-![MCP](https://img.shields.io/badge/MCP-server-blueviolet) ![15 languages](https://img.shields.io/badge/languages-15-teal) ![Releases](https://img.shields.io/github/v/release/klarlabs-studio/coverctl?label=release)
+![MCP](https://img.shields.io/badge/MCP-server-blueviolet) ![15 languages](https://img.shields.io/badge/languages-15-teal) ![Releases](https://img.shields.io/github/v/release/klarlabs-studio/coverctl?label=release) [![nox security grade](.github/nox-badge.svg)](.github/workflows/ci.yml)
 
 > *"Our AI agents ship code fast, but they're blind to coverage policy while editing. We only see breakage in CI, after context is gone, and the same agent then guesses its way to a fix."*
 
