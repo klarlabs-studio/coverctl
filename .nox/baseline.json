@@ -82,7 +82,7 @@
       "file_path": "internal/cli/cmd_completion.go",
       "severity": "medium",
       "reason": "False positive: same AI-006 completion-script match as the cli.go baseline; fingerprint moved when completion helpers were extracted to cmd_completion.go.",
-      "created_at": "2026-08-15T16:15:00.000000Z"
+      "created_at": "2026-08-15T16:15:00Z"
     },
     {
       "fingerprint": "b0a8cd85117b8cd70199c7ab8e8f20a02cfa3e8610856ff3a29d9a171408fbb6",
@@ -98,6 +98,22 @@
       "file_path": "docs/src/content.config.ts",
       "severity": "low",
       "created_at": "2026-07-06T11:03:17.050997Z"
+    },
+    {
+      "fingerprint": "367009265360918ac1f61367d36ded56771d333c9639c2660c5f264e32d21f51",
+      "rule_id": "",
+      "file_path": "",
+      "severity": "",
+      "reason": "False positive: test-fixture imports are node:test (Node built-in) and the fixture's own local module src.calc, not undeclared packages",
+      "created_at": "2026-11-15T11:19:25.228669Z"
+    },
+    {
+      "fingerprint": "7b787e9fb84c2d8829ca670661086b1e0e7b41fad9384883e71da1fd9ab1d114",
+      "rule_id": "",
+      "file_path": "",
+      "severity": "",
+      "reason": "False positive: test-fixture imports are node:test (Node built-in) and the fixture's own local module src.calc, not undeclared packages",
+      "created_at": "2026-11-15T11:19:25.22867Z"
     }
   ]
 }
